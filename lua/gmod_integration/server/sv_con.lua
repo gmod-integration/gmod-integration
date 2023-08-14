@@ -40,12 +40,10 @@ concommand.Add("gm_integration", function(ply, cmd, args)
     RunConsoleCommand("gmod-integration", unpack(args))
 end)
 
-
 concommand.Add("gmod_integration", function(ply, cmd, args)
     // run the old command
     RunConsoleCommand("gmod-integration", unpack(args))
 end)
-
 
 concommand.Add("gm-integration", function(ply, cmd, args)
     // run the old command
