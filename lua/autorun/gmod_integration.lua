@@ -1,25 +1,6 @@
-// If is singleplayer, don't load
+// 
+
 if game.SinglePlayer() then return end
-
-//
-// Prevent the user from using a static version of the addon
-//
-
-if SERVER then
-    if !file.Exists("steam_cache/content/4000/2882747990", "BASE_PATH") then
-        timer.Simple(5, function()
-            print([[
-                // -- // -- // -- // -- // -- // -- // -- // -- // -- //
-                // Please don't use a static version of Gmod Integration.
-                // -- // -- // -- // -- // -- // -- // -- // -- // -- //
-                // Please use the workshop version : https://gmod-integration.com/workshop
-                // If you don't use the workshop version, you will not receive any update and you will not be able to use new features or bug fixes.
-                // If you need help, please contact us : https://gmod-integration.com/discord
-                // -- // -- // -- // -- // -- // -- // -- // -- // -- //
-            ]])
-        end)
-    end
-end
 
 //
 // Variables
