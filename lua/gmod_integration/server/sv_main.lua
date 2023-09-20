@@ -66,6 +66,25 @@ function gmInte.playerConnect(data)
     gmInte.simplePost("userConnect", data)
 end
 
+local function triggerChat(text)
+    for (k, v) in pairs(gmInte.config.chatTrigger) do
+        if (string.StartWith(text, v)) then return true end
+    end
+    return false
+end
+
+function gmInte.playerSay(ply, text, team)
+    if (!gmInte.config.syncChat) then return end
+    if (!triggerChat(text) && !gmInte.config.chatTriggerAll) then return end
+
+    gmInte.simplePost("userSay",
+        {
+            steam = ply:SteamID64(),
+            text = text
+        }
+    )
+end
+
 function gmInte.userFinishConnect(ply)
     if (!gmInte.plyValid(ply)) then return end
     gmInte.simplePost("userFinishConnect",
