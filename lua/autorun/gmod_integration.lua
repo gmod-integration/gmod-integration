@@ -1,5 +1,3 @@
-// 
-
 if game.SinglePlayer() then return end
 
 //
@@ -11,52 +9,79 @@ gmInte.version = "0.1.0"
 gmInte.config = gmInte.config || {}
 
 //
-// Files
+// Init Data Folder and Load Config
 //
 
-// Load config
-if SERVER then
-    // Include all Server files
-    include("gmod_integration/sv_config.lua")
-    // check if config exists, if not, create it
-    if (!file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA")) then
-        // create directory
-        file.CreateDir("gm_integration")
-        file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
-    end
-    // if custom config exists, use it, else use default config
-    if (!gmInte.config.id || gmInte.config.id == "") then
-        gmInte.config = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
-    end
-end
-
-//
-// Load all files
-//
-
-// Include all Shared files
-include("gmod_integration/shared/sh_http.lua")
-include("gmod_integration/shared/sh_main.lua")
-include("gmod_integration/shared/sh_languages.lua")
-
-if SERVER then
-    // Disable hibernate think
+if (SERVER) then
 	RunConsoleCommand("sv_hibernate_think", "1")
 
-    // Include all Server files
-    include("gmod_integration/server/sv_main.lua")
-    include("gmod_integration/server/sv_net.lua")
-    include("gmod_integration/server/sv_hook.lua")
-    include("gmod_integration/server/sv_con.lua")
+    if (file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA"))) then
+        file.CreateDir("gm_integration")
+        file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
+    else
+        if (gmInte.config.id && gmInte.config.id != "") then return end
 
-    // Send all Shared files to the Client
-    AddCSLuaFile("gmod_integration/shared/sh_http.lua")
-    AddCSLuaFile("gmod_integration/shared/sh_main.lua")
-    AddCSLuaFile("gmod_integration/shared/sh_languages.lua")
-
-    // Send all Client files to the Client
-    AddCSLuaFile("gmod_integration/client/cl_main.lua")
-elseif CLIENT then
-    // Include all Client files
-    include("gmod_integration/client/cl_main.lua")
+        local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
+        if (oldConfig.version < gmInte.version) then
+            gmInte.config = table.Merge(gmInte.config, oldConfig)
+            gmInte.config.version = gmInte.version
+            file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
+        else
+            gmInte.config = oldConfig
+        end
+    end
 end
+
+//
+// Functions
+//
+
+local function loadAllFiles(folder)
+    local files, folders = file.Find(folder .. "/*", "LUA")
+    for k, v in SortedPairs(files) do
+        local path = folder .. "/" .. v
+        print("| Loading File: " .. path)
+        if string.StartWith(v, "cl_") then
+            if SERVER then
+                AddCSLuaFile(path)
+            else
+                include(path)
+            end
+        elseif string.StartWith(v, "sv_") then
+            if SERVER then
+                include(path)
+            end
+        elseif string.StartWith(v, "sh_") then
+            if SERVER then
+                AddCSLuaFile(path)
+            end
+            include(path)
+        end
+    end
+    for k, v in SortedPairs(folders, true) do
+        loadAllFiles(folder .. "/" .. v, name)
+    end
+end
+
+//
+// Load Files
+//
+
+print(" ")
+print(" ")
+print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+print(" -                                                                   - ")
+print(" -                      Gmod Integration v" .. gmInte.version .. "                      - ")
+print(" -                        Create by Linventif                        - ")
+print(" -                                                                   - ")
+print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+print(" -                                                                   - ")
+print(" -                Thanks for using Gmod Integration !                - ")
+print(" -     If you have any questions, please contact us on Discord!      - ")
+print(" -               https://gmod-integration.com/discord                - ")
+print(" -                                                                   - ")
+print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+print(" ")
+loadAllFiles("gmod_integration")
+print(" ")
+print(" ")
