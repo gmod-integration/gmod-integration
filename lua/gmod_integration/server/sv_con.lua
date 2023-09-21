@@ -6,9 +6,6 @@ local conFuncs = {
     ["version"] = function()
         gmInte.log("Version: " .. gmInte.version)
     end,
-    ["export"] = function()
-        gmInte.serverExport()
-    end,
     ["setting"] = function(args)
         gmInte.saveSetting(args[2], args[3])
     end,

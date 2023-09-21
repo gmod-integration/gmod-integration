@@ -24,31 +24,6 @@ function gmInte.plyValid(ply)
     return ply:IsValid() && ply:IsPlayer() && !ply:IsBot()
 end
 
-function gmInte.serverExport()
-    gmInte.log("Generating Token", true)
-    gmInte.post(
-        // Endpoint
-        "",
-        // Parameters
-        { request = "generate" },
-        // Data
-        {
-            name = GetHostName(),
-            ip = game.GetIPAddress(),
-            port = GetConVar("hostport"):GetInt(),
-        },
-        // onSuccess
-        function( body, length, headers, code )
-            if gmInte.isCodeValid(code) then
-                gmInte.log("Token Generated Successfully")
-                gmInte.log("Use it with the command: /server import " .. body)
-            else
-                gmInte.httpError(body)
-            end
-        end
-    )
-end
-
 function gmInte.saveSetting(setting, value)
     // save this in data/gmod_integration/setting.json but first check if variable is valid
     if !gmInte.config[setting] then
