@@ -5,7 +5,7 @@ if game.SinglePlayer() then return end
 //
 
 gmInte = gmInte || {}
-gmInte.version = "0.1.0"
+gmInte.version = "0.1.1"
 gmInte.config = gmInte.config || {}
 
 //
