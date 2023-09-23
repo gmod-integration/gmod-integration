@@ -32,6 +32,8 @@ local function sendHTTP(params)
         body = params.body && params.body or "",
         type = "application/json",
         success = function(code, body, headers)
+            gmInte.log("HTTP Response: " .. code, true)
+            gmInte.log("HTTP Body: " .. body, true)
             if (gmInte.isCodeValid(code)) then
                 if (params.success) then
                     params.success(code, body, headers)
