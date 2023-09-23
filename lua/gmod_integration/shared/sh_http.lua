@@ -42,10 +42,10 @@ local function sendHTTP(params)
     })
 end
 
-function gmInte.fetch(endpoint, parameters, onSuccess)
+function gmInte.fetch(endpoint, onSuccess)
     gmInte.log("Fetching " .. endpoint, true)
     sendHTTP({
-        endpoint = endpoint .. "?" .. util.TableToJSON(parameters) .. gmInte.defParams,
+        endpoint = endpoint,
         method = "GET",
         success = onSuccess
     })
