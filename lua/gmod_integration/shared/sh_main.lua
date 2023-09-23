@@ -6,7 +6,6 @@ function gmInte.log(msg, debug)
 end
 
 // Chat Command
-
 local trigger = {
     "link",
     "gmint",
@@ -18,7 +17,7 @@ hook.Add("OnPlayerChat", "gm_inte:con-chat", function(ply, strText, bTeam, bDead
 
 	strText = string.sub(string.lower(strText ), 2)
     if (table.HasValue(trigger, strText)) then
-        gui.OpenURL("https://gmod-integration.com")
+        gui.OpenURL("https://vetif.gmod-integration.com")
 		return true
 	end
 end)
