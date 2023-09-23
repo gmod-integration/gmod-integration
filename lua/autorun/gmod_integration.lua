@@ -9,30 +9,6 @@ gmInte.version = "0.1.1"
 gmInte.config = gmInte.config || {}
 
 //
-// Init Data Folder and Load Config
-//
-
-if (SERVER) then
-	RunConsoleCommand("sv_hibernate_think", "1")
-
-    if (!file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA")) then
-        file.CreateDir("gm_integration")
-        file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
-    else
-        if (gmInte.config.id && gmInte.config.id != "") then return end
-
-        local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
-        if (!oldConfig.version || (oldConfig.version < gmInte.version)) then
-            gmInte.config = table.Merge(gmInte.config, oldConfig)
-            gmInte.config.version = gmInte.version
-            file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
-        else
-            gmInte.config = oldConfig
-        end
-    end
-end
-
-//
 // Functions
 //
 
@@ -84,3 +60,29 @@ print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
 print(" ")
 loadAllFiles("gmod_integration")
 print(" ")
+
+//
+// Init Data Folder and Load Config
+//
+
+if (SERVER) then
+	RunConsoleCommand("sv_hibernate_think", "1")
+
+    if (!file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA")) then
+        file.CreateDir("gm_integration")
+        file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
+    else
+        if (gmInte.config.id && gmInte.config.id != "") then return end
+
+        local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
+        if (!oldConfig.version || (oldConfig.version < gmInte.version)) then
+            PrintTable(gmInte.config)
+            table.Merge(gmInte.config, oldConfig)
+            PrintTable(gmInte.config)
+            gmInte.config.version = gmInte.version
+            file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
+        else
+            gmInte.config = oldConfig
+        end
+    end
+end
