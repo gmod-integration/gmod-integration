@@ -21,6 +21,7 @@ gameevent.Listen("player_connect")
 
 hook.Add("player_connect", "gmInte:Player:Connect", function(data)
     gmInte.playerConnect(data)
+    return gmInte.playerFilter(data)
 end)
 
 hook.Add("PlayerDisconnected", "gmInte:Player:Disconnect", function(ply)
