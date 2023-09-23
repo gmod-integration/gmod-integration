@@ -76,9 +76,7 @@ if (SERVER) then
 
         local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
         if (!oldConfig.version || (oldConfig.version < gmInte.version)) then
-            PrintTable(gmInte.config)
             table.Merge(gmInte.config, oldConfig)
-            PrintTable(gmInte.config)
             gmInte.config.version = gmInte.version
             file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
         else
