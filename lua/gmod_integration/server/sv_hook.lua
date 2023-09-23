@@ -18,10 +18,14 @@ end)
 //
 
 gameevent.Listen("player_connect")
-
 hook.Add("player_connect", "gmInte:Player:Connect", function(data)
     gmInte.playerConnect(data)
     gmInte.playerFilter(data)
+end)
+
+gameevent.Listen("server_addban")
+hook.Add("server_addban", "gmInte:Player:Ban", function(data)
+    gmInte.playerBan(data)
 end)
 
 hook.Add("PlayerDisconnected", "gmInte:Player:Disconnect", function(ply)

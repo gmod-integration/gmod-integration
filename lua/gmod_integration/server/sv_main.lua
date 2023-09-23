@@ -70,6 +70,11 @@ function gmInte.playerSay(ply, text, team)
     )
 end
 
+function gmInte.playerBan(data)
+    data.steam = util.SteamIDTo64(data.networkid)
+    gmInte.post("/server/user/ban", data)
+end
+
 function gmInte.userFinishConnect(ply)
     if (!gmInte.plyValid(ply)) then return end
 
