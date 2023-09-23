@@ -5,7 +5,7 @@ if game.SinglePlayer() then return end
 //
 
 gmInte = gmInte || {}
-gmInte.version = "0.1.1"
+gmInte.version = "0.1.2"
 gmInte.config = gmInte.config || {}
 
 //
@@ -16,7 +16,7 @@ local function loadAllFiles(folder)
     local files, folders = file.Find(folder .. "/*", "LUA")
     for k, v in SortedPairs(files) do
         local path = folder .. "/" .. v
-        print("| Loading File: " .. path)
+        print(" | Loading File | " .. path)
         if string.StartWith(v, "cl_") then
             if SERVER then
                 AddCSLuaFile(path)
@@ -48,7 +48,6 @@ print(" ")
 print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
 print(" -                                                                   - ")
 print(" -                      Gmod Integration v" .. gmInte.version .. "                      - ")
-print(" -                        Create by Linventif                        - ")
 print(" -                                                                   - ")
 print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
 print(" -                                                                   - ")
