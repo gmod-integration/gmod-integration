@@ -9,7 +9,7 @@ local conFuncs = {
     ["setting"] = function(args)
         gmInte.saveSetting(args[2], args[3])
     end,
-    ["try-config"] = function()
+    ["try"] = function()
         gmInte.tryConfig()
     end,
     ["refresh"] = function()
