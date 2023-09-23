@@ -17,17 +17,19 @@ end
 //
 
 local function sendHTTP(params)
+    gmInte.log("HTTP Request: " .. params.method .. " " .. params.endpoint, true)
+    gmInte.log("HTTP Body: " .. (params.body or "No body"), true)
     HTTP({
         url = "https://api.gmod-integration.com" .. params.endpoint,
         method = params.method,
         headers = {
             ["Content-Type"] = "application/json",
-            ["Content-Length"] = tostring(#params.body),
+            ["Content-Length"] = params.body and string.len(params.body) or 0,
             ["id"] = gmInte.config.id,
             ["token"] = gmInte.config.token,
             ["version"] = gmInte.version
         },
-        body = params.body,
+        body = params.body && params.body or "",
         type = "application/json",
         success = function(code, body, headers)
             if (gmInte.isCodeValid(code)) then
@@ -42,8 +44,7 @@ local function sendHTTP(params)
     })
 end
 
-function gmInte.fetch(endpoint, onSuccess)
-    gmInte.log("Fetching " .. endpoint, true)
+function gmInte.get(endpoint, onSuccess)
     sendHTTP({
         endpoint = endpoint,
         method = "GET",
@@ -52,11 +53,27 @@ function gmInte.fetch(endpoint, onSuccess)
 end
 
 function gmInte.post(endpoint, data, onSuccess)
-    gmInte.log("Posting " .. endpoint, true)
     sendHTTP({
         endpoint = endpoint,
         method = "POST",
         body = util.TableToJSON(data),
+        success = onSuccess
+    })
+end
+
+function gmInte.put(endpoint, data, onSuccess)
+    sendHTTP({
+        endpoint = endpoint,
+        method = "PUT",
+        body = util.TableToJSON(data),
+        success = onSuccess
+    })
+end
+
+function gmInte.delete(endpoint, onSuccess)
+    sendHTTP({
+        endpoint = endpoint,
+        method = "DELETE",
         success = onSuccess
     })
 end
