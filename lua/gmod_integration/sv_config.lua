@@ -35,6 +35,7 @@ gmInte.config.chatTrigger = {
 
 // Other
 gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
+gmInte.config.supportLink = "" // The link of your support (shown when a player do not have the requiments to join the server)
 
 //
 // Syncronization
