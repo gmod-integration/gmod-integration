@@ -57,8 +57,8 @@ function gmInte.playerSay(ply, text, team)
 
     gmInte.post("/server/user/say",
         {
-            ["steam"] = ply:SteamID64(),
-            ["text"] = text
+            ["steamID64"] = ply:SteamID64(),
+            ["message"] = text
         }
     )
 end
