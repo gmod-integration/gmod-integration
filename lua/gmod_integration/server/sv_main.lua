@@ -71,7 +71,7 @@ function gmInte.playerSay(ply, text, team)
 end
 
 function gmInte.userFinishConnect(ply)
-    if (!gmInte.plyValid(ply) || ply:IsBot()) then return end
+    if (!gmInte.plyValid(ply)) then return end
 
     gmInte.post("/server/user/finishConnect",
         {
@@ -110,7 +110,7 @@ timer.Create("gmInte.sendStatus", 300, 0, function()
 end)
 
 function gmInte.playerChangeName(ply, old, new)
-    if (!gmInte.plyValid(ply) || ply:IsBot()) then return end
+    if (!gmInte.plyValid(ply)) then return end
 
     gmInte.post("/server/user/changeName",
         {
@@ -122,7 +122,7 @@ function gmInte.playerChangeName(ply, old, new)
 end
 
 function gmInte.playerDisconnected(ply)
-    if (!gmInte.plyValid(ply) || ply:IsBot()) then return end
+    if (!gmInte.plyValid(ply)) then return end
 
     gmInte.post("/server/user/disconnect",
         {
