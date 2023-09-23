@@ -136,9 +136,9 @@ function gmInte.playerDisconnected(ply)
 end
 
 function gmInte.tryConfig()
-    gmInte.post("/server/guild", {},
-    function( body, length, headers, code)
-        gmInte.log("GG you are authorized, the link discord guild is: " .. body)
+    gmInte.get("/server/guild",
+    function(code, body)
+        gmInte.log("Congratulations, you are connected to your discord guild (guild id: " .. body .. ")")
     end)
 end
 
@@ -152,4 +152,59 @@ function gmInte.refreshSettings()
     gmInte.config = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
     gmInte.log("Settings Refreshed")
     gmInte.tryConfig()
+end
+
+local function filterMessage(reason)
+    local Message = {
+        [1] = "\n",
+        [2] = "This server has player filtering enabled",
+        [3] = "You are not allowed to join this server",
+        [4] = "",
+        [5] = "Reason: " .. reason,
+        [6] = "",
+        [7] = "For more information, please contact the server owner",
+        [8] = "Help URL: " .. (gmInte.config.supportLink && gmInte.config.supportLink || "No Support Link"),
+        [9] = "",
+        [10] = "You can also contact us on our discord server",
+        [11] = "https://gmod-integration.com/discord",
+        [12] = "",
+        [13] = "Have a nice day",
+        [14] = "",
+        [15] = "Service provided by Gmod Integration",
+    }
+    for k, v in pairs(Message) do
+        Message[k] = v .. "\n"
+    end
+    return table.concat(Message)
+end
+
+function gmInte.playerFilter(data)
+    if (data.bot == 1) then return end
+
+    data.steamID64 = util.SteamIDTo64(data.networkid)
+
+    // get data
+    gmInte.get("/server/user" .. "?steamID64=" .. data.steamID64,
+        function(code, body)
+            local receiveData = util.JSONToTable(body)
+
+            // Gmod Integration Trust
+            if (gmInte.config.filterOnTrust && (receiveData.trust < gmInte.config.minimalTrust)) then
+                // kick player
+                game.KickID(data.networkid, filterMessage("Insufficient Trust Level\nYour Trust Level: " .. receiveData.trust .. "\nMinimal Trust Level: " .. gmInte.config.minimalTrust))
+            end
+
+            // Gmod Integration Ban
+            if (gmInte.config.filterOnBan && receiveData.ban) then
+                // kick player
+                game.KickID(data.networkid, filterMessage("You are banned from Gmod Integration"))
+            end
+
+            // Server Discord Ban
+            if (gmInte.config.syncBan && receiveData.discord_ban) then
+                // kick player
+                game.KickID(data.networkid, filterMessage("You are banned from the discord server\nReason: " .. (receiveData.discord_ban_reason && receiveData.discord_ban_reason || "No Reason")))
+            end
+        end
+    )
 end
