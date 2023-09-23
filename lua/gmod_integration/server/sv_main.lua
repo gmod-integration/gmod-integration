@@ -26,10 +26,16 @@ end
 
 function gmInte.saveSetting(setting, value)
     // save this in data/gmod_integration/setting.json but first check if variable is valid
-    if !gmInte.config[setting] then
+    if gmInte.config[setting] == nil then
         gmInte.log("Unknown Setting")
         return
     end
+
+    // Boolean
+    if (value == "true") then value = true end
+    if (value == "false") then value = false end
+    // Number
+    if (tonumber(value) != nil) then value = tonumber(value) end
 
     gmInte.config[setting] = value
     file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
@@ -38,6 +44,7 @@ end
 
 function gmInte.playerConnect(data)
     if (data.bot == 1) then return end
+
     data.steam = util.SteamIDTo64(data.networkid)
 
     gmInte.post("/server/user/connect", data)
@@ -64,7 +71,7 @@ function gmInte.playerSay(ply, text, team)
 end
 
 function gmInte.userFinishConnect(ply)
-    if (!gmInte.plyValid(ply)) then return end
+    if (!gmInte.plyValid(ply) || ply:IsBot()) then return end
 
     gmInte.post("/server/user/finishConnect",
         {
@@ -74,9 +81,14 @@ function gmInte.userFinishConnect(ply)
     )
 end
 
-function gmInte.sendStatus()
+function gmInte.serverShutDown()
+    gmInte.post("/server/shutdown")
+end
+
+function gmInte.sendStatus(start)
     gmInte.post("/server/status",
         {
+            ["start"] = start || false,
             ["hostname"] = GetHostName(),
             ["ip"] = game.GetIPAddress(),
             ["port"] = GetConVar("hostport"):GetInt(),
@@ -88,13 +100,17 @@ function gmInte.sendStatus()
     )
 end
 
+function gmInte.serverStart()
+    gmInte.sendStatus(true)
+end
+
 // every 5 minutes
 timer.Create("gmInte.sendStatus", 300, 0, function()
     gmInte.sendStatus()
 end)
 
 function gmInte.playerChangeName(ply, old, new)
-    if (!gmInte.plyValid(ply)) then return end
+    if (!gmInte.plyValid(ply) || ply:IsBot()) then return end
 
     gmInte.post("/server/user/changeName",
         {
@@ -106,7 +122,7 @@ function gmInte.playerChangeName(ply, old, new)
 end
 
 function gmInte.playerDisconnected(ply)
-    if (!gmInte.plyValid(ply)) then return end
+    if (!gmInte.plyValid(ply) || ply:IsBot()) then return end
 
     gmInte.post("/server/user/disconnect",
         {
