@@ -30,6 +30,7 @@ function gmInte.saveSetting(setting, value)
         gmInte.log("Unknown Setting")
         return
     end
+
     gmInte.config[setting] = value
     file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
     gmInte.log("Setting Saved")
@@ -38,13 +39,15 @@ end
 function gmInte.playerConnect(data)
     if (data.bot == 1) then return end
     data.steam = util.SteamIDTo64(data.networkid)
-    gmInte.simplePost("userConnect", data)
+
+    gmInte.post("/server/user/connect", data)
 end
 
 local function triggerChat(text)
-    for (k, v) in pairs(gmInte.config.chatTrigger) do
-        if (string.StartWith(text, v)) then return true end
+    for k, v in pairs(gmInte.config.chatTrigger) do
+        if (string.StartWith(text, k)) then return true end
     end
+
     return false
 end
 
@@ -52,34 +55,35 @@ function gmInte.playerSay(ply, text, team)
     if (!gmInte.config.syncChat) then return end
     if (!triggerChat(text) && !gmInte.config.chatTriggerAll) then return end
 
-    gmInte.simplePost("userSay",
+    gmInte.post("/server/user/say",
         {
-            steam = ply:SteamID64(),
-            text = text
+            ["steam"] = ply:SteamID64(),
+            ["text"] = text
         }
     )
 end
 
 function gmInte.userFinishConnect(ply)
     if (!gmInte.plyValid(ply)) then return end
-    gmInte.simplePost("userFinishConnect",
+
+    gmInte.post("/server/user/finishConnect",
         {
-            steam = ply:SteamID64(), // essential
-            name = ply:Nick(), // for the syncro name
+            ["steam"] = ply:SteamID64(), // essential
+            ["name"] = ply:Nick(), // for the syncro name
         }
     )
 end
 
 function gmInte.sendStatus()
-    gmInte.simplePost("serverStatus",
+    gmInte.post("/server/status",
         {
-            hostname = GetHostName(),
-            ip = game.GetIPAddress(),
-            port = GetConVar("hostport"):GetInt(),
-            map = game.GetMap(),
-            players = #player.GetAll(),
-            maxplayers = game.MaxPlayers(),
-            gamemode = engine.ActiveGamemode(),
+            ["hostname"] = GetHostName(),
+            ["ip"] = game.GetIPAddress(),
+            ["port"] = GetConVar("hostport"):GetInt(),
+            ["map"] = game.GetMap(),
+            ["players"] = #player.GetAll(),
+            ["maxplayers"] = game.MaxPlayers(),
+            ["gamemode"] = engine.ActiveGamemode()
         }
     )
 end
@@ -91,30 +95,32 @@ end)
 
 function gmInte.playerChangeName(ply, old, new)
     if (!gmInte.plyValid(ply)) then return end
-    gmInte.simplePost("userChangeName",
+
+    gmInte.post("/server/user/changeName",
         {
-            steam = ply:SteamID64(),
-            old = old,
-            new = new,
+            ["steam"] = ply:SteamID64(),
+            ["old"] = old,
+            ["new"] = new,
         }
     )
 end
 
 function gmInte.playerDisconnected(ply)
     if (!gmInte.plyValid(ply)) then return end
-    gmInte.simplePost("userDisconnect",
+
+    gmInte.post("/server/user/disconnect",
         {
-            steam = ply:SteamID64(),
-            kills = ply:Frags() || 0,
-            deaths = ply:Deaths() || 0,
-            money = ply:gmInteGetTotalMoney(),
-            rank = ply:GetUserGroup() || "user",
+            ["steam"] = ply:SteamID64(),
+            ["kills"] = ply:Frags() || 0,
+            ["deaths"] = ply:Deaths() || 0,
+            ["money"] = ply:gmInteGetTotalMoney(),
+            ["rank"] = ply:GetUserGroup() || "user",
         }
     )
 end
 
 function gmInte.tryConfig()
-    gmInte.simplePost("tryConfig", {},
+    gmInte.post("/server/guild", {},
     function( body, length, headers, code)
         gmInte.log("GG you are authorized, the link discord guild is: " .. body)
     end)
