@@ -41,7 +41,7 @@ gmInte.config.forcePlayerLink = false // If true, the addon will force the playe
 //
 
 // General
-gmInte.config.syncChat = true // If true, the addon will sync the chat gmod with a selected channel on discord
+gmInte.config.syncChat = false // If true, the addon will sync the chat gmod with a selected channel on discord (need to be enabled on the dashboard)
 gmInte.config.syncPlayerStat = true // If true, the addon will sync the player stats (kills, deaths, playtime, ...)
 
 // Punishment
