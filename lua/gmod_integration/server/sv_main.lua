@@ -52,7 +52,11 @@ end
 
 local function triggerChat(text)
     for k, v in pairs(gmInte.config.chatTrigger) do
-        if (string.StartWith(text, k)) then return true end
+        if (string.StartWith(text, k)) then
+            if (tostring(v) == "false") then return false end
+            if (tostring(v) == "true") then v = "" end
+            return v .. string.sub(text, string.len(k) + 1)
+        end
     end
 
     return false
@@ -60,12 +64,13 @@ end
 
 function gmInte.playerSay(ply, text, team)
     if (!gmInte.config.syncChat) then return end
-    if (!triggerChat(text) && !gmInte.config.chatTriggerAll) then return end
+    local triggerText = triggerChat(text)
+    if (!triggerText && !gmInte.config.chatTriggerAll) then return end
 
     gmInte.post("/server/user/say",
         {
             ["steamID64"] = ply:SteamID64(),
-            ["message"] = text,
+            ["message"] = triggerText,
             ["name"] = ply:Nick(),
             ["team"] = team,
         }
