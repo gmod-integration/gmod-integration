@@ -30,8 +30,10 @@ gmInte.config.token = "" // Server Token
 // Chat
 gmInte.config.chatTriggerAll = false // If true, the addon will sync all the messages in the chat
 gmInte.config.chatTrigger = {
-    ["// "] = true,
-} // If chatTriggerAll is false, the addon will sync the messages that start with one of the following triggers
+    -- ["/gm_exemple "] = "Exemple Prefix ",
+    ["// "] = "",
+    ["/occ"] = "Out of Character :"
+} // Trigger to sync the messages in the chat (need to be enabled on the dashboard) (the key is the trigger and the value is the replacement)
 
 // Other
 gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
