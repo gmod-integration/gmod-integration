@@ -1,13 +1,4 @@
 //
-// Functions
-//
-
-function gmInte.httpError(error)
-	gmInte.log("Web request failed")
-	gmInte.log("Error details: "..error)
-end
-
-//
 // HTTP
 //
 
@@ -32,10 +23,12 @@ local function sendHTTP(params)
             if (string.sub(code, 1, 1) == "2") then
                 params.success && params.success(body, code, headers)
             else
-                gmInte.httpError(body)
+                gmInte.logError("HTTP Request failed with code " .. code .. " and body " .. body)
             end
         end,
-        failed = gmInte.httpError,
+        failed = function(error)
+            gmInte.httpError(error)
+        end
     })
 end
 
