@@ -2,11 +2,6 @@
 // Functions
 //
 
-function gmInte.isCodeValid(code)
-    // if first number is 2
-    return string.sub(code, 1, 1) == "2"
-end
-
 function gmInte.httpError(error)
 	gmInte.log("Web request failed")
 	gmInte.log("Error details: "..error)
@@ -34,10 +29,8 @@ local function sendHTTP(params)
         success = function(code, body, headers)
             gmInte.log("HTTP Response: " .. code, true)
             gmInte.log("HTTP Body: " .. body, true)
-            if (gmInte.isCodeValid(code)) then
-                if (params.success) then
-                    params.success(code, body, headers)
-                end
+            if (string.sub(code, 1, 1) == "2") then
+                params.success && params.success(body, code, headers)
             else
                 gmInte.httpError(body)
             end
