@@ -1,3 +1,9 @@
+//
+// WebSocket
+//
+
+if (!GWSockets) then return gmInte.logError("GWSockets not found!") end
+
 require("gwsockets")
 
 local socket = GWSockets.createWebSocket("wss://ws.gmod-integration.com")

@@ -14,7 +14,7 @@ function gmInte.SendNet(id, args, func)
     net.Start("gmIntegration")
         net.WriteUInt(id, 8)
         net.WriteString(util.TableToJSON(args || {}))
-        func && func()
+        if (func) then func() end
     net.SendToServer()
 end
 
@@ -28,5 +28,5 @@ local netFunc = {
 net.Receive("gmIntegration", function()
     local id = net.ReadUInt(8)
     local args = util.JSONToTable(net.ReadString())
-    netFunc[id] && netFunc[id](args)
+    if (netFunc[id]) then netFunc[id](args) end
 end)

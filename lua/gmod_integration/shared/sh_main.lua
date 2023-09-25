@@ -12,5 +12,5 @@ end
 function gmInte.logError(msg, debug)
     if (debug && !gmInte.config.debug) then return end
     print("[" .. os.date("%Y-%m-%d %H:%M:%S") .. "] [Gmod Integration] [ERROR] " .. msg)
-    debug && print(debug.traceback())
+    if (debug) then print(debug.traceback()) end
 end
