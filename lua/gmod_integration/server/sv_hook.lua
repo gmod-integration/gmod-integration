@@ -1,5 +1,5 @@
 //
-// Server
+// Server Hooks
 //
 
 hook.Add("ShutDown", "gmInte:Server:ShutDown", function()
@@ -14,7 +14,7 @@ hook.Add("Initialize", "gmInte.sendStatus", function()
 end)
 
 //
-// Player
+// Player Hooks
 //
 
 gameevent.Listen("player_connect")
