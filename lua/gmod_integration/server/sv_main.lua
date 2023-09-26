@@ -50,12 +50,19 @@ function gmInte.playerConnect(data)
     gmInte.post("/server/user/connect", data)
 end
 
-local function triggerChat(text)
+local function getTriggerInfo(text)
     for k, v in pairs(gmInte.config.chatTrigger) do
         if (string.StartWith(text, k)) then
-            if (tostring(v) == "false") then return false end
-            if (tostring(v) == "true") then v = "" end
-            return v .. string.sub(text, string.len(k) + 1)
+            local defaultConfig = {
+                    ["prefix"] = "",
+                    ["show_rank"] = false,
+                    ["anonymous"] = false,
+                    ["channel"] = "admin_sync_chat"
+            }
+            for k2, v2 in pairs(v) do
+                defaultConfig[k2] = v2
+            end
+            return defaultConfig.prefix .. string.sub(text, string.len(k) + 1)
         end
     end
 
@@ -64,13 +71,14 @@ end
 
 function gmInte.playerSay(ply, text, team)
     if (!gmInte.config.syncChat) then return end
-    local triggerText = triggerChat(text)
-    if (!triggerText && !gmInte.config.chatTriggerAll) then return end
+    local triggerInfo = getTriggerInfo(text)
+    if (!triggerInfo && !gmInte.config.chatTriggerAll) then return end
 
     gmInte.post("/server/user/say",
         {
             ["steamID64"] = ply:SteamID64(),
-            ["message"] = triggerText,
+            ["usergroup"] = ply:GetUserGroup();
+            ["msgInfo"] = triggerInfo,
             ["name"] = ply:Nick(),
             ["team"] = team,
         }
