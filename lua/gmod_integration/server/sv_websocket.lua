@@ -36,9 +36,9 @@ function gmInte.websocketSend(data)
 end
 
 hook.Add("InitPostEntity", "gmInte:ServerReady:WebSocket", function()
-    if (gmInte.config.websocket) then wsConnect() end
+    if (gmInte.config.websocket) then socket:connect() end
 end)
 
-if (gmInte.config.debug) then wsConnect() end
+if (gmInte.config.debug) then socket:connect() end
 
 print(gmInte.config.debug && "WebSocket Debug Mode" || "WebSocket")
