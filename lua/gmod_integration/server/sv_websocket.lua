@@ -15,7 +15,7 @@ socket:setHeader("id", gmInte.config.id)
 socket:setHeader("token", gmInte.config.token)
 
 function socket:onConnected()
-    gmInte.log("WebSocket connected", true)
+    gmInte.log("WebSocket Connected", true)
 end
 
 // log on message
@@ -24,7 +24,7 @@ function socket:onMessage(txt)
 end
 
 function socket:onDisconnected()
-    gmInte.log("WebSocket disconnected", true)
+    gmInte.log("WebSocket Disconnected", true)
 end
 
 function socket:onError(txt)
@@ -36,9 +36,7 @@ function gmInte.websocketSend(data)
 end
 
 hook.Add("InitPostEntity", "gmInte:ServerReady:WebSocket", function()
-    if (gmInte.config.websocket) then socket:connect() end
+    timer.Simple(1, function()
+        socket:open()
+    end)
 end)
-
-if (gmInte.config.debug) then socket:connect() end
-
-print(gmInte.config.debug && "WebSocket Debug Mode" || "WebSocket")
