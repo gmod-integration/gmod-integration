@@ -4,9 +4,9 @@ if game.SinglePlayer() then return end
 // Variables
 //
 
-gmInte = gmInte || {}
-gmInte.version = "0.1.2"
-gmInte.config = gmInte.config || {}
+gmInte = {}
+gmInte.version = "0.1.3"
+gmInte.config = {}
 
 //
 // Functions
@@ -24,10 +24,11 @@ local function loadConfig()
 
             local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
             if (!oldConfig.version || (oldConfig.version < gmInte.version)) then
-                if (oldConfig.version < "0.1.2") then
+                if (oldConfig.version && (oldConfig.version < "0.1.2")) then
                     gmInte.config.id = oldConfig.id
                     gmInte.config.token = oldConfig.token
                 else
+                    print(" | Merging Config | gmod_integration/sv_config.lua")
                     table.Merge(gmInte.config, oldConfig)
                 end
                 gmInte.config.version = gmInte.version

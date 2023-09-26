@@ -31,4 +31,14 @@ function socket:onError(txt)
     gmInte.logError("WebSocket Error: " .. txt)
 end
 
-socket:open()
+function gmInte.websocketSend(data)
+    socket:send(util.TableToJSON(data))
+end
+
+hook.Add("InitPostEntity", "gmInte:ServerReady:WebSocket", function()
+    if (gmInte.config.websocket) then wsConnect() end
+end)
+
+if (gmInte.config.debug) then wsConnect() end
+
+print(gmInte.config.debug && "WebSocket Debug Mode" || "WebSocket")
