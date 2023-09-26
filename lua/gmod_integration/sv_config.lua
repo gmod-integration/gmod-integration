@@ -14,9 +14,9 @@
     To go further, you can check the documentation: https://docs.gmod-integration.com
 
     WARNING:
-    NEVER SHARE THE TOKEN OF YOUR SERVER WITH ANYONE,
-    IF ANY PROBLEM OCCURS, GO TO OUR WEBSITE AND FOLLOW THE INSTRUCTIONS:
-    https://gmod-integration.com/emergency
+        NEVER SHARE THE TOKEN OF YOUR SERVER WITH ANYONE,
+        IF ANY PROBLEM OCCURS, GO TO OUR WEBSITE AND FOLLOW THE INSTRUCTIONS:
+        https://gmod-integration.com/emergency
 */
 
 //
@@ -27,13 +27,40 @@
 gmInte.config.id = "" // Server ID
 gmInte.config.token = "" // Server Token
 
+// Websocket
+/*
+    This is a premium feature, you can buy premium on our website: https://gmod-integration.com/premium
+    Websocket allow you to made a real-time connection between your server and our servers.
+    And so use the real-time features of our addon (like the chat syncronization, role syncronization, ...)
+*/
+gmInte.config.websocket = false // If true, the addon will use the websocket instead of the http requests
+
 // Chat
 gmInte.config.chatTriggerAll = false // If true, the addon will sync all the messages in the chat
 gmInte.config.chatTrigger = {
-    -- ["/gm_exemple "] = "Exemple Prefix ",
-    ["// "] = "",
-    ["/occ"] = "Out of Character :"
-} // Trigger to sync the messages in the chat (need to be enabled on the dashboard) (the key is the trigger and the value is the replacement)
+/* Example:
+    ["/example "] = {
+        ["prefix"] = "[Example] ", // The prefix of the message
+        ["show_rank"] = false, // If true, the addon will show the rank of the player in the prefix
+        ["anonymous"] = false, // If true, the addon will not show the name and the avatar of the player in the message
+        ["channel"] = "admin_sync_chat" // If set, the addon will use a custom channel to sync the message (use in multi chat syncronization)
+    },
+    ["/admin_chat "] = {
+        ["prefix"] = "[Admin Chat]",
+        ["show_rank"] = true,
+        ["channel"] = "discord_channel_id_admin_chat"
+    },
+*/
+    ["// "] = {
+        ["prefix"] = "",
+        ["show_rank"] = false,
+        ["anonymous"] = false,
+        ["custom_id"] = "admin_sync_chat"
+    },
+    ["/ano "] = {
+        ["anonymous"] = true,
+    },
+} // Trigger to sync the messages in a discord channel (the key is the trigger and the value is the replacement)
 
 // Other
 gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
