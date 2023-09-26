@@ -12,10 +12,38 @@ gmInte.config = gmInte.config || {}
 // Functions
 //
 
+local function loadConfig()
+    if (SERVER) then
+        print(" | Loading File | gmod_integration/sv_config.lua")
+        RunConsoleCommand("sv_hibernate_think", "1")
+        if (!file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA")) then
+            file.CreateDir("gm_integration")
+            file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
+        else
+            if (gmInte.config.id && gmInte.config.id != "") then return end
+
+            local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
+            if (!oldConfig.version || (oldConfig.version < gmInte.version)) then
+                if (oldConfig.version < "0.1.2") then
+                    gmInte.config.id = oldConfig.id
+                    gmInte.config.token = oldConfig.token
+                else
+                    table.Merge(gmInte.config, oldConfig)
+                end
+                gmInte.config.version = gmInte.version
+                file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
+            else
+                gmInte.config = oldConfig
+            end
+        end
+    end
+end
+
 local function loadAllFiles(folder)
     local files, folders = file.Find(folder .. "/*", "LUA")
     for k, v in SortedPairs(files) do
         local path = folder .. "/" .. v
+        if (path == "gmod_integration/sv_config.lua") then loadConfig() continue end
         print(" | Loading File | " .. path)
         if string.StartWith(v, "cl_") then
             if SERVER then
@@ -39,6 +67,7 @@ local function loadAllFiles(folder)
     end
 end
 
+
 //
 // Load Files
 //
@@ -59,32 +88,3 @@ print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
 print(" ")
 loadAllFiles("gmod_integration")
 print(" ")
-
-//
-// Init Data Folder and Load Config
-//
-
-if (SERVER) then
-	RunConsoleCommand("sv_hibernate_think", "1")
-
-    if (!file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA")) then
-        file.CreateDir("gm_integration")
-        file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
-    else
-        if (gmInte.config.id && gmInte.config.id != "") then return end
-
-        local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
-        if (!oldConfig.version || (oldConfig.version < gmInte.version)) then
-            if (oldConfig.version < "0.1.2") then
-                gmInte.config.id = oldConfig.id
-                gmInte.config.token = oldConfig.token
-            else
-                table.Merge(gmInte.config, oldConfig)
-            end
-            gmInte.config.version = gmInte.version
-            file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
-        else
-            gmInte.config = oldConfig
-        end
-    end
-end
