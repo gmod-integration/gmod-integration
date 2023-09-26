@@ -2,12 +2,19 @@
 // WebSocket
 //
 
-if (!GWSockets) then return gmInte.logError("GWSockets not found!") end
+if (!gmInte.config.websocket) then return end
 
 require("gwsockets")
 
+if (GWSockets) then return gmInte.logError("GWSockets is not installed! Please install it from https://github.com/FredyH/GWSockets") end
+
 local socket = GWSockets.createWebSocket("wss://ws.gmod-integration.com")
 
+// Authentication
+socket:setHeader("id", gmInte.config.id)
+socket:setHeader("token", gmInte.config.token)
+
+// Dev
 function socket:onMessage(txt)
     print("Received: ", txt)
 end
