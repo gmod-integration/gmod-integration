@@ -22,7 +22,7 @@ local function sendHTTP(params)
             gmInte.log("HTTP Body: " .. body, true)
             if (string.sub(code, 1, 1) == "2") then
                 if (params.success) then
-                    params.success(body, code, headers)
+                    params.success(code, body, headers)
                 end
             else
                 gmInte.logError("HTTP Request failed with code " .. code .. " and body " .. body)
