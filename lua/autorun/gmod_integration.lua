@@ -44,7 +44,6 @@ local function loadAllFiles(folder)
     local files, folders = file.Find(folder .. "/*", "LUA")
     for k, v in SortedPairs(files) do
         local path = folder .. "/" .. v
-        if (path == "gmod_integration/sv_config.lua") then loadConfig() continue end
         print(" | Loading File | " .. path)
         if string.StartWith(v, "cl_") then
             if SERVER then
@@ -62,6 +61,7 @@ local function loadAllFiles(folder)
             end
             include(path)
         end
+        if (path == "gmod_integration/sv_config.lua") then loadConfig() continue end
     end
     for k, v in SortedPairs(folders, true) do
         loadAllFiles(folder .. "/" .. v, name)
