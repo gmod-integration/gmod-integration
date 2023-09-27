@@ -4,18 +4,18 @@
 
 local function sendHTTP(params)
     gmInte.log("HTTP Request: " .. params.method .. " " .. params.endpoint, true)
-    gmInte.log("HTTP Body: " .. (params.body or "No body"), true)
+    gmInte.log("HTTP Body: " .. (params.body || "No body"), true)
     HTTP({
         url = "https://api.gmod-integration.com" .. params.endpoint,
         method = params.method,
         headers = {
             ["Content-Type"] = "application/json",
-            ["Content-Length"] = params.body and string.len(params.body) or 0,
+            ["Content-Length"] = params.body and string.len(params.body) || 0,
             ["id"] = gmInte.config.id,
             ["token"] = gmInte.config.token,
             ["version"] = gmInte.version
         },
-        body = params.body && params.body or "",
+        body = params.body && params.body || "",
         type = "application/json",
         success = function(code, body, headers)
             gmInte.log("HTTP Response: " .. code, true)
