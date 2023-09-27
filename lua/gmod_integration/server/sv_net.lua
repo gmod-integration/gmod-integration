@@ -17,7 +17,11 @@ function gmInte.SendNet(id, data, ply, func)
         net.WriteUInt(id, 8)
         net.WriteString(util.TableToJSON(data))
         if (func) then func() end
-    net.Send(ply)
+    if (ply == nil) then
+        net.Broadcast()
+    else
+        net.Send(ply)
+    end
 end
 
 // Receive
