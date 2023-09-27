@@ -2,20 +2,6 @@
 // Functions
 //
 
-// Meta
-local ply = FindMetaTable("Player")
-
-function ply:gmInteGetTotalMoney()
-    // if darkrp
-    if DarkRP then
-        return self:getDarkRPVar("money")
-    end
-
-    // else
-    return 0
-end
-
-// Main
 function gmInte.removePort(ip)
     return string.Explode(":", ip)[1]
 end
@@ -67,6 +53,11 @@ local function getTriggerInfo(text)
     end
 
     return false
+end
+
+function gmInte.wsPlayerSay(data)
+    if !gmInte.config.syncChat then return end
+    gmInte.SendNet(1, data, nil)
 end
 
 function gmInte.playerSay(ply, text, team)
