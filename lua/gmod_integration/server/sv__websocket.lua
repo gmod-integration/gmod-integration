@@ -25,8 +25,6 @@ function socket:onMessage(txt)
     if (gmInte.config.debug) then
         gmInte.log("WebSocket Message: " .. txt, true)
     end
-    print(data.method)
-    print(gmInte[data.method] && "true" || "false")
     if (gmInte[data.method]) then
         gmInte[data.method](data)
     else
