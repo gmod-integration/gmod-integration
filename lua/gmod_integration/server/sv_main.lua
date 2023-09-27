@@ -40,6 +40,7 @@ local function getTriggerInfo(text)
     for k, v in pairs(gmInte.config.chatTrigger) do
         if (string.StartWith(text, k)) then
             local defaultConfig = {
+                    ["trigger"] = k,
                     ["prefix"] = "",
                     ["show_rank"] = false,
                     ["anonymous"] = false,
@@ -48,16 +49,11 @@ local function getTriggerInfo(text)
             for k2, v2 in pairs(v) do
                 defaultConfig[k2] = v2
             end
-            return defaultConfig.prefix .. string.sub(text, string.len(k) + 1)
+            return defaultConfig
         end
     end
 
     return false
-end
-
-function gmInte.wsPlayerSay(data)
-    if !gmInte.config.syncChat then return end
-    gmInte.SendNet(1, data, nil)
 end
 
 function gmInte.playerSay(ply, text, team)
@@ -68,12 +64,17 @@ function gmInte.playerSay(ply, text, team)
     gmInte.post("/server/user/say",
         {
             ["steamID64"] = ply:SteamID64(),
-            ["usergroup"] = ply:GetUserGroup();
-            ["msgInfo"] = triggerInfo,
+            ["message"] = string.sub(text, string.len(triggerInfo.trigger) + 1),
             ["name"] = ply:Nick(),
-            ["team"] = team,
+            ["usergroup"] = ply:GetUserGroup(),
+            ["message_info"] = triggerInfo
         }
     )
+end
+
+function gmInte.wsPlayerSay(data)
+    if !gmInte.config.syncChat then return end
+    gmInte.SendNet(1, data, nil)
 end
 
 function gmInte.playerBan(data)
