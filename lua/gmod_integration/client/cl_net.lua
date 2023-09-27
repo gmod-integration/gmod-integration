@@ -20,8 +20,8 @@ end
 
 // Receive
 local netFunc = {
-    [1] = function(args)
-        chat.AddText(unpack(args))
+    [1] = function(data)
+        gmInte.discordSyncChatPly(data)
     end
 }
 
