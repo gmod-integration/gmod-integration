@@ -200,7 +200,7 @@ function gmInte.playerFilter(data)
         function(code, body)
             local receiveData = util.JSONToTable(body)
 
-            if (receiveData.trust) then return end
+            if (!receiveData.trust) then return end
 
             // Gmod Integration Trust
             if (gmInte.config.filterOnTrust && (receiveData.trust < gmInte.config.minimalTrust)) then
