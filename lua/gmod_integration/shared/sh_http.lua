@@ -30,7 +30,7 @@ local function sendHTTP(params)
             end
         end,
         failed = function(error)
-            gmInte.httpError(error)
+            gmInte.logError(error)
         end
     })
 end
