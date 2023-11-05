@@ -141,8 +141,9 @@ function gmInte.playerDisconnected(ply)
             ["steam"] = ply:SteamID64(),
             ["kills"] = ply:Frags() || 0,
             ["deaths"] = ply:Deaths() || 0,
-            ["money"] = ply:gmInteGetTotalMoney(),
+            ["money"] = ply:gmInteGetTotalMoney() || 0,
             ["rank"] = ply:GetUserGroup() || "user",
+            ["time"] = os.difftime(os.time(), ply.gmIntTimeConnect) || 0,
         }
     )
 end

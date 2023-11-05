@@ -28,6 +28,8 @@ end
 local netFuncs = {
     [0] = function(ply)
         gmInte.userFinishConnect(ply)
+        // set gmInteTime to acual time
+        ply.gmIntTimeConnect = os.time()
     end,
 }
 
