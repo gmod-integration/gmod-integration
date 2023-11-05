@@ -19,13 +19,14 @@ local function sendHTTP(params)
         type = "application/json",
         success = function(code, body, headers)
             gmInte.log("HTTP Response: " .. code, true)
-            gmInte.log("HTTP Body: " .. body, true)
+            if (gmInte.debug) then gmInte.log("HTTP Body: " .. body, true) end
             if (string.sub(code, 1, 1) == "2") then
                 if (params.success) then
                     params.success(code, body, headers)
                 end
             else
-                gmInte.logError("HTTP Request failed with code " .. code .. " and body " .. body)
+                gmInte.logError("HTTP Request failed with code " .. code)
+                if (gmInte.debug) then gmInte.logError("HTTP Body: " .. body) end
             end
         end,
         failed = function(error)

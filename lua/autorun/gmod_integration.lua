@@ -7,6 +7,7 @@ if game.SinglePlayer() then return end
 gmInte = {}
 gmInte.version = "0.1.3"
 gmInte.config = {}
+gmInte.debug = false
 
 //
 // Functions

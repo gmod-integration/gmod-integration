@@ -89,10 +89,3 @@ gmInte.config.filterOnTrust = true // If true, the addon will filter the players
 
 // Ban
 gmInte.config.filterOnBan = true // If true, the addon will filter the players according to their ban status
-
-//
-// Other
-//
-
-// Debug
-gmInte.config.debug = false // If true, the addon will print debug informations in the console
