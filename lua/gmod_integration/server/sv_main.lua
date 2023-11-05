@@ -148,9 +148,14 @@ function gmInte.playerDisconnected(ply)
 end
 
 function gmInte.tryConfig()
-    gmInte.get("/server/guild",
+    gmInte.get("/server",
     function(code, body)
-        gmInte.log("Congratulations, you are connected to your discord guild (guild id: " .. body .. ")")
+        local receiveData = util.JSONToTable(body)
+        print(" ")
+        gmInte.log("Congratulations your server is now connected to Gmod Integration")
+        gmInte.log("Server Name: " .. receiveData.name)
+        gmInte.log("Server ID: " .. receiveData.id)
+        print(" ")
     end)
 end
 
