@@ -9,7 +9,6 @@ end)
 hook.Add("Initialize", "gmInte.sendStatus", function()
     timer.Simple(1, function()
         gmInte.serverStart()
-        gmInte.sendStatus()
     end)
 end)
 
