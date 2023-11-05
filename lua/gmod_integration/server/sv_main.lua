@@ -98,6 +98,11 @@ function gmInte.serverShutDown()
 end
 
 function gmInte.sendStatus(start)
+    if (gmInte.config.id == "" || gmInte.config.token == "") then
+        gmInte.logError("ID or Token is empty: (id: " .. gmInte.config.id .. ", token: " .. (gmInte.config.token == "" && "empty" || "not empty") .. ")")
+        gmInte.logHint("Use 'gmod-integration settings id YOUR_SERVER_ID' and 'gmod-integration settings token YOUR_SERVER_TOKEN' to set your credentials, you can find them on https://gmod-integration.com/guild/servers")
+        return
+    end
     gmInte.post("/server/status",
         {
             ["start"] = start || false,
@@ -108,7 +113,12 @@ function gmInte.sendStatus(start)
             ["players"] = #player.GetAll(),
             ["maxplayers"] = game.MaxPlayers(),
             ["gamemode"] = engine.ActiveGamemode()
-        }
+        },
+        function() end,
+        function(code, body, headers)
+            gmInte.logError("Your Credentials are Invalid: (id: " .. gmInte.config.id .. ", token: " .. (gmInte.config.token == "" && "empty" || "not empty") .. ")")
+            gmInte.logHint("Use 'gmod-integration settings id YOUR_SERVER_ID' and 'gmod-integration settings token YOUR_SERVER_TOKEN' to set your credentials, you can find them on https://gmod-integration.com/guild/servers")
+        end
     )
 end
 

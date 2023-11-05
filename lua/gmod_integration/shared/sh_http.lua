@@ -25,8 +25,11 @@ local function sendHTTP(params)
                     params.success(code, body, headers)
                 end
             else
-                gmInte.logError("HTTP Request failed with code " .. code)
-                if (gmInte.debug) then gmInte.logError("HTTP Body: " .. body) end
+                if (params.failed) then
+                    params.failed(code, body, headers)
+                else
+                    gmInte.logError("HTTP Request failed with code " .. code)
+                end
             end
         end,
         failed = function(error)
@@ -35,37 +38,41 @@ local function sendHTTP(params)
     })
 end
 
-function gmInte.get(endpoint, onSuccess)
+function gmInte.get(endpoint, onSuccess, onFailed)
     sendHTTP({
         endpoint = endpoint,
         method = "GET",
-        success = onSuccess
+        success = onSuccess,
+        failed = onFailed
     })
 end
 
-function gmInte.post(endpoint, data, onSuccess)
+function gmInte.post(endpoint, data, onSuccess, onFailed)
     sendHTTP({
         endpoint = endpoint,
         method = "POST",
         body = util.TableToJSON(data),
-        success = onSuccess
+        success = onSuccess,
+        failed = onFailed
     })
 end
 
-function gmInte.put(endpoint, data, onSuccess)
+function gmInte.put(endpoint, data, onSuccess, onFailed)
     sendHTTP({
         endpoint = endpoint,
         method = "PUT",
         body = util.TableToJSON(data),
-        success = onSuccess
+        success = onSuccess,
+        failed = onFailed
     })
 end
 
-function gmInte.delete(endpoint, onSuccess)
+function gmInte.delete(endpoint, onSuccess, onFailed)
     sendHTTP({
         endpoint = endpoint,
         method = "DELETE",
-        success = onSuccess
+        success = onSuccess,
+        failed = onFailed
     })
 end
 
