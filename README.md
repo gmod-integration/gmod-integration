@@ -10,14 +10,19 @@ Gmod Integration is a Garry's Mod addon that allows you to connect your Garry's 
 
 🌟・A Trusted Choice: Over 3,350 users across more than 48 guilds have chosen Gmod Integration. Will you join our growing community?
 
-## Download
+## Requirements
 
-To avoid any problem, we recommend you to use the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2558619916) version of our addon, it will automatically update itself.
+- [Add Workshop Addon](https://gmod-integration.com/workshop)
+- [Invite Bot](https://gmod-integration.com/invite)
 
 ## Documentation
 
 You can find the documentation [here](https://docs.gmod-integration.com).
 
 ## Important
+
+Do not download the addon from GitHub. You must download it from the [Steam Workshop](https://gmod-integration.com/workshop) or you will probably get errors because we actually work on the addon.
+
+## Support
 
 If you have any problem with the addon, please contact us on our [Discord server](https://gmod-integration.com/discord).
