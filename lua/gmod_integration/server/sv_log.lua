@@ -83,7 +83,7 @@ function gmInte.postLogPlayerDeath(ply, inflictor, attacker)
     )
 end
 
-function gmInte.gmInte.postLogPlayerInitialSpawn(ply)
+function gmInte.postLogPlayerInitialSpawn(ply)
     if (logDisable() || ply:IsBot()) then return end
 
     gmInte.post("/server/log/playerInitialSpawn",
