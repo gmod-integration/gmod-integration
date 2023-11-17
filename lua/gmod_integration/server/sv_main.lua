@@ -214,9 +214,7 @@ function gmInte.playerFilter(data)
     // get data
     gmInte.get("/server/user" .. "?steamID64=" .. data.steamID64,
         function(code, body)
-            local receiveData = util.JSONToTable(body)
-
-            if (!receiveData.trust) then return end
+            if (!body || !receiveData.trust) then return end
 
             // Gmod Integration Trust
             if (gmInte.config.filterOnTrust && (receiveData.trust < gmInte.config.minimalTrust)) then
