@@ -4,12 +4,11 @@
         We don't recommend to use a static version of our addon, you should use the workshop version instead.
 
     Add Server:
+        0. Add the bot to your guild if it's not already done: https://gmod-integration.com/invite
         1. Go to our dashboard and Login with Discord: https://gmod-integration.com/login
-        2. Go to the "Servers" page: https://gmod-integration.com/servers
-        3. Click on "Add Server"
-        4. Fill the form and click on "Add Server"
-        5. Copy the ID and Token of your server and paste them in this file
-        6. Everything is ready, you can now restart your server
+        2. Go to the "Servers" page: https://gmod-integration.com/config/servers and click on "Create Server"
+        3. Copy the ID and Token of your server and paste them in this file
+        4. Everything is ready, you can now restart your server
 
     To go further, you can check the documentation: https://docs.gmod-integration.com
 
@@ -89,3 +88,12 @@ gmInte.config.filterOnTrust = true // If true, the addon will filter the players
 
 // Ban
 gmInte.config.filterOnBan = true // If true, the addon will filter the players according to their ban status
+
+//
+// Features Kill Switch
+//
+
+// Will disable the features of the addon
+
+gmInte.config.disableFilter = false // Disable the player filter
+gmInte.config.disableLog = false // Disable the logs
