@@ -7,7 +7,9 @@ end
 local configCat = {
     "Authentication",
     "Main",
-    "Trust & Safety"
+    "Trust & Safety",
+    "Punishment",
+    "Other"
 }
 
 local possibleConfig = {
@@ -15,11 +17,11 @@ local possibleConfig = {
         ["label"] = "ID",
         ["description"] = "Your server ID. You can find it on the webpanel.",
         ["type"] = "textEntry",
-        ["value"] = function(value)
+        ["value"] = function(setting, value)
             return value
         end,
-        ["onEdit"] = function(value)
-            saveConfig("id", value)
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value)
         end,
         ["onEditDelay"] = 0.5,
         ["category"] = "Authentication"
@@ -28,11 +30,11 @@ local possibleConfig = {
         ["label"] = "Token",
         ["description"] = "Your server Token. You can find it on the webpanel.",
         ["type"] = "textEntry",
-        ["value"] = function(value)
+        ["value"] = function(setting, value)
             return value
         end,
-        ["onEdit"] = function(value)
-            saveConfig("token", value)
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value)
         end,
         ["onEditDelay"] = 0.5,
         ["category"] = "Authentication"
@@ -41,11 +43,11 @@ local possibleConfig = {
         ["label"] = "Logs",
         ["description"] = "Activate or deactivate the logs.",
         ["type"] = "checkbox",
-        ["value"] = function(value)
+        ["value"] = function(setting, value)
             return value
         end,
-        ["onEdit"] = function(value)
-            saveConfig("disableLog", value == "Enabled" && true || false)
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
         end,
         ["category"] = "Main"
     },
@@ -53,11 +55,11 @@ local possibleConfig = {
         ["label"] = "Block Discord Ban Player",
         ["description"] = "Block players that are banned on the discord server.",
         ["type"] = "checkbox",
-        ["value"] = function(value)
+        ["value"] = function(setting, value)
             return value
         end,
-        ["onEdit"] = function(value)
-            saveConfig("disableLog", value == "Enabled" && true || false)
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
         end,
         ["category"] = "Trust & Safety"
     },
@@ -65,13 +67,111 @@ local possibleConfig = {
         ["label"] = "Block UnTrust Player",
         ["description"] = "",
         ["type"] = "checkbox",
-        ["value"] = function(value)
+        ["value"] = function(setting, value)
             return value
         end,
-        ["onEdit"] = function(value)
-            saveConfig("disableLog", value == "Enabled" && true || false)
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
         end,
         ["category"] = "Trust & Safety"
+    },
+    ["minimalTrust"] = {
+        ["label"] = "Minimal Trust Level",
+        ["description"] = "Your server ID. You can find it on the webpanel.",
+        ["type"] = "textEntry",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value)
+        end,
+        ["onEditDelay"] = 0.5,
+        ["category"] = "Trust & Safety"
+    },
+    ["syncChat"] = {
+        ["label"] = "Sync Chat",
+        ["description"] = "Sync the chat between the server and the discord server.",
+        ["type"] = "checkbox",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
+        end,
+        ["category"] = "Main"
+    },
+    ["syncBan"] = {
+        ["label"] = "Sync Ban",
+        ["description"] = "Sync the chat between the server and the discord server.",
+        ["type"] = "checkbox",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
+        end,
+        ["category"] = "Punishment"
+    },
+    ["syncTimeout"] = {
+        ["label"] = "Sync Timeout",
+        ["description"] = "Sync the chat between the server and the discord server.",
+        ["type"] = "checkbox",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
+        end,
+        ["category"] = "Punishment"
+    },
+    ["syncKick"] = {
+        ["label"] = "Sync Kick",
+        ["description"] = "Sync the chat between the server and the discord server.",
+        ["type"] = "checkbox",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
+        end,
+        ["category"] = "Punishment"
+    },
+    ["forcePlayerLink"] = {
+        ["label"] = "Force Player Verif",
+        ["description"] = "Sync the chat between the server and the discord server.",
+        ["type"] = "checkbox",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
+        end,
+        ["category"] = "Main"
+    },
+    ["supportLink"] = {
+        ["label"] = "Support Link",
+        ["description"] = "Your server ID. You can find it on the webpanel.",
+        ["type"] = "textEntry",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value)
+        end,
+        ["onEditDelay"] = 0.5,
+        ["category"] = "Trust & Safety"
+    },
+    ["debug"] = {
+        ["label"] = "Debug",
+        ["description"] = "Activate or deactivate the debug mode.",
+        ["type"] = "checkbox",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
+        end,
+        ["category"] = "Other"
     },
 }
 
@@ -83,17 +183,11 @@ local buttonsInfo = {
         end,
     },
     {
-        ["try"] = "Test Connection",
+        ["label"] = "Test Connection",
         ["func"] = function()
             gmInte.SendNet("1")
         end,
     },
-    {
-        ["try"] = "Tdest Connection",
-        ["func"] = function()
-            gmInte.SendNet("1")
-        end,
-    }
 }
 
 function gmInte.openConfigMenu(data)
@@ -112,6 +206,7 @@ function gmInte.openConfigMenu(data)
     local messagePanel = vgui.Create("DPanel", scrollPanel)
     messagePanel:Dock(TOP)
     messagePanel:SetSize(300, 60)
+    messagePanel:DockMargin(10, 0, 10, 10)
     messagePanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
     local messageLabel = vgui.Create("DLabel", messagePanel)
@@ -124,7 +219,7 @@ function gmInte.openConfigMenu(data)
         // create DCollapsibleCategory
         local collapsibleCategory = vgui.Create("DCollapsibleCategory", scrollPanel)
         collapsibleCategory:Dock(TOP)
-        collapsibleCategory:DockMargin(0, 0, 0, 5)
+        collapsibleCategory:DockMargin(10, 0, 10, 10)
         collapsibleCategory:SetLabel(catName)
         collapsibleCategory:SetExpanded(true)
 
@@ -153,14 +248,14 @@ function gmInte.openConfigMenu(data)
 
                 if v.type == "textEntry" then
                     input = vgui.Create("DTextEntry", panel)
-                    input:SetText(v.value(data[k]))
+                    input:SetText(v.value(k, data[k]))
                     local isLastID = 0
                     input.OnChange = function(self)
                         isLastID = isLastID + 1
                         local isLocalLastID = isLastID
                         timer.Simple(v.onEditDelay || 0.5, function()
                             if isLocalLastID == isLastID then
-                                v.onEdit(self:GetValue())
+                                v.onEdit(k, self:GetValue())
                             end
                         end)
                     end
@@ -168,9 +263,9 @@ function gmInte.openConfigMenu(data)
                     input = vgui.Create("DComboBox", panel)
                     input:AddChoice("Enabled")
                     input:AddChoice("Disabled")
-                    input:SetText(v.value(data[k]) && "Enabled" || "Disabled")
+                    input:SetText(v.value(k, data[k]) && "Enabled" || "Disabled")
                     input.OnSelect = function(self, index, value)
-                        v.onEdit(value)
+                        v.onEdit(k, value)
                     end
                 end
 
@@ -178,7 +273,7 @@ function gmInte.openConfigMenu(data)
                 input:SetSize(150, 25)
 
                 if v.description then
-                    panel:SetTooltip(v.description)
+                    input:SetTooltip(v.description)
                 end
 
                 configList:AddItem(panel)
@@ -186,61 +281,35 @@ function gmInte.openConfigMenu(data)
         end
     end
 
-    local buttonsPanel = vgui.Create("DPanel", frame)
-    buttonsPanel:Dock(BOTTOM)
-    buttonsPanel:SetSize(300, 50)
-    buttonsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
-
-    local buttonRows = {}
-    local currentRow = nil
+    // grid of buttons (2 buttons per row take 50% of the width)
+    local buttonGrid = vgui.Create("DGrid", frame)
+    buttonGrid:Dock(BOTTOM)
+    buttonGrid:DockMargin(5, 10, 5, 5)
+    buttonGrid:SetCols(2)
+    buttonGrid:SetColWide(frame:GetWide() / 2 - 10)
+    buttonGrid:SetRowHeight(35)
 
     for k, v in pairs(buttonsInfo) do
-        if k % 2 == 1 then
-            currentRow = vgui.Create("DPanel", buttonsPanel)
-            currentRow:Dock(TOP)
-            currentRow:SetSize(300, 25)
-            currentRow:SetBackgroundColor(Color(0, 0, 0, 0))
-            table.insert(buttonRows, currentRow)
-        end
-
-        local button = vgui.Create("DButton", currentRow)
-        button:Dock(k % 2 == 1 && LEFT || RIGHT)
-        button:SetText(v.label or v.try)
-        button:SetWide(button:GetParent():GetWide() / 2)
-
+        local button = vgui.Create("DButton")
+        button:SetText(v.label)
         button.DoClick = function()
             v.func()
         end
+        button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+        buttonGrid:AddItem(button)
     end
 end
 
-// Add on Desktop Widgets
--- Vérifie si l'interface utilisateur de widgets existe et la crée si ce n'est pas le cas
-if not MyWidget then
-    MyWidget = {}
-end
-
--- Fonction pour créer le widget
-function MyWidget.CreateWidget()
-    local frame = vgui.Create("DFrame")
-    frame:SetSize(200, 100)
-    frame:SetTitle("Mon Widget")
-    frame:MakePopup()
-
-    -- Ajouter d'autres éléments à votre widget ici
-
-    return frame
-end
-
 list.Set("DesktopWindows", "GmodIntegration:DesktopWindows", {
-	icon = "icon64/gmodintegration.png",
-	title = "Gmod Integration",
-	width = 100,
-	height = 100,
-	onewindow = true,
-	init = function(icon, window)
-		window:Close()
+    // use icon 'gear'
+    icon = "icon16/wrench.png",
+    title = "Gmod Integration",
+    width = 32,
+    height = 32,
+    onewindow = true,
+    init = function(icon, window)
+        window:Close()
         gmInte.openAdminConfig()
-	end
-	}
+    end
+    }
 )

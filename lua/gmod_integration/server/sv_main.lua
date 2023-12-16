@@ -256,12 +256,8 @@ end
 function gmInte.superadminSetConfig(ply, data)
     if (!gmInte.plyValid(ply) || !ply:IsSuperAdmin()) then return end
 
-    if data.id then
-        gmInte.saveSetting("id", data.id)
-    end
-
-    if data.token then
-        gmInte.saveSetting("token", data.token)
+    for k, v in pairs(data) do
+        gmInte.saveSetting(k, v)
     end
 
     if data.token || data.id then

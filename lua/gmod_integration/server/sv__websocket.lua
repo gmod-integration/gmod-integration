@@ -22,7 +22,7 @@ end
 function socket:onMessage(txt)
     gmInte.log("WebSocket Message: " .. txt, true)
     local data = util.JSONToTable(txt)
-    if (gmInte.debug) then
+    if (gmInte.config.debug) then
         gmInte.log("WebSocket Message: " .. txt, true)
     end
     if (gmInte[data.method]) then

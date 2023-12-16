@@ -46,7 +46,7 @@ local function sendHTTP(params)
         success = function(code, body, headers)
             // Log the HTTP response
             gmInte.log("HTTP Response: " .. code, true)
-            if (gmInte.debug) then gmInte.log("HTTP Body: " .. body, true) end
+            if (gmInte.config.debug) then gmInte.log("HTTP Body: " .. body, true) end
 
             // if body and is json extract it
             if (body && string.sub(headers["Content-Type"], 1, 16) == "application/json") then
