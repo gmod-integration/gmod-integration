@@ -15,7 +15,7 @@ local configCat = {
 local possibleConfig = {
     ["id"] = {
         ["label"] = "ID",
-        ["description"] = "Your server ID. You can find it on the webpanel.",
+        ["description"] = "Server ID found on the webpanel.",
         ["type"] = "textEntry",
         ["value"] = function(setting, value)
             return value
@@ -28,7 +28,7 @@ local possibleConfig = {
     },
     ["token"] = {
         ["label"] = "Token",
-        ["description"] = "Your server Token. You can find it on the webpanel.",
+        ["description"] = "Server Token found on the webpanel.",
         ["type"] = "textEntry",
         ["value"] = function(setting, value)
             return value
@@ -41,7 +41,7 @@ local possibleConfig = {
     },
     ["logs"] = {
         ["label"] = "Logs",
-        ["description"] = "Activate or deactivate the logs.",
+        ["description"] = "Activate or deactivate logs.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -53,7 +53,7 @@ local possibleConfig = {
     },
     ["filterOnBan"] = {
         ["label"] = "Block Discord Ban Player",
-        ["description"] = "Block players that are banned on the discord server.",
+        ["description"] = "Block players banned on the discord server.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -65,7 +65,7 @@ local possibleConfig = {
     },
     ["filterOnTrust"] = {
         ["label"] = "Block UnTrust Player",
-        ["description"] = "",
+        ["description"] = "Block players with a trust level lower than the minimal trust level set in the config.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -77,7 +77,7 @@ local possibleConfig = {
     },
     ["minimalTrust"] = {
         ["label"] = "Minimal Trust Level",
-        ["description"] = "Your server ID. You can find it on the webpanel.",
+        ["description"] = "The minimal trust level to be able to join the server.",
         ["type"] = "textEntry",
         ["value"] = function(setting, value)
             return value
@@ -90,7 +90,7 @@ local possibleConfig = {
     },
     ["syncChat"] = {
         ["label"] = "Sync Chat",
-        ["description"] = "Sync the chat between the server and the discord server.",
+        ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -102,7 +102,7 @@ local possibleConfig = {
     },
     ["syncBan"] = {
         ["label"] = "Sync Ban",
-        ["description"] = "Sync the chat between the server and the discord server.",
+        ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -114,7 +114,7 @@ local possibleConfig = {
     },
     ["syncTimeout"] = {
         ["label"] = "Sync Timeout",
-        ["description"] = "Sync the chat between the server and the discord server.",
+        ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -126,7 +126,7 @@ local possibleConfig = {
     },
     ["syncKick"] = {
         ["label"] = "Sync Kick",
-        ["description"] = "Sync the chat between the server and the discord server.",
+        ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -138,7 +138,7 @@ local possibleConfig = {
     },
     ["forcePlayerLink"] = {
         ["label"] = "Force Player Verif",
-        ["description"] = "Sync the chat between the server and the discord server.",
+        ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -150,7 +150,7 @@ local possibleConfig = {
     },
     ["supportLink"] = {
         ["label"] = "Support Link",
-        ["description"] = "Your server ID. You can find it on the webpanel.",
+        ["description"] = "Server ID found on the webpanel.",
         ["type"] = "textEntry",
         ["value"] = function(setting, value)
             return value
@@ -163,7 +163,7 @@ local possibleConfig = {
     },
     ["debug"] = {
         ["label"] = "Debug",
-        ["description"] = "Activate or deactivate the debug mode.",
+        ["description"] = "Activate or deactivate debug mode.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -192,7 +192,7 @@ local buttonsInfo = {
 
 function gmInte.openConfigMenu(data)
     local frame = vgui.Create("DFrame")
-    frame:SetSize(400, 400)
+    frame:SetSize(400, (600 / 1080) * ScrH())
     frame:Center()
     frame:SetTitle("Gmod Integration - Server Config")
     frame:SetDraggable(true)

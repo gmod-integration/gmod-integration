@@ -88,8 +88,8 @@ function gmInte.userFinishConnect(ply)
 
     gmInte.post("/server/user/finishConnect",
         {
-            ["steam"] = ply:SteamID64(), // essential
-            ["name"] = ply:Nick(), // for the syncro name
+            ["steam"] = ply:SteamID64(),
+            ["name"] = ply:Nick(),
         }
     )
 end
@@ -137,9 +137,9 @@ function gmInte.playerChangeName(ply, old, new)
 
     gmInte.post("/server/user/changeName",
         {
-            ["steam"] = ply:SteamID64(),
-            ["old"] = old,
-            ["new"] = new,
+            ["steamID64"] = ply:SteamID64(),
+            ["oldName"] = old,
+            ["newName"] = new,
         }
     )
 end
