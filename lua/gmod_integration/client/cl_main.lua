@@ -15,3 +15,20 @@ end
 function gmInte.discordSyncChatPly(data)
     chat.AddText(Color(92, 105, 255), "(DISCORD) ", Color(12, 151, 12), formatName(data.name) .. ": ", Color(255, 255, 255), data.content)
 end
+
+function gmInte.showTestConnection(data)
+    if (data && data.id) then
+        chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(63, 102, 63), "Connection Successfull", Color(255, 255, 255), ", server logged as '" .. data.name .. "'")
+    else
+        chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(102, 63, 63), "Connection Failed", Color(255, 255, 255), ", please check your ID and Token")
+    end
+end
+
+function gmInte.openAdminConfig()
+    if (!LocalPlayer():IsSuperAdmin()) then return end
+
+    gmInte.SendNet("2")
+end
+
+// add concommand
+concommand.Add("gmod_integration_admin", gmInte.openAdminConfig)

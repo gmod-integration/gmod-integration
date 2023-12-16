@@ -20,6 +20,7 @@ function gmInte.saveSetting(setting, value)
     // Boolean
     if (value == "true") then value = true end
     if (value == "false") then value = false end
+
     // Number
     if (tonumber(value) != nil) then value = tonumber(value) end
 
@@ -161,12 +162,21 @@ end
 function gmInte.tryConfig()
     gmInte.get("/server",
     function(code, body)
-        local receiveData = util.JSONToTable(body)
         print(" ")
         gmInte.log("Congratulations your server is now connected to Gmod Integration")
-        gmInte.log("Server Name: " .. receiveData.name)
-        gmInte.log("Server ID: " .. receiveData.id)
+        gmInte.log("Server Name: " .. body.name)
+        gmInte.log("Server ID: " .. body.id)
         print(" ")
+    end)
+end
+
+function gmInte.testConnection(ply)
+    gmInte.get("/server",
+    function(code, body)
+        gmInte.SendNet(3, body, ply)
+    end,
+    function(code, body, headers)
+        gmInte.SendNet(3, body, ply)
     end)
 end
 
@@ -214,25 +224,47 @@ function gmInte.playerFilter(data)
     // get data
     gmInte.get("/server/user" .. "?steamID64=" .. data.steamID64,
         function(code, body)
-            if (!body || !receiveData.trust) then return end
+            if (!body || !body.trust) then return end
 
             // Gmod Integration Trust
-            if (gmInte.config.filterOnTrust && (receiveData.trust < gmInte.config.minimalTrust)) then
+            if (gmInte.config.filterOnTrust && (body.trust < gmInte.config.minimalTrust)) then
                 // kick player
-                game.KickID(data.networkid, filterMessage("Insufficient Trust Level\nYour Trust Level: " .. receiveData.trust .. "\nMinimal Trust Level: " .. gmInte.config.minimalTrust))
+                game.KickID(data.networkid, filterMessage("Insufficient Trust Level\nYour Trust Level: " .. body.trust .. "\nMinimal Trust Level: " .. gmInte.config.minimalTrust))
             end
 
             // Gmod Integration Ban
-            if (gmInte.config.filterOnBan && receiveData.ban) then
+            if (gmInte.config.filterOnBan && body.ban) then
                 // kick player
                 game.KickID(data.networkid, filterMessage("You are banned from Gmod Integration"))
             end
 
             // Server Discord Ban
-            if (gmInte.config.syncBan && receiveData.discord_ban) then
+            if (gmInte.config.syncBan && body.discord_ban) then
                 // kick player
-                game.KickID(data.networkid, filterMessage("You are banned from the discord server\nReason: " .. (receiveData.discord_ban_reason && receiveData.discord_ban_reason || "No Reason")))
+                game.KickID(data.networkid, filterMessage("You are banned from the discord server\nReason: " .. (body.discord_ban_reason && body.discord_ban_reason || "No Reason")))
             end
         end
     )
+end
+
+function gmInte.superadminGetConfig(ply)
+    if (!gmInte.plyValid(ply) || !ply:IsSuperAdmin()) then return end
+
+    gmInte.SendNet(2, gmInte.config, ply)
+end
+
+function gmInte.superadminSetConfig(ply, data)
+    if (!gmInte.plyValid(ply) || !ply:IsSuperAdmin()) then return end
+
+    if data.id then
+        gmInte.saveSetting("id", data.id)
+    end
+
+    if data.token then
+        gmInte.saveSetting("token", data.token)
+    end
+
+    if data.token || data.id then
+        gmInte.testConnection(ply)
+    end
 end

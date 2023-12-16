@@ -5,8 +5,13 @@
 /*
 Upload
     1 - Add Chat Message
+    2 - Get Config
+    3 - Test Connection (Response)
 Receive
     0 - Player is Ready
+    1 - Test Connection
+    2 - Get Config
+    3 - Set Config
 */
 
 util.AddNetworkString("gmIntegration")
@@ -31,6 +36,15 @@ local netFuncs = {
         // set gmInteTime to acual time
         ply.gmIntTimeConnect = os.time()
     end,
+    [1] = function(ply, data)
+        gmInte.testConnection(ply, data)
+    end,
+    [2] = function(ply)
+        gmInte.superadminGetConfig(ply)
+    end,
+    [3] = function(ply, data)
+        gmInte.superadminSetConfig(ply, data)
+    end
 }
 
 net.Receive("gmIntegration", function(len, ply)

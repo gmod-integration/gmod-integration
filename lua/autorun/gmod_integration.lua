@@ -5,9 +5,12 @@ if game.SinglePlayer() then return end
 //
 
 gmInte = {}
-gmInte.version = "0.1.3"
-gmInte.config = {}
+gmInte.version = "0.1.8"
+gmInte.config = {
+    ["redownloadMaterials"] = false,
+}
 gmInte.debug = false
+gmInte.materials = {}
 
 //
 // Functions
