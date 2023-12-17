@@ -52,7 +52,7 @@ local function logFormatPlayer(ply, data)
 end
 
 local function logDisable()
-    return gmInte.config.disableLog
+    return !gmInte.config.sendLog
 end
 
 //

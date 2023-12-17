@@ -95,4 +95,4 @@ gmInte.config.filterOnBan = true // If true, the addon will filter the players a
 //
 
 // Will disable the features of the addon
-gmInte.config.disableLog = false // Disable the logs
+gmInte.config.sendLog = false // Disable the logs

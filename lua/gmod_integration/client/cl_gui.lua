@@ -39,7 +39,7 @@ local possibleConfig = {
         ["onEditDelay"] = 0.5,
         ["category"] = "Authentication"
     },
-    ["logs"] = {
+    ["sendLog"] = {
         ["label"] = "Logs",
         ["description"] = "Activate or deactivate logs.",
         ["type"] = "checkbox",
