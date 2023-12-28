@@ -51,6 +51,18 @@ local possibleConfig = {
         end,
         ["category"] = "Main"
     },
+    ["logBotActions"] = {
+        ["label"] = "Log Bot Actions",
+        ["description"] = "Activate or deactivate logs for bot actions.",
+        ["type"] = "checkbox",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
+        end,
+        ["category"] = "Main"
+    },
     ["filterOnBan"] = {
         ["label"] = "Block Discord Ban Player",
         ["description"] = "Block players banned on the discord server.",

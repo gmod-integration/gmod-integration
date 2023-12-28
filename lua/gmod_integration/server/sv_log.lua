@@ -55,12 +55,21 @@ local function logDisable()
     return !gmInte.config.sendLog
 end
 
+local function validLogAndPlayers(players)
+    if (logDisable()) then return false end
+    for _, ply in pairs(players) do
+        if (!IsValid(ply)) then return false end
+        if (!ply:IsBot() && !gmInte.config.logBotActions) then return false end
+    end
+    return true
+end
+
 //
 // Posts
 //
 
 function gmInte.postLogPlayerSay(ply, text, teamChat)
-    if (logDisable() || ply:IsBot()) then return end
+    if (!validLogAndPlayers({ply})) then return end
 
     gmInte.post("/server/log/playerSay",
         {
@@ -72,7 +81,7 @@ function gmInte.postLogPlayerSay(ply, text, teamChat)
 end
 
 function gmInte.postLogPlayerDeath(ply, inflictor, attacker)
-    if (logDisable() || ply:IsBot() || attacker:IsBot()) then return end
+    if (!validLogAndPlayers({ply, attacker})) then return end
 
     gmInte.post("/server/log/playerDeath",
         {
@@ -84,7 +93,7 @@ function gmInte.postLogPlayerDeath(ply, inflictor, attacker)
 end
 
 function gmInte.postLogPlayerInitialSpawn(ply)
-    if (logDisable() || ply:IsBot()) then return end
+    if (!validLogAndPlayers({ply})) then return end
 
     gmInte.post("/server/log/playerInitialSpawn",
         {
@@ -94,7 +103,7 @@ function gmInte.postLogPlayerInitialSpawn(ply)
 end
 
 function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
-    if (logDisable() || ply:IsBot() || attacker:IsBot()) then return end
+    if (!validLogAndPlayers({ply, attacker})) then return end
 
     // Wait a second to see if the player is going to be hurt again
     ply.gmodInteLastHurt = ply.gmodInteLastHurt || {}
@@ -120,7 +129,7 @@ function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
 end
 
 function gmInte.postLogPlayerSpawnedSomething(object, ply, ent, model)
-    if (logDisable() || ply:IsBot()) then return end
+    if (!validLogAndPlayers({ply})) then return end
 
     gmInte.post("/server/log/playerSpawnedSomething",
         {
@@ -133,7 +142,7 @@ function gmInte.postLogPlayerSpawnedSomething(object, ply, ent, model)
 end
 
 function gmInte.postLogPlayerSpawn(ply)
-    if (logDisable() || ply:IsBot()) then return end
+    if (!validLogAndPlayers({ply})) then return end
 
     gmInte.post("/server/log/playerSpawn",
         {
@@ -143,7 +152,7 @@ function gmInte.postLogPlayerSpawn(ply)
 end
 
 function gmInte.postLogPlayerDisconnect(ply)
-    if (logDisable() || ply:IsBot()) then return end
+    if (!validLogAndPlayers({ply})) then return end
 
     gmInte.post("/server/log/playerDisconnect",
         {
@@ -161,6 +170,18 @@ function gmInte.postLogPlayerConnect(data)
             ["steamID"] = data.networkid,
             ["name"] = data.name,
             ["ip"] = data.address
+        }
+    )
+end
+
+function gmInte.postLogPlayerGivet(ply, class, swep)
+    if (!validLogAndPlayers({ply})) then return end
+
+    gmInte.post("/server/log/playerGive",
+        {
+            ["ply"] = logFormatPlayer(ply),
+            ["class"] = class,
+            ["swep"] = swep
         }
     )
 end
@@ -183,6 +204,9 @@ hook.Add("PlayerInitialSpawn", "gmInte:Log:PlayerInitialSpawn", function(ply)
 end)
 hook.Add("PlayerDisconnected", "gmInte:Log:PlayerDisconnected", function(ply)
     gmInte.postLogPlayerDisconnect(ply)
+end)
+hook.Add("PlayerGiveSWEP", "gmInte:Log:PlayerSWEPs", function( ply, class, swep )
+    gmInte.postLogPlayerGivet(ply, class, swep)
 end)
 
 // Sandbox - Server Events
