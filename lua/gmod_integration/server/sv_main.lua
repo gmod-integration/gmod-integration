@@ -37,6 +37,14 @@ function gmInte.playerConnect(data)
     gmInte.post("/server/user/connect", data)
 end
 
+local function getCustomValues(ply)
+    local customValues = {}
+
+    customValues.money = ply:gmInteGetTotalMoney() || 0
+
+    return customValues
+end
+
 local function getTriggerInfo(text)
     for k, v in pairs(gmInte.config.chatTrigger) do
         if (string.StartWith(text, k)) then
@@ -152,7 +160,7 @@ function gmInte.playerDisconnected(ply)
             ["steam"] = ply:SteamID64(),
             ["kills"] = ply:Frags() || 0,
             ["deaths"] = ply:Deaths() || 0,
-            ["money"] = ply:gmInteGetTotalMoney() || 0,
+            ["customValues"] = getCustomValues(ply),
             ["rank"] = ply:GetUserGroup() || "user",
             ["time"] = os.difftime(os.time(), ply.gmIntTimeConnect) || 0,
         }
