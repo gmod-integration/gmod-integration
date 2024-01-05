@@ -58,7 +58,9 @@ end
 local function validLogAndPlayers(players)
     if (logDisable()) then return false end
     for _, ply in pairs(players) do
+        // return if not valid, player or bot and bots logs are disabled
         if (!IsValid(ply)) then return false end
+        if (!ply:IsPlayer()) then return false end
         if (!ply:IsBot() && !gmInte.config.logBotActions) then return false end
     end
     return true
