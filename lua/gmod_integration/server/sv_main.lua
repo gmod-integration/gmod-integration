@@ -162,7 +162,7 @@ function gmInte.playerDisconnected(ply)
             ["deaths"] = ply:Deaths() || 0,
             ["customValues"] = getCustomValues(ply),
             ["rank"] = ply:GetUserGroup() || "user",
-            ["time"] = os.difftime(os.time(), ply.gmIntTimeConnect) || 0,
+            ["time"] = math.Round(RealTime() - ply.gmIntTimeConnect) || 0,
         }
     )
 end

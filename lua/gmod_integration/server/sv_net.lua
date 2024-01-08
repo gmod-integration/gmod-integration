@@ -33,8 +33,7 @@ end
 local netFuncs = {
     [0] = function(ply)
         gmInte.userFinishConnect(ply)
-        // set gmInteTime to acual time
-        ply.gmIntTimeConnect = os.time()
+        ply.gmIntTimeConnect = math.Round(RealTime())
     end,
     [1] = function(ply, data)
         gmInte.testConnection(ply, data)
