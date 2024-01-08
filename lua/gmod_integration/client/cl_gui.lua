@@ -313,7 +313,7 @@ function gmInte.openConfigMenu(data)
 end
 
 list.Set("DesktopWindows", "GmodIntegration:DesktopWindows", {
-	icon = "gmod_integration/logo.png",
+	icon = "gmod_integration/logo_context.png",
     title = "GM Integration",
 	width		= 960,
 	height		= 700,
