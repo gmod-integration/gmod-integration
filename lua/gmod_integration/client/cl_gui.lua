@@ -313,12 +313,11 @@ function gmInte.openConfigMenu(data)
 end
 
 list.Set("DesktopWindows", "GmodIntegration:DesktopWindows", {
-    // use icon 'gear'
-    icon = "icon16/wrench.png",
-    title = "Gmod Integration",
-    width = 32,
-    height = 32,
-    onewindow = true,
+	icon = "gmod_integration/logo.png",
+    title = "GM Integration",
+	width		= 960,
+	height		= 700,
+	onewindow	= true,
     init = function(icon, window)
         window:Close()
         gmInte.openAdminConfig()
