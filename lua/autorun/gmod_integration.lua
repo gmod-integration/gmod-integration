@@ -27,13 +27,8 @@ local function loadConfig()
 
             local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
             if (!oldConfig.version || (oldConfig.version < gmInte.version)) then
-                if (oldConfig.version && (oldConfig.version < "0.1.2")) then
-                    gmInte.config.id = oldConfig.id
-                    gmInte.config.token = oldConfig.token
-                else
-                    print(" | Merging Config | gmod_integration/sv_config.lua")
-                    table.Merge(gmInte.config, oldConfig)
-                end
+                print(" | Merging Config | gmod_integration/sv_config.lua")
+                table.Merge(gmInte.config, oldConfig)
                 gmInte.config.version = gmInte.version
                 file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
             else

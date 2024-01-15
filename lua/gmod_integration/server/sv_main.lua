@@ -256,6 +256,7 @@ end
 function gmInte.superadminGetConfig(ply)
     if (!gmInte.plyValid(ply) || !ply:IsSuperAdmin()) then return end
 
+    gmInte.config.websocket = GWSockets && true || false
     gmInte.SendNet(2, gmInte.config, ply)
 end
 

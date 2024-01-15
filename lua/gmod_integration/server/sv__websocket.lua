@@ -15,7 +15,6 @@ for k, v in pairs(websocketFeature) do
 end
 
 if (!useWebsocket) then
-    gmInte.config.websocket = false
     return gmInte.log("WebSocket is not used")
 end
 
@@ -27,10 +26,7 @@ if (!GWSockets) then
             gmInte.logError("GWSockets is not installed! Please install it from https://github.com/FredyH/GWSockets/releases")
         end
     end)
-    gmInte.config.websocket = false
     return
-else
-    gmInte.config.websocket = true
 end
 
 local socket = GWSockets.createWebSocket("wss://ws.gmod-integration.com")
