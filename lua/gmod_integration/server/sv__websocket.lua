@@ -2,15 +2,34 @@
 // WebSocket
 //
 
-// TODO made a proper system to detect if the server need to be connected to the websocket
-if (!gmInte.config.syncChat && !gmInte.config.websocket) then
-    gmInte.log("WebSocket is disabled", true)
+local useWebsocket = false
+local websocketFeature = {
+    'syncChat',
+    'websocket',
+}
+
+for k, v in pairs(websocketFeature) do
+    if (gmInte.config[v]) then
+        useWebsocket = true
+    end
+end
+
+if (!useWebsocket) then
+    return gmInte.log("WebSocket is not used")
+end
+
+require("gwsockets")
+
+if (!GWSockets) then
+    timer.Simple(1, function()
+        if (!GWSockets) then
+            gmInte.logError("GWSockets is not installed! Please install it from https://github.com/FredyH/GWSockets/releases")
+        end
+    end)
     return
 end
 
-if (!GWSockets) then return gmInte.logError("GWSockets is not installed! Please install it from https://github.com/FredyH/GWSockets") end
-
-require("gwsockets")
+gmInte.config.websocket = true
 
 local socket = GWSockets.createWebSocket("wss://ws.gmod-integration.com")
 

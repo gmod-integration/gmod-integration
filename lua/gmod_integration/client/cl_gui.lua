@@ -103,6 +103,7 @@ local possibleConfig = {
     ["syncChat"] = {
         ["label"] = "Sync Chat",
         ["description"] = "Sync chat between the server and the discord server.",
+        ["websocket"] = true,
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -187,6 +188,22 @@ local possibleConfig = {
     },
 }
 
+/*
+
+
+    // if data.websocket is false add button to download websocket
+    if !data.websocket then
+        local button = vgui.Create("DButton")
+        button:SetText("Download Websocket")
+        button.DoClick = function()
+            gui.OpenURL("https://github.com/FredyH/GWSockets/releases")
+        end
+        button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+        buttonGrid:AddItem(button)
+    end
+
+*/
+
 local buttonsInfo = {
     {
         ["label"] = "Open Webpanel",
@@ -200,6 +217,21 @@ local buttonsInfo = {
             gmInte.SendNet("1")
         end,
     },
+    {
+        ["label"] = "Buy Premium",
+        ["func"] = function()
+            gui.OpenURL("https://gmod-integration.com/premium")
+        end,
+    },
+    {
+        ["label"] = "Install Websocket",
+        ["condition"] = function(data)
+            return !data.websocket
+        end,
+        ["func"] = function()
+            gui.OpenURL("https://github.com/FredyH/GWSockets/releases")
+        end,
+    }
 }
 
 function gmInte.openConfigMenu(data)
@@ -223,7 +255,7 @@ function gmInte.openConfigMenu(data)
 
     local messageLabel = vgui.Create("DLabel", messagePanel)
     messageLabel:Dock(FILL)
-    messageLabel:SetText("This config is superior to the webpanel config. If you change something here you can override the webpanel config. For example if you disable the logs here, the logs will not be available on the webpanel.")
+    messageLabel:SetText("This config is superior to the webpanel config.\nIf you change something here you can override the webpanel config.\nSome features require a websocket connection to work properly.")
     messageLabel:SetWrap(true)
 
 
@@ -273,6 +305,10 @@ function gmInte.openConfigMenu(data)
                     end
                 elseif v.type == "checkbox" then
                     input = vgui.Create("DComboBox", panel)
+                    // if websocket is required and websocket is not enabled (!GWSockets) then disable the checkbox
+                    if v.websocket && !data.websocket then
+                        input:SetEnabled(false)
+                    end
                     input:AddChoice("Enabled")
                     input:AddChoice("Disabled")
                     input:SetText(v.value(k, data[k]) && "Enabled" || "Disabled")
@@ -285,6 +321,9 @@ function gmInte.openConfigMenu(data)
                 input:SetSize(150, 25)
 
                 if v.description then
+                    if (v.websocket && !data.websocket) then
+                        v.description = v.description .. "\n\nThis feature require a websocket connection to work properly."
+                    end
                     input:SetTooltip(v.description)
                 end
 
@@ -293,22 +332,30 @@ function gmInte.openConfigMenu(data)
         end
     end
 
-    // grid of buttons (2 buttons per row take 50% of the width)
-    local buttonGrid = vgui.Create("DGrid", frame)
-    buttonGrid:Dock(BOTTOM)
-    buttonGrid:DockMargin(5, 10, 5, 5)
-    buttonGrid:SetCols(2)
-    buttonGrid:SetColWide(frame:GetWide() / 2 - 10)
-    buttonGrid:SetRowHeight(35)
+        // grid of buttons (2 buttons per row take 50% of the width)
+        local buttonGrid = vgui.Create("DGrid", frame)
+        buttonGrid:Dock(BOTTOM)
+        buttonGrid:DockMargin(5, 10, 5, 5)
+        buttonGrid:SetCols(2)
+        buttonGrid:SetColWide(frame:GetWide() / 2 - 10)
+        buttonGrid:SetRowHeight(35)
 
-    for k, v in pairs(buttonsInfo) do
-        local button = vgui.Create("DButton")
-        button:SetText(v.label)
-        button.DoClick = function()
-            v.func()
+        local buttonsCount = 0
+        for k, v in pairs(buttonsInfo) do
+            if v.condition && !v.condition(data) then continue end
+            local button = vgui.Create("DButton")
+            button:SetText(v.label)
+            button.DoClick = function()
+                v.func()
+            end
+            button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+            buttonGrid:AddItem(button)
+            buttonsCount = buttonsCount + 1
         end
-        button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
-        buttonGrid:AddItem(button)
+
+    if buttonsCount % 2 == 1 then
+        local lastButton = buttonGrid:GetItems()[buttonsCount]
+        lastButton:SetWide(frame:GetWide() - 20)
     end
 end
 
