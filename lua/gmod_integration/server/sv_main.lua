@@ -67,13 +67,11 @@ end
 
 function gmInte.playerSay(ply, text, team)
     if (!gmInte.config.syncChat) then return end
-    local triggerInfo = getTriggerInfo(text)
-    if (!triggerInfo && !gmInte.config.chatTriggerAll) then return end
 
     gmInte.post("/server/user/say",
         {
             ["steamID64"] = ply:SteamID64(),
-            ["message"] = string.sub(text, string.len(triggerInfo.trigger) + 1),
+            ["message"] = text,
             ["name"] = ply:Nick(),
             ["usergroup"] = ply:GetUserGroup(),
             ["message_info"] = triggerInfo

@@ -34,33 +34,6 @@ gmInte.config.token = "" // Server Token
 */
 gmInte.config.websocket = false // If true, the addon will use the websocket instead of the http requests
 
-// Chat
-gmInte.config.chatTriggerAll = false // If true, the addon will sync all the messages in the chat
-gmInte.config.chatTrigger = {
-/* Example:
-    ["/example "] = {
-        ["prefix"] = "[Example] ", // The prefix of the message
-        ["show_rank"] = false, // If true, the addon will show the rank of the player in the prefix
-        ["anonymous"] = false, // If true, the addon will not show the name and the avatar of the player in the message
-        ["channel"] = "admin_sync_chat" // If set, the addon will use a custom channel to sync the message (use in multi chat syncronization)
-    },
-    ["/admin_chat "] = {
-        ["prefix"] = "[Admin Chat]",
-        ["show_rank"] = true,
-        ["channel"] = "discord_channel_id_admin_chat"
-    },
-*/
-    ["// "] = {
-        ["prefix"] = "",
-        ["show_rank"] = false,
-        ["anonymous"] = false,
-        ["custom_id"] = "admin_sync_chat"
-    },
-    ["/ano "] = {
-        ["anonymous"] = true,
-    },
-} // Trigger to sync the messages in a discord channel (the key is the trigger and the value is the replacement)
-
 // Other
 gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
 gmInte.config.supportLink = "" // The link of your support (shown when a player do not have the requiments to join the server)

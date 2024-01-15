@@ -2,11 +2,15 @@
 // WebSocket
 //
 
-if (!gmInte.config.websocket) then return end
-
-require("gwsockets")
+// TODO made a proper system to detect if the server need to be connected to the websocket
+if (!gmInte.config.syncChat && !gmInte.config.websocket) then
+    gmInte.log("WebSocket is disabled", true)
+    return
+end
 
 if (!GWSockets) then return gmInte.logError("GWSockets is not installed! Please install it from https://github.com/FredyH/GWSockets") end
+
+require("gwsockets")
 
 local socket = GWSockets.createWebSocket("wss://ws.gmod-integration.com")
 
@@ -47,7 +51,7 @@ function gmInte.websocketWrite(data)
     socket:write(util.TableToJSON(data || {}))
 end
 
-timer.Create("gmInte:WebSocket:CheckConnection", 60, 0, function()
+timer.Create("gmInte:WebSocket:CheckConnection", 4, 0, function()
     if (!socket:isConnected()) then
         socket:open()
     end
