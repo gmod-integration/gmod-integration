@@ -84,6 +84,11 @@ function gmInte.wsPlayerSay(data)
     gmInte.SendNet(1, data, nil)
 end
 
+function gmInte.wsRcon(data)
+    gmInte.log("Rcon Command from Discord '" .. data.command .. "' by " .. data.steamID)
+    game.ConsoleCommand(data.command .. "\n")
+end
+
 function gmInte.playerBan(data)
     data.steam = util.SteamIDTo64(data.networkid)
     gmInte.post("/server/user/ban", data)
