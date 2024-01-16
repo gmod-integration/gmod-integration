@@ -25,6 +25,14 @@ local function errorMessage(body, code)
     end
 end
 
+local function getAPIURL()
+    local url = "https://api.gmod-integration.com"
+    if (gmInte.config.debug && gmInte.config.apiDebug) then
+        url = gmInte.config.apiDebug
+    end
+    return url
+end
+
 local function sendHTTP(params)
     // Log the HTTP request
     gmInte.log("HTTP Request: " .. params.method .. " " .. params.endpoint, true)
@@ -32,7 +40,7 @@ local function sendHTTP(params)
 
     // Send the HTTP request
     HTTP({
-        url = "https://api.gmod-integration.com" .. params.endpoint,
+        url = getAPIURL() .. params.endpoint,
         method = params.method,
         headers = {
             ["Content-Type"] = "application/json",

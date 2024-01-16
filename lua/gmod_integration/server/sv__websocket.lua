@@ -29,7 +29,15 @@ if (!GWSockets) then
     return
 end
 
-local socket = GWSockets.createWebSocket("wss://ws.gmod-integration.com")
+local function getWebSocketURL()
+    local url = "wss://ws.gmod-integration.com"
+    if (gmInte.config.debug && gmInte.config.wssDebug) then
+        url = gmInte.config.wssDebug
+    end
+    return url
+end
+
+local socket = GWSockets.createWebSocket(getWebSocketURL())
 
 // Authentication
 socket:setHeader("id", gmInte.config.id)
