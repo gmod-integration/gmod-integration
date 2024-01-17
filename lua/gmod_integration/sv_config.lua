@@ -37,7 +37,6 @@ gmInte.config.websocket = false // If true, the addon will use the websocket ins
 // Other
 gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
 gmInte.config.supportLink = "" // The link of your support (shown when a player do not have the requiments to join the server)
-gmInte.config.debug = false // If true, the addon will show debug informations in the console
 gmInte.config.logBotActions = false // If true, the addon will log the messages of the bot in the console
 
 //
@@ -70,3 +69,10 @@ gmInte.config.filterOnBan = true // If true, the addon will filter the players a
 
 // Will disable the features of the addon
 gmInte.config.sendLog = false // Disable the logs
+
+//
+// Debug & Development
+//
+
+gmInte.config.debug = false // If true, the addon will show debug informations in the console
+gmInte.config.devInstance = false // If true, the addon will use the development instance of API and Websocket

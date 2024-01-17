@@ -31,9 +31,14 @@ end
 
 local function getWebSocketURL()
     local url = "wss://ws.gmod-integration.com"
-    if (gmInte.config.debug && gmInte.config.wssDebug) then
-        url = gmInte.config.wssDebug
+    local devURL = "wss://dev-ws.gmod-integration.com"
+
+    if (!gmInte.config.debug) then return url end
+    if (gmInte.config.devInstance) then
+        gmInte.log("Using dev Instance", true)
+        return devURL
     end
+
     return url
 end
 

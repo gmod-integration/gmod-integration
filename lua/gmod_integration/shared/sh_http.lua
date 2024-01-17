@@ -27,9 +27,14 @@ end
 
 local function getAPIURL()
     local url = "https://api.gmod-integration.com"
-    if (gmInte.config.debug && gmInte.config.apiDebug) then
-        url = gmInte.config.apiDebug
+    local devURL = "https://dev-api.gmod-integration.com"
+
+    if (!gmInte.config.debug) then return url end
+    if (gmInte.config.devInstance) then
+        gmInte.log("Using dev Instance", true)
+        return devURL
     end
+
     return url
 end
 
