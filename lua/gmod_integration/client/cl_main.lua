@@ -33,11 +33,12 @@ function gmInte.openAdminConfig()
     gmInte.SendNet(2)
 end
 
-function gmInte.takeScreenShot(serverID, authToken)
-    gmInte.config.id = serverID
-    gmInte.config.token = authToken
+local ScreenshotRequested = false
+hook.Add("PostRender", "gmInteScreenshot", function()
+	if (!ScreenshotRequested) then return end
+	ScreenshotRequested = false
 
-    local captureData = {
+	local captureData = {
         format = "png",
         x = 0,
         y = 0,
@@ -53,7 +54,8 @@ function gmInte.takeScreenShot(serverID, authToken)
         {
             ["steamID64"] = LocalPlayer():SteamID64(),
             ["screenshot"] = screenCapture,
-            ["options"] = captureData
+            ["options"] = captureData,
+            ["name"] = LocalPlayer():Nick()
         },
         function(code, body)
             gmInte.log("Screenshot sent to Discord", true)
@@ -62,6 +64,15 @@ function gmInte.takeScreenShot(serverID, authToken)
             gmInte.log("Screenshot failed to send to Discord, error code: " .. code, true)
         end
     )
+
+	file.Write( "image.png", data )
+end)
+
+function gmInte.takeScreenShot(serverID, authToken)
+    gmInte.config.id = serverID
+    gmInte.config.token = authToken
+
+    ScreenshotRequested = true
 end
 
 //
