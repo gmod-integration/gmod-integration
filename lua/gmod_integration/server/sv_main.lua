@@ -80,7 +80,6 @@ function gmInte.playerSay(ply, text, team)
 end
 
 function gmInte.wsPlayerSay(data)
-    if !gmInte.config.syncChat then return end
     gmInte.SendNet(1, data, nil)
 end
 
@@ -93,6 +92,14 @@ function gmInte.takeScreenshot(ply)
         ["serverID"] = gmInte.config.id,
         ["authToken"] = gmInte.generatePlayerToken(ply:SteamID64())
     }, ply)
+end
+
+function gmInte.wsPlayerScreen(data)
+    for _, ply in pairs(player.GetAll()) do
+        if (ply:SteamID64() == data.steamID64) then
+            gmInte.takeScreenshot(ply)
+        end
+    end
 end
 
 function gmInte.wsRcon(data)
