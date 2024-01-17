@@ -81,6 +81,7 @@ hook.Add("OnPlayerChat", "gmInteChatCommands", function(ply, text, teamChat, isD
     if (ply != LocalPlayer()) then return end
     text = string.lower(text)
     text = string.sub(text, 2)
+
     if (text == "screen") then
         gmInte.SendNet(4)
     end
