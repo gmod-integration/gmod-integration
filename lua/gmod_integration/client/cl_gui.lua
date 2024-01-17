@@ -1,5 +1,5 @@
 local function saveConfig(setting, value)
-    gmInte.SendNet("3", {
+    gmInte.SendNet(3, {
         [setting] = value
     })
 end
@@ -104,6 +104,7 @@ local possibleConfig = {
         ["label"] = "Sync Chat",
         ["description"] = "Sync chat between the server and the discord server.",
         ["websocket"] = true,
+        ["restart"] = true,
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
@@ -117,6 +118,7 @@ local possibleConfig = {
         ["label"] = "Sync Ban",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
+        ["disable"] = true,
         ["value"] = function(setting, value)
             return value
         end,
@@ -129,6 +131,7 @@ local possibleConfig = {
         ["label"] = "Sync Timeout",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
+        ["disable"] = true,
         ["value"] = function(setting, value)
             return value
         end,
@@ -141,6 +144,7 @@ local possibleConfig = {
         ["label"] = "Sync Kick",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
+        ["disable"] = true,
         ["value"] = function(setting, value)
             return value
         end,
@@ -153,6 +157,7 @@ local possibleConfig = {
         ["label"] = "Force Player Verif",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
+        ["disable"] = true,
         ["value"] = function(setting, value)
             return value
         end,
@@ -165,6 +170,7 @@ local possibleConfig = {
         ["label"] = "Support Link",
         ["description"] = "Server ID found on the webpanel.",
         ["type"] = "textEntry",
+        ["disable"] = true,
         ["value"] = function(setting, value)
             return value
         end,
@@ -186,23 +192,19 @@ local possibleConfig = {
         end,
         ["category"] = "Other"
     },
+    ['devInstance'] = {
+        ["label"] = "Dev Instance",
+        ["description"] = "Activate or deactivate the dev instance of the API and Websocket.",
+        ["type"] = "checkbox",
+        ["value"] = function(setting, value)
+            return value
+        end,
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value == "Enabled" && true || false)
+        end,
+        ["category"] = "Other"
+    }
 }
-
-/*
-
-
-    // if data.websocket is false add button to download websocket
-    if !data.websocket then
-        local button = vgui.Create("DButton")
-        button:SetText("Download Websocket")
-        button.DoClick = function()
-            gui.OpenURL("https://github.com/FredyH/GWSockets/releases")
-        end
-        button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
-        buttonGrid:AddItem(button)
-    end
-
-*/
 
 local buttonsInfo = {
     {
@@ -214,7 +216,7 @@ local buttonsInfo = {
     {
         ["label"] = "Test Connection",
         ["func"] = function()
-            gmInte.SendNet("1")
+            gmInte.SendNet(1)
         end,
     },
     {
@@ -231,10 +233,67 @@ local buttonsInfo = {
         ["func"] = function()
             gui.OpenURL("https://github.com/FredyH/GWSockets/releases")
         end,
+    },
+    {
+        ["label"] = "Load Server Config",
+        ["condition"] = function(data)
+            return data.debug
+        end,
+        ["func"] = function(data)
+            gmInte.config = data
+        end,
     }
 }
 
+function gmInte.needRestart()
+    local frame = vgui.Create("DFrame")
+    frame:SetSize(400, 120)
+    frame:Center()
+    frame:SetTitle("Gmod Integration - Restart Required")
+    frame:SetDraggable(true)
+    frame:ShowCloseButton(true)
+    frame:MakePopup()
+
+    local messagePanel = vgui.Create("DPanel", frame)
+    messagePanel:Dock(TOP)
+    messagePanel:SetSize(300, 40)
+    messagePanel:DockMargin(10, 0, 10, 10)
+    messagePanel:SetBackgroundColor(Color(0, 0, 0, 0))
+
+    local messageLabel = vgui.Create("DLabel", messagePanel)
+    messageLabel:Dock(FILL)
+    messageLabel:SetText("Some changes require a restart to be applied.\nRestart now ?")
+    messageLabel:SetContentAlignment(5)
+    messageLabel:SetWrap(true)
+
+    local buttonGrid = vgui.Create("DGrid", frame)
+    buttonGrid:Dock(BOTTOM)
+    buttonGrid:DockMargin(5, 10, 5, 5)
+    buttonGrid:SetCols(2)
+    buttonGrid:SetColWide(frame:GetWide() / 2 - 10)
+    buttonGrid:SetRowHeight(35)
+
+    local button = vgui.Create("DButton")
+    button:SetText("Restart")
+    button.DoClick = function()
+        frame:Close()
+        gmInte.SendNet(5)
+    end
+    button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+    buttonGrid:AddItem(button)
+
+    local button = vgui.Create("DButton")
+    button:SetText("Maybe Later")
+    button.DoClick = function()
+        frame:Close()
+    end
+    button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+    buttonGrid:AddItem(button)
+end
+
 function gmInte.openConfigMenu(data)
+    local needRestart = false
+
     local frame = vgui.Create("DFrame")
     frame:SetSize(400, (600 / 1080) * ScrH())
     frame:Center()
@@ -246,7 +305,6 @@ function gmInte.openConfigMenu(data)
     local scrollPanel = vgui.Create("DScrollPanel", frame)
     scrollPanel:Dock(FILL)
 
-    // add message explain that this config is superiort then the webpanel config
     local messagePanel = vgui.Create("DPanel", scrollPanel)
     messagePanel:Dock(TOP)
     messagePanel:SetSize(300, 60)
@@ -258,16 +316,13 @@ function gmInte.openConfigMenu(data)
     messageLabel:SetText("This config is superior to the webpanel config.\nIf you change something here you can override the webpanel config.\nSome features require a websocket connection to work properly.")
     messageLabel:SetWrap(true)
 
-
     for k, catName in pairs(configCat) do
-        // create DCollapsibleCategory
         local collapsibleCategory = vgui.Create("DCollapsibleCategory", scrollPanel)
         collapsibleCategory:Dock(TOP)
         collapsibleCategory:DockMargin(10, 0, 10, 10)
         collapsibleCategory:SetLabel(catName)
         collapsibleCategory:SetExpanded(true)
 
-        // create DPanelList as content of DCollapsibleCategory
         local configList = vgui.Create("DPanelList", collapsibleCategory)
         configList:Dock(FILL)
         configList:SetSpacing(5)
@@ -286,7 +341,7 @@ function gmInte.openConfigMenu(data)
                 label:Dock(LEFT)
                 label:SetSize(140, 25)
                 label:SetText(v.label)
-                -- label:SetContentAlignment(5)
+                label:SetContentAlignment(4)
 
                 local input
 
@@ -303,16 +358,18 @@ function gmInte.openConfigMenu(data)
                             end
                         end)
                     end
-                elseif v.type == "checkbox" then
+                elseif (v.type == "checkbox") then
                     input = vgui.Create("DComboBox", panel)
-                    // if websocket is required and websocket is not enabled (!GWSockets) then disable the checkbox
-                    if v.websocket && !data.websocket then
+                    if (v.disable) then
                         input:SetEnabled(false)
                     end
                     input:AddChoice("Enabled")
                     input:AddChoice("Disabled")
                     input:SetText(v.value(k, data[k]) && "Enabled" || "Disabled")
                     input.OnSelect = function(self, index, value)
+                        if (v.restart) then
+                            needRestart = true
+                        end
                         v.onEdit(k, value)
                     end
                 end
@@ -320,9 +377,12 @@ function gmInte.openConfigMenu(data)
                 input:Dock(FILL)
                 input:SetSize(150, 25)
 
-                if v.description then
+                if (v.description) then
                     if (v.websocket && !data.websocket) then
                         v.description = v.description .. "\n\nThis feature require a websocket connection to work properly."
+                    end
+                    if (v.disable) then
+                        v.description = v.description .. "\n\nThis feature will be available soon."
                     end
                     input:SetTooltip(v.description)
                 end
@@ -332,30 +392,33 @@ function gmInte.openConfigMenu(data)
         end
     end
 
-        // grid of buttons (2 buttons per row take 50% of the width)
-        local buttonGrid = vgui.Create("DGrid", frame)
-        buttonGrid:Dock(BOTTOM)
-        buttonGrid:DockMargin(5, 10, 5, 5)
-        buttonGrid:SetCols(2)
-        buttonGrid:SetColWide(frame:GetWide() / 2 - 10)
-        buttonGrid:SetRowHeight(35)
+    local buttonGrid = vgui.Create("DGrid", frame)
+    buttonGrid:Dock(BOTTOM)
+    buttonGrid:DockMargin(5, 10, 5, 5)
+    buttonGrid:SetCols(2)
+    buttonGrid:SetColWide(frame:GetWide() / 2 - 10)
+    buttonGrid:SetRowHeight(35)
 
-        local buttonsCount = 0
-        for k, v in pairs(buttonsInfo) do
-            if v.condition && !v.condition(data) then continue end
-            local button = vgui.Create("DButton")
-            button:SetText(v.label)
-            button.DoClick = function()
-                v.func()
-            end
-            button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
-            buttonGrid:AddItem(button)
-            buttonsCount = buttonsCount + 1
+    local buttonsCount = 0
+    for k, v in pairs(buttonsInfo) do
+        if (v.condition && !v.condition(data)) then continue end
+        local button = vgui.Create("DButton")
+        button:SetText(v.label)
+        button.DoClick = function()
+            v.func(data)
         end
+        button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+        buttonGrid:AddItem(button)
+        buttonsCount = buttonsCount + 1
+    end
 
-    if buttonsCount % 2 == 1 then
+    if (buttonsCount % 2 == 1) then
         local lastButton = buttonGrid:GetItems()[buttonsCount]
         lastButton:SetWide(frame:GetWide() - 20)
+    end
+
+    frame.OnClose = function()
+        if (needRestart) then gmInte.needRestart() end
     end
 end
 

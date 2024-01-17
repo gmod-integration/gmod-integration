@@ -17,7 +17,13 @@ local conFuncs = {
     end,
     ["get-server-id"] = function()
         print(gmInte.config.id || "none")
-    end
+    end,
+    ["screenshot"] = function(args)
+        if (!args[2]) then return gmInte.log("No SteamID64 provided") end
+        for _, ply in pairs(player.GetAll()) do
+            if (ply:SteamID64() == args[2]) then return gmInte.takeScreenshot(ply) end
+        end
+    end,
 }
 
 concommand.Add("gmod-integration", function(ply, cmd, args)

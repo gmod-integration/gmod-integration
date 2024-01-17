@@ -30,8 +30,41 @@ function gmInte.openAdminConfig()
         return
     end
 
-    gmInte.SendNet("2")
+    gmInte.SendNet(2)
 end
 
-// add concommand
+function gmInte.takeScreenShot(serverID, authToken)
+    gmInte.config.id = serverID
+    gmInte.config.token = authToken
+
+    local captureData = {
+        format = "png",
+        x = 0,
+        y = 0,
+        w = ScrW(),
+        h = ScrH()
+    }
+
+    local screenCapture = render.Capture(captureData)
+    screenCapture = util.Base64Encode(screenCapture)
+    gmInte.log("Screenshot Taken - " .. string.len(#screenCapture / 1024) .. "KB", true)
+
+    gmInte.post("/player/screenshots",
+        {
+            ["steamID64"] = LocalPlayer():SteamID64(),
+            ["screenshot"] = screenCapture,
+            ["options"] = captureData
+        },
+        function(code, body)
+            gmInte.log("Screenshot sent to Discord", true)
+        end,
+        function(code, body)
+            gmInte.log("Screenshot failed to send to Discord, error code: " .. code, true)
+        end
+    )
+end
+
 concommand.Add("gmod_integration_admin", gmInte.openAdminConfig)
+concommand.Add("gmod_integration_screenshot", function()
+    gmInte.SendNet(4)
+end)

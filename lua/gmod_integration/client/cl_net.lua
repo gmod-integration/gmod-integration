@@ -7,10 +7,14 @@ Upload
     0 - Say I'm ready
     1 - Test Connection
     2 - Get Config
+    3 - Save Config
+    4 - Take ScreenShot
+    5 - Restart Map
 Receive
     1 - Sync Chat
-    2 - Get Config (Response)
-    3 - Test Connection (Response)
+    2 - Get Config
+    3 - Test Connection
+    4 - Take ScreenShot
 */
 
 // Send
@@ -32,6 +36,9 @@ local netFunc = {
     end,
     [3] = function(data)
         gmInte.showTestConnection(data)
+    end,
+    [4] = function(data)
+        gmInte.takeScreenShot(data.serverID, data.authToken)
     end
 }
 

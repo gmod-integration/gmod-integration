@@ -84,6 +84,17 @@ function gmInte.wsPlayerSay(data)
     gmInte.SendNet(1, data, nil)
 end
 
+function gmInte.generatePlayerToken(steamID64)
+    return util.SHA256(steamID64 .. '-' .. gmInte.config.token .. '-' .. gmInte.publicTempToken)
+end
+
+function gmInte.takeScreenshot(ply)
+    gmInte.SendNet(4, {
+        ["serverID"] = gmInte.config.id,
+        ["authToken"] = gmInte.generatePlayerToken(ply:SteamID64())
+    }, ply)
+end
+
 function gmInte.wsRcon(data)
     gmInte.log("Rcon Command from Discord '" .. data.command .. "' by " .. data.steamID)
     game.ConsoleCommand(data.command .. "\n")
@@ -126,7 +137,11 @@ function gmInte.sendStatus(start)
             ["maxplayers"] = game.MaxPlayers(),
             ["gamemode"] = engine.ActiveGamemode()
         },
-        function() end,
+        function(code, body)
+            if (body.publicTempToken) then
+                gmInte.publicTempToken = body.publicTempToken
+            end
+        end,
         function(code, body, headers)
             gmInte.logError("Your Credentials are Invalid: (id: " .. (gmInte.config.id == "" && "empty" || gmInte.config.id) .. ", token: " .. (gmInte.config.token == "" && "empty" || "not empty but hide") .. ")")
             gmInte.logHint("Use 'gmod-integration setting id YOUR_SERVER_ID' and 'gmod-integration setting token YOUR_SERVER_TOKEN' to set your credentials, you can find them on https://gmod-integration.com/guild/servers")

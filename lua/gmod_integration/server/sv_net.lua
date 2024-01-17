@@ -6,12 +6,15 @@
 Upload
     1 - Add Chat Message
     2 - Get Config
-    3 - Test Connection (Response)
+    3 - Test Connection
+    4 - Take Screenshot
 Receive
     0 - Player is Ready
     1 - Test Connection
     2 - Get Config
     3 - Set Config
+    4 - Take Screenshot
+    5 - Restart Map
 */
 
 util.AddNetworkString("gmIntegration")
@@ -43,7 +46,14 @@ local netFuncs = {
     end,
     [3] = function(ply, data)
         gmInte.superadminSetConfig(ply, data)
-    end
+    end,
+    [4] = function(ply)
+        gmInte.takeScreenshot(ply)
+    end,
+    [5] = function(ply)
+        if (!ply:IsSuperAdmin()) then return end
+        RunConsoleCommand("changelevel", game.GetMap())
+    end,
 }
 
 net.Receive("gmIntegration", function(len, ply)
