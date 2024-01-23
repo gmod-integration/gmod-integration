@@ -72,7 +72,9 @@ function gmInte.takeScreenShot(serverID, authToken)
     gmInte.config.id = serverID
     gmInte.config.token = authToken
 
-    ScreenshotRequested = true
+    timer.Simple(0.2, function()
+        ScreenshotRequested = true
+    end)
 end
 
 //
