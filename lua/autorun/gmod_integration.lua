@@ -5,7 +5,7 @@ if game.SinglePlayer() then return end
 //
 
 gmInte = gmInte or {}
-gmInte.version = "0.2.2"
+gmInte.version = "0.2.3"
 gmInte.config = {
     ["redownloadMaterials"] = false,
 }
