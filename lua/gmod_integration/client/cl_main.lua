@@ -34,11 +34,17 @@ function gmInte.openAdminConfig()
 end
 
 local ScreenshotRequested = false
-hook.Add("PostRender", "gmInteScreenshot", function()
-	if (!ScreenshotRequested) then return end
-	ScreenshotRequested = false
+local frameCount = 0
 
-	local captureData = {
+hook.Add("PostRender", "gmInteScreenshot", function()
+    if (!ScreenshotRequested) then return end
+
+    frameCount = frameCount + 1
+    if (frameCount < 2) then return end
+
+    ScreenshotRequested = false
+
+    local captureData = {
         format = "png",
         x = 0,
         y = 0,
@@ -64,17 +70,14 @@ hook.Add("PostRender", "gmInteScreenshot", function()
             gmInte.log("Screenshot failed to send to Discord, error code: " .. code, true)
         end
     )
-
-	file.Write( "image.png", data )
 end)
 
 function gmInte.takeScreenShot(serverID, authToken)
     gmInte.config.id = serverID
     gmInte.config.token = authToken
 
-    timer.Simple(0.2, function()
-        ScreenshotRequested = true
-    end)
+    ScreenshotRequested = true
+    frameCount = 0
 end
 
 //
