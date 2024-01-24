@@ -34,17 +34,11 @@ function gmInte.openAdminConfig()
 end
 
 local ScreenshotRequested = false
-local frameCount = 0
-
 hook.Add("PostRender", "gmInteScreenshot", function()
-    if (!ScreenshotRequested) then return end
+	if (!ScreenshotRequested) then return end
+	ScreenshotRequested = false
 
-    frameCount = frameCount + 1
-    if (frameCount < 2) then return end
-
-    ScreenshotRequested = false
-
-    local captureData = {
+	local captureData = {
         format = "png",
         x = 0,
         y = 0,
@@ -76,8 +70,9 @@ function gmInte.takeScreenShot(serverID, authToken)
     gmInte.config.id = serverID
     gmInte.config.token = authToken
 
-    ScreenshotRequested = true
-    frameCount = 0
+    timer.Simple(0.2, function()
+        ScreenshotRequested = true
+    end)
 end
 
 //
