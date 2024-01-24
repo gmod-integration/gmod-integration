@@ -8,7 +8,7 @@ Gmod Integration is a Garry's Mod addon that allows you to connect your Garry's 
 
 🚀・Straightforward Setup: Install our workshop addon, invite our bot to your Discord, and you're good to go. Configuration is a breeze with our user-friendly website.
 
-🌟・A Trusted Choice: Over 3,350 users across more than 48 guilds have chosen Gmod Integration. Will you join our growing community?
+🌟・A Trusted Choice: Over 12,350 users across more than 122 guilds have chosen Gmod Integration. Will you join our growing community?
 
 ## Requirements
 
