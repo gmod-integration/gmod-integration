@@ -1,7 +1,7 @@
 surface.CreateFont("GmodIntegration_Roboto_16", {
     font = "Roboto",
     size = 16,
-    weight = 500,
+    weight = 100,
     antialias = true,
     shadow = false
 })

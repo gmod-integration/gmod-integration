@@ -1,27 +1,26 @@
 function gmInte.openVerifPopup()
     local frame = vgui.Create("DFrame")
-    frame:SetSize(400, 140)
+    frame:SetSize(400, 200)
     frame:Center()
     frame:SetTitle("Gmod Integration - Verification Required")
     frame:SetDraggable(false)
     frame:ShowCloseButton(false)
     frame:MakePopup()
+    frame.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, gmInte.getColor("background"))
+    end
 
-    local messagePanel = vgui.Create("DPanel", frame)
-    messagePanel:Dock(TOP)
-    messagePanel:SetSize(300, 40)
-    messagePanel:DockMargin(10, 0, 10, 10)
-    messagePanel:SetBackgroundColor(Color(0, 0, 0, 0))
-
-    local messageLabel = vgui.Create("DLabel", messagePanel)
+    local messageLabel = vgui.Create("DLabel", frame)
     messageLabel:Dock(FILL)
-    messageLabel:SetText("Hey! It looks like you haven't linked your Steam account to Discord yet. This is required to play on this server. Please click the button below to link your account. After you've done that, click the refresh button.")
+    messageLabel:DockMargin(10, 0, 10, 0)
+    messageLabel:SetText("Hey,\nIt looks like you haven't linked your Steam account to Discord yet. This is required to play on this server. Please click the button below to link your account.\n\nAfter you've done that, click the refresh button.")
     messageLabel:SetContentAlignment(5)
+    messageLabel:SetFont("GmodIntegration_Roboto_16")
     messageLabel:SetWrap(true)
 
     local buttonGrid = vgui.Create("DGrid", frame)
     buttonGrid:Dock(BOTTOM)
-    buttonGrid:DockMargin(5, 10, 5, 5)
+    buttonGrid:DockMargin(10, 0, 10, 10)
     buttonGrid:SetCols(2)
     buttonGrid:SetColWide(frame:GetWide() / 2 - 10)
     buttonGrid:SetRowHeight(35)
@@ -31,8 +30,16 @@ function gmInte.openVerifPopup()
     button.DoClick = function()
         gui.OpenURL("https://verif.gmod-integration.com")
     end
-    button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+    button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
     buttonGrid:AddItem(button)
+    button:SetTextColor(Color(255, 255, 255))
+    button.Paint = function(self, w, h)
+        local color = gmInte.getColor("primary")
+        if self:IsHovered() then
+            color = gmInte.getColor("primary-active")
+        end
+        draw.RoundedBox(8, 0, 0, w, h, color)
+    end
 
     local button = vgui.Create("DButton")
     button:SetText("Refresh Verification")
@@ -45,6 +52,16 @@ function gmInte.openVerifPopup()
             LocalPlayer():ChatPrint("Failed to refresh verification: " .. err)
         end)
     end
-    button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+    button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
     buttonGrid:AddItem(button)
+    button:SetTextColor(Color(255, 255, 255))
+    button.Paint = function(self, w, h)
+        local color = gmInte.getColor("primary")
+        if self:IsHovered() then
+            color = gmInte.getColor("primary-active")
+        end
+        draw.RoundedBox(8, 0, 0, w, h, color)
+    end
 end
+
+gmInte.openVerifPopup()
