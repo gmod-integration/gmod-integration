@@ -4,9 +4,9 @@ if game.SinglePlayer() then return end
 // Variables
 //
 
-gmInte = gmInte or {}
+gmInte = gmInte || {}
 gmInte.version = "0.3.0"
-gmInte.config = {
+gmInte.config = gmInte.config || {
     ["redownloadMaterials"] = false,
 }
 gmInte.materials = {}
@@ -17,7 +17,6 @@ gmInte.materials = {}
 
 local function loadConfig()
     if (SERVER) then
-        print(" | Loading File | gmod_integration/sv_config.lua")
         RunConsoleCommand("sv_hibernate_think", "1")
         if (!file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA")) then
             file.CreateDir("gm_integration")
