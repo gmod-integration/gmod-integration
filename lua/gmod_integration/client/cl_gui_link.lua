@@ -48,5 +48,3 @@ function gmInte.openVerifPopup()
     button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
     buttonGrid:AddItem(button)
 end
-
-gmInte.openVerifPopup()
