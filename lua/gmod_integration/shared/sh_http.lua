@@ -69,11 +69,11 @@ function gmInte.http.requestAPI(params)
                 return failed({ ["error"] = "Invalid Content-Type" }, code, headers)
             end
 
-            // Tableify the body if it's JSON
+            // Parse body
             body = util.JSONToTable(body || "{}")
 
             // Return success
-            return success(body)
+            return success(code, body)
         end,
         ["failed"] = function(error)
             gmInte.logError(error)

@@ -78,7 +78,10 @@ end
 function gmInte.verifyPlayer(ply)
     if (!gmInte.plyValid(ply)) then return end
     gmInte.http.get("/players/" .. ply:SteamID64(), function(code, data)
-        if ((data && data.steam_id && ply.gmIntUnVerified) || !gmInte.config.forcePlayerLink) then
+        if (!gmInte.config.forcePlayerLink) then return end
+
+        if (data && data.steamID64) then
+            if (ply.gmIntVerified) then return end
             gmInte.SendNet(6, {
                 [1] = {
                     ["text"] = "You have been verified",
@@ -86,7 +89,7 @@ function gmInte.verifyPlayer(ply)
                 }
             }, ply)
             ply:Freeze(false)
-            ply.gmIntUnVerified = false
+            ply.gmIntVerified = true
         else
             gmInte.SendNet(6, {
                 [1] = {
@@ -95,7 +98,6 @@ function gmInte.verifyPlayer(ply)
                 }
             }, ply)
             ply:Freeze(true)
-            ply.gmIntUnVerified = true
             gmInte.SendNet(7, nil, ply)
         end
     end)
