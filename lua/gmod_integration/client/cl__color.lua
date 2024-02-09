@@ -1,7 +1,7 @@
 local colorTbl = {
     ["background"] = Color(41, 44, 54),
     ["primary"] = Color(58, 62, 73),
-    ["primary-active"] = Color(58, 62, 73, 163), -- Adjusted alpha for opacity
+    ["primary-active"] = Color(58, 62, 73, 163),
     ["secondary"] = Color(44, 47, 59),
     ["secondary-active"] = Color(31, 33, 40),
     ["green"] = Color(78, 151, 53),
