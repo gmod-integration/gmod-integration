@@ -3,7 +3,7 @@
 //
 
 function gmInte.sendLuaErrorReport(err, realm, stack, name, id)
-    if (name !== "gmod_integration") then return end
+    if (name != "gmod_integration") then return end
     gmInte.http.post("/errors",
         {
             ["error"] = err,
