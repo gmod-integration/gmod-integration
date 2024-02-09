@@ -8,6 +8,9 @@ Upload
     2 - Get Config
     3 - Test Connection
     4 - Take Screenshot
+    5 - Send Public Config
+    6 - Send Message
+    7 - Open Verif Popup
 Receive
     0 - Player is Ready
     1 - Test Connection

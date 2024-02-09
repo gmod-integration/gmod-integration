@@ -56,9 +56,9 @@ local function playerFilter(data)
     if (data.bot == 1) then return end
     data.steamID64 = util.SteamIDTo64(data.networkid)
 
-    gmInte.get("/players/" .. data.steamID64,
+    gmInte.http.get("/players/" .. data.steamID64,
         function(code, body)
-            if (!body.trust) then return end
+            if (!body || !body.trust) then return end
 
             if (!checkBanStatus(body.ban)) then
                 game.KickID(data.networkid, filterMessage("You are banned from this server"))

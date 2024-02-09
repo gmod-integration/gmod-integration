@@ -2,6 +2,8 @@ local apiVersion = "v3"
 local apiFQDN = "api.gmod-integration.com"
 local apiDevFQDN = "dev-api.gmod-integration.com"
 
+gmInte.http = gmInte.http || {}
+
 //
 // HTTP
 //
@@ -11,14 +13,18 @@ local function getAPIURL(endpoint)
 
     if (SERVER) then
         url = url .. "/servers/" .. gmInte.config.id
-    elseif (endpoint == "/players") then
+    else
+        if (string.sub(endpoint, 1, 8) == "/players" || string.sub(endpoint, 1, 7) == "/errors") then
+            return url .. endpoint
+        end
+
         url = url .. "/clients/" .. LocalPlayer():SteamID64()
     end
 
     return url .. endpoint
 end
 
-function gmInte.requestAPI(params)
+function gmInte.http.requestAPI(params)
     local body = params.body || ""
     local bodyLength = string.len(body)
     local token = params.token || gmInte.config.token || ""
@@ -67,7 +73,7 @@ function gmInte.requestAPI(params)
             body = util.JSONToTable(body || "{}")
 
             // Return success
-            return success(code, body, headers)
+            return success(body)
         end,
         ["failed"] = function(error)
             gmInte.logError(error)
@@ -79,8 +85,8 @@ end
 // HTTP Methods
 //
 
-function gmInte.get(endpoint, onSuccess, onFailed)
-    gmInte.requestAPI({
+function gmInte.http.get(endpoint, onSuccess, onFailed)
+    gmInte.http.requestAPI({
         ["endpoint"] = endpoint,
         ["method"] = "GET",
         ["success"] = onSuccess,
@@ -88,8 +94,8 @@ function gmInte.get(endpoint, onSuccess, onFailed)
     })
 end
 
-function gmInte.post(endpoint, data, onSuccess, onFailed)
-    gmInte.requestAPI({
+function gmInte.http.post(endpoint, data, onSuccess, onFailed)
+    gmInte.http.requestAPI({
         ["endpoint"] = endpoint,
         ["method"] = "POST",
         ["body"] = util.TableToJSON(data),
@@ -98,8 +104,8 @@ function gmInte.post(endpoint, data, onSuccess, onFailed)
     })
 end
 
-function gmInte.put(endpoint, data, onSuccess, onFailed)
-    gmInte.requestAPI({
+function gmInte.http.put(endpoint, data, onSuccess, onFailed)
+    gmInte.http.requestAPI({
         ["endpoint"] = endpoint,
         ["method"] = "PUT",
         ["body"] = util.TableToJSON(data),
@@ -108,8 +114,8 @@ function gmInte.put(endpoint, data, onSuccess, onFailed)
     })
 end
 
-function gmInte.delete(endpoint, onSuccess, onFailed)
-    gmInte.requestAPI({
+function gmInte.http.delete(endpoint, onSuccess, onFailed)
+    gmInte.http.requestAPI({
         ["endpoint"] = endpoint,
         ["method"] = "DELETE",
         ["success"] = onSuccess,

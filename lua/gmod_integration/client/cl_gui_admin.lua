@@ -163,9 +163,6 @@ local possibleConfig = {
         ["label"] = "Force Player Verif",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
-        ["condition"] = function(data)
-            return false // Disabled for now
-        end,
         ["value"] = function(setting, value)
             return value
         end,

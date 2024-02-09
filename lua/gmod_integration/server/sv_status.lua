@@ -16,15 +16,15 @@ local function getServerFormat()
 end
 
 function gmInte.sendStatus()
-    gmInte.post("/status", getServerFormat())
+    gmInte.http.post("/status", getServerFormat())
 end
 
 -- function gmInte.serverStart()
---     gmInte.post("/start", getServerFormat())
+--     gmInte.http.post("/start", getServerFormat())
 -- end
 
 function gmInte.serverShutDown()
-    gmInte.post("/shutdown")
+    gmInte.http.post("/shutdown")
 end
 
 //

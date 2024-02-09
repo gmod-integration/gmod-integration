@@ -63,7 +63,7 @@ end
 function gmInte.postLogPlayerSay(ply, text, teamChat)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/logs/playerSay",
+    gmInte.http.post("/logs/playerSay",
         {
             ["ply"] = gmInte.playerFormat(ply),
             ["text"] = text,
@@ -75,7 +75,7 @@ end
 function gmInte.postLogPlayerDeath(ply, inflictor, attacker)
     if (!validLogAndPlayers({ply, attacker})) then return end
 
-    gmInte.post("/logs/playerDeath",
+    gmInte.http.post("/logs/playerDeath",
         {
             ["ply"] = gmInte.playerFormat(ply),
             ["inflictor"] = logFormatEntity(inflictor),
@@ -87,7 +87,7 @@ end
 function gmInte.postLogPlayerInitialSpawn(ply)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/logs/playerInitialSpawn",
+    gmInte.http.post("/logs/playerInitialSpawn",
         {
             ["ply"] = gmInte.playerFormat(ply)
         }
@@ -109,7 +109,7 @@ function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
             return
         end
 
-        gmInte.post("/logs/playerHurt",
+        gmInte.http.post("/logs/playerHurt",
             {
                 ["ply"] = gmInte.playerFormat(ply),
                 ["attacker"] = gmInte.playerFormat(attacker),
@@ -123,7 +123,7 @@ end
 function gmInte.postLogPlayerSpawnedSomething(object, ply, ent, model)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/logs/playerSpawnedSomething",
+    gmInte.http.post("/logs/playerSpawnedSomething",
         {
             ["object"] = object,
             ["ply"] = gmInte.playerFormat(ply),
@@ -136,7 +136,7 @@ end
 function gmInte.postLogPlayerSpawn(ply)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/logs/playerSpawn",
+    gmInte.http.post("/logs/playerSpawn",
         {
             ["ply"] = gmInte.playerFormat(ply)
         }
@@ -146,7 +146,7 @@ end
 function gmInte.postLogPlayerDisconnect(ply)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/logs/playerDisconnect",
+    gmInte.http.post("/logs/playerDisconnect",
         {
             ["ply"] = gmInte.playerFormat(ply)
         }
@@ -156,7 +156,7 @@ end
 function gmInte.postLogPlayerConnect(data)
     if (logDisable() || data.bot) then return end
 
-    gmInte.post("/logs/playerConnect",
+    gmInte.http.post("/logs/playerConnect",
         {
             ["steamID64"] = util.SteamIDTo64(data.networkid),
             ["steamID"] = data.networkid,
@@ -169,7 +169,7 @@ end
 function gmInte.postLogPlayerGivet(ply, class, swep)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/logs/playerGive",
+    gmInte.http.post("/logs/playerGive",
         {
             ["ply"] = gmInte.playerFormat(ply),
             ["class"] = class,

@@ -17,7 +17,7 @@ function gmInte.saveSetting(setting, value)
 end
 
 function gmInte.tryConfig()
-    gmInte.get("",
+    gmInte.http.get("",
         function(code, body)
             print(" ")
             gmInte.log("Congratulations your server is now connected to Gmod Integration")
@@ -29,7 +29,7 @@ function gmInte.tryConfig()
 end
 
 function gmInte.testConnection(ply)
-    gmInte.get("",
+    gmInte.http.get("",
         function(code, body)
             if (ply) then gmInte.SendNet(3, body, ply) end
         end,
@@ -50,6 +50,15 @@ function gmInte.superadminGetConfig(ply)
 
     gmInte.config.websocket = GWSockets && true || false
     gmInte.SendNet(2, gmInte.config, ply)
+end
+
+function gmInte.publicGetConfig(ply)
+    if (!gmInte.plyValid(ply)) then return end
+
+    gmInte.SendNet(5, {
+        ["debug"] = gmInte.config.debug,
+        ["devInstance"] = gmInte.config.devInstance
+    }, ply)
 end
 
 function gmInte.superadminSetConfig(ply, data)

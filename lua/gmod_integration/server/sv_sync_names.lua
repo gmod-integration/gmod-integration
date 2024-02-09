@@ -15,7 +15,7 @@ end
 function gmInte.playerChangeName(ply, oldName, newName)
     if (!gmInte.plyValid(ply)) then return end
 
-    gmInte.post("/players/" .. ply:SteamID64() .. "/name",
+    gmInte.http.post("/players/" .. ply:SteamID64() .. "/name",
         {
             ["player"] = gmInte.playerFormat(ply),
             ["oldName"] = oldName,

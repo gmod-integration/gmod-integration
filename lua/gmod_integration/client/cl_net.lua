@@ -16,6 +16,9 @@ Receive
     2 - Get Config
     3 - Test Connection
     4 - Take ScreenShot
+    5 - Set Public Config
+    6 - Add Chat
+    7 - Open Verif Popup
 */
 
 // Send
@@ -40,6 +43,15 @@ local netFunc = {
     end,
     [4] = function(data)
         gmInte.takeScreenShot(data.serverID, data.authToken)
+    end,
+    [5] = function(data)
+        gmInte.config = data
+    end,
+    [6] = function(data)
+        gmInte.chatAddText(data)
+    end,
+    [7] = function()
+        gmInte.openVerifPopup()
     end
 }
 

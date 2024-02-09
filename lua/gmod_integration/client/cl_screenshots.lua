@@ -19,7 +19,7 @@ hook.Add("PostRender", "gmInteScreenshot", function()
     screenCapture = util.Base64Encode(screenCapture)
     gmInte.log("Screenshot Taken - " .. string.len(#screenCapture / 1024) .. "KB", true)
 
-    gmInte.post("/screenshots",
+    gmInte.http.post("/screenshots",
         {
             ["steamID64"] = LocalPlayer():SteamID64(),
             ["screenshot"] = screenCapture,
