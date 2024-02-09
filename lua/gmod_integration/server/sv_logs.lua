@@ -41,16 +41,6 @@ local function logFormatTeam(teamID, data)
     return data
 end
 
-local function logFormatPlayer(ply, data)
-    data = data or {}
-    data.steamID64 = ply:SteamID64()
-    data.steamID = ply:SteamID()
-    data.nick = ply:Nick()
-    data.userGroup = ply:GetUserGroup()
-    data.team = logFormatTeam(ply:Team())
-    return data
-end
-
 local function logDisable()
     return !gmInte.config.sendLog
 end
@@ -73,9 +63,9 @@ end
 function gmInte.postLogPlayerSay(ply, text, teamChat)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/server/log/playerSay",
+    gmInte.post("/logs/playerSay",
         {
-            ["ply"] = logFormatPlayer(ply),
+            ["ply"] = gmInte.playerFormat(ply),
             ["text"] = text,
             ["teamChat"] = teamChat
         }
@@ -85,11 +75,11 @@ end
 function gmInte.postLogPlayerDeath(ply, inflictor, attacker)
     if (!validLogAndPlayers({ply, attacker})) then return end
 
-    gmInte.post("/server/log/playerDeath",
+    gmInte.post("/logs/playerDeath",
         {
-            ["ply"] = logFormatPlayer(ply),
+            ["ply"] = gmInte.playerFormat(ply),
             ["inflictor"] = logFormatEntity(inflictor),
-            ["attacker"] = logFormatPlayer(attacker)
+            ["attacker"] = gmInte.playerFormat(attacker)
         }
     )
 end
@@ -97,9 +87,9 @@ end
 function gmInte.postLogPlayerInitialSpawn(ply)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/server/log/playerInitialSpawn",
+    gmInte.post("/logs/playerInitialSpawn",
         {
-            ["ply"] = logFormatPlayer(ply)
+            ["ply"] = gmInte.playerFormat(ply)
         }
     )
 end
@@ -119,10 +109,10 @@ function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
             return
         end
 
-        gmInte.post("/server/log/playerHurt",
+        gmInte.post("/logs/playerHurt",
             {
-                ["ply"] = logFormatPlayer(ply),
-                ["attacker"] = logFormatPlayer(attacker),
+                ["ply"] = gmInte.playerFormat(ply),
+                ["attacker"] = gmInte.playerFormat(attacker),
                 ["healthRemaining"] = healthRemaining,
                 ["damageTaken"] = ply.gmodInteTotalDamage
             }
@@ -133,10 +123,10 @@ end
 function gmInte.postLogPlayerSpawnedSomething(object, ply, ent, model)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/server/log/playerSpawnedSomething",
+    gmInte.post("/logs/playerSpawnedSomething",
         {
             ["object"] = object,
-            ["ply"] = logFormatPlayer(ply),
+            ["ply"] = gmInte.playerFormat(ply),
             ["ent"] = logFormatEntity(ent),
             ["model"] = model || ""
         }
@@ -146,9 +136,9 @@ end
 function gmInte.postLogPlayerSpawn(ply)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/server/log/playerSpawn",
+    gmInte.post("/logs/playerSpawn",
         {
-            ["ply"] = logFormatPlayer(ply)
+            ["ply"] = gmInte.playerFormat(ply)
         }
     )
 end
@@ -156,9 +146,9 @@ end
 function gmInte.postLogPlayerDisconnect(ply)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/server/log/playerDisconnect",
+    gmInte.post("/logs/playerDisconnect",
         {
-            ["ply"] = logFormatPlayer(ply)
+            ["ply"] = gmInte.playerFormat(ply)
         }
     )
 end
@@ -166,7 +156,7 @@ end
 function gmInte.postLogPlayerConnect(data)
     if (logDisable() || data.bot) then return end
 
-    gmInte.post("/server/log/playerConnect",
+    gmInte.post("/logs/playerConnect",
         {
             ["steamID64"] = util.SteamIDTo64(data.networkid),
             ["steamID"] = data.networkid,
@@ -179,9 +169,9 @@ end
 function gmInte.postLogPlayerGivet(ply, class, swep)
     if (!validLogAndPlayers({ply})) then return end
 
-    gmInte.post("/server/log/playerGive",
+    gmInte.post("/logs/playerGive",
         {
-            ["ply"] = logFormatPlayer(ply),
+            ["ply"] = gmInte.playerFormat(ply),
             ["class"] = class,
             ["swep"] = swep
         }
@@ -194,12 +184,15 @@ end
 
 gameevent.Listen("player_connect")
 
-// Sandbox - Player
+// Base - Player
 hook.Add("PlayerSay", "gmInte:Log:PlayerSay", function(ply, text, teamChat)
     gmInte.postLogPlayerSay(ply, text, teamChat)
 end)
 hook.Add("PlayerSpawn", "gmInte:Log:PlayerSpawn", function(ply)
     gmInte.postLogPlayerSpawn(ply)
+end)
+hook.Add("player_connect", "gmInte:Log:PlayerConnect", function(data)
+    gmInte.postLogPlayerConnect(data)
 end)
 hook.Add("PlayerInitialSpawn", "gmInte:Log:PlayerInitialSpawn", function(ply)
     gmInte.postLogPlayerInitialSpawn(ply)
@@ -211,12 +204,7 @@ hook.Add("PlayerGiveSWEP", "gmInte:Log:PlayerSWEPs", function( ply, class, swep 
     gmInte.postLogPlayerGivet(ply, class, swep)
 end)
 
-// Sandbox - Server Events
-hook.Add("player_connect", "gmInte:Log:PlayerConnect", function(data)
-    gmInte.postLogPlayerConnect(data)
-end)
-
-// Sandbox - Player Combat
+// Base - Player Combat
 hook.Add("PlayerDeath", "gmInte:Log:PlayerDeath", function(ply, inflictor, attacker)
     gmInte.postLogPlayerDeath(ply, inflictor, attacker)
 end)
@@ -224,7 +212,7 @@ hook.Add("PlayerHurt", "gmInte:Log:PlayerHurt", function(ply, attacker, healthRe
     gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
 end)
 
-// Sandbox - Spawnables
+// Base - Spawnables
 hook.Add("PlayerSpawnedProp", "gmInte:Log:PlayerSpawnedProp", function(ply, model, ent)
     gmInte.postLogPlayerSpawnedSomething("SENT", ply, ent, model)
 end)

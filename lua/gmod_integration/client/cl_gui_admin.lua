@@ -9,7 +9,7 @@ local configCat = {
     "Main",
     "Trust & Safety",
     "Punishment",
-    "Other"
+    "Advanced",
 }
 
 local possibleConfig = {
@@ -118,7 +118,9 @@ local possibleConfig = {
         ["label"] = "Sync Ban",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
-        ["disable"] = true,
+        ["condition"] = function(data)
+            return false // Disabled for now
+        end,
         ["value"] = function(setting, value)
             return value
         end,
@@ -131,7 +133,9 @@ local possibleConfig = {
         ["label"] = "Sync Timeout",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
-        ["disable"] = true,
+        ["condition"] = function(data)
+            return false // Disabled for now
+        end,
         ["value"] = function(setting, value)
             return value
         end,
@@ -144,7 +148,9 @@ local possibleConfig = {
         ["label"] = "Sync Kick",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
-        ["disable"] = true,
+        ["condition"] = function(data)
+            return false // Disabled for now
+        end,
         ["value"] = function(setting, value)
             return value
         end,
@@ -157,7 +163,9 @@ local possibleConfig = {
         ["label"] = "Force Player Verif",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
-        ["disable"] = true,
+        ["condition"] = function(data)
+            return false // Disabled for now
+        end,
         ["value"] = function(setting, value)
             return value
         end,
@@ -170,7 +178,6 @@ local possibleConfig = {
         ["label"] = "Support Link",
         ["description"] = "Server ID found on the webpanel.",
         ["type"] = "textEntry",
-        ["disable"] = true,
         ["value"] = function(setting, value)
             return value
         end,
@@ -190,7 +197,7 @@ local possibleConfig = {
         ["onEdit"] = function(setting, value)
             saveConfig(setting, value == "Enabled" && true || false)
         end,
-        ["category"] = "Other"
+        ["category"] = "Advanced"
     },
     ['devInstance'] = {
         ["label"] = "Dev Instance",
@@ -199,10 +206,13 @@ local possibleConfig = {
         ["value"] = function(setting, value)
             return value
         end,
+        ["condition"] = function(data)
+            return data.debug
+        end,
         ["onEdit"] = function(setting, value)
             saveConfig(setting, value == "Enabled" && true || false)
         end,
-        ["category"] = "Other"
+        ["category"] = "Advanced"
     }
 }
 
@@ -243,6 +253,15 @@ local buttonsInfo = {
             gmInte.config = data
         end,
     }
+}
+
+local colorTable = {
+    ["text"] = Color(255, 255, 255, 255),
+    ["background"] = Color(0, 0, 0, 200),
+    ["button"] = Color(0, 0, 0, 200),
+    ["buttonHover"] = Color(0, 0, 0, 255),
+    ["buttonText"] = Color(255, 255, 255, 255),
+    ["buttonTextHover"] = Color(255, 255, 255, 255),
 }
 
 function gmInte.needRestart()
@@ -360,7 +379,7 @@ function gmInte.openConfigMenu(data)
                     end
                 elseif (v.type == "checkbox") then
                     input = vgui.Create("DComboBox", panel)
-                    if (v.disable) then
+                    if (v.condition && !v.condition(data)) then
                         input:SetEnabled(false)
                     end
                     input:AddChoice("Enabled")
@@ -421,16 +440,3 @@ function gmInte.openConfigMenu(data)
         if (needRestart) then gmInte.needRestart() end
     end
 end
-
-list.Set("DesktopWindows", "GmodIntegration:DesktopWindows", {
-	icon = "gmod_integration/logo_context.png",
-    title = "GM Integration",
-	width		= 960,
-	height		= 700,
-	onewindow	= true,
-    init = function(icon, window)
-        window:Close()
-        gmInte.openAdminConfig()
-    end
-    }
-)

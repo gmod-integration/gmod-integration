@@ -23,7 +23,7 @@ util.AddNetworkString("gmIntegration")
 function gmInte.SendNet(id, data, ply, func)
     net.Start("gmIntegration")
         net.WriteUInt(id, 8)
-        net.WriteString(util.TableToJSON(data))
+        net.WriteString(util.TableToJSON(data || {}))
         if (func) then func() end
     if (ply == nil) then
         net.Broadcast()
@@ -36,7 +36,6 @@ end
 local netFuncs = {
     [0] = function(ply)
         gmInte.userFinishConnect(ply)
-        ply.gmIntTimeConnect = math.Round(RealTime())
     end,
     [1] = function(ply, data)
         gmInte.testConnection(ply, data)
@@ -54,6 +53,9 @@ local netFuncs = {
         if (!ply:IsSuperAdmin()) then return end
         RunConsoleCommand("changelevel", game.GetMap())
     end,
+    [6] = function(ply)
+        gmInte.verifyPlayer(ply)
+    end
 }
 
 net.Receive("gmIntegration", function(len, ply)

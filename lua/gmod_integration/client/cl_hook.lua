@@ -12,7 +12,7 @@ hook.Add("OnPlayerChat", "gmInte:OnPlayerChat:AdminCmd", function(ply, strText, 
 
 	strText = string.lower(strText)
 
-	if (strText == "/gminte") then
+	if (strText == "/gmi") then
         gmInte.openAdminConfig()
 		return true
 	end

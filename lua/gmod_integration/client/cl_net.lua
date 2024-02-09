@@ -10,6 +10,7 @@ Upload
     3 - Save Config
     4 - Take ScreenShot
     5 - Restart Map
+    6 - Verify Me
 Receive
     1 - Sync Chat
     2 - Get Config
