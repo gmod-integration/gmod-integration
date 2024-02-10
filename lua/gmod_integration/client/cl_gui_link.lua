@@ -63,5 +63,3 @@ function gmInte.openVerifPopup()
         draw.RoundedBox(8, 0, 0, w, h, color)
     end
 end
-
-gmInte.openVerifPopup()
