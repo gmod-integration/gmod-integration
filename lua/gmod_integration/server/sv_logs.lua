@@ -2,45 +2,6 @@
 // Functions
 //
 
-local function logFormatWeapon(weapon, data)
-    data = data or {}
-    data.class = weapon:GetClass()
-    data.printName = weapon:GetPrintName()
-    return data
-end
-
-local function logFormatEntity(ent, data)
-    data = data or {}
-    data.class = ent:GetClass()
-    data.model = ent:GetModel()
-    data.pos = ent:GetPos()
-    data.ang = ent:GetAngles()
-    return data
-end
-
-local function logFormatVector(vec, data)
-    data = data or {}
-    data.x = vec.x
-    data.y = vec.y
-    data.z = vec.z
-    return data
-end
-
-local function logFormatAngle(ang, data)
-    data = data or {}
-    data.p = ang.p
-    data.y = ang.y
-    data.r = ang.r
-    return data
-end
-
-local function logFormatTeam(teamID, data)
-    data = data or {}
-    data.id = teamID
-    data.name = team.GetName(teamID)
-    return data
-end
-
 local function logDisable()
     return !gmInte.config.sendLog
 end
@@ -65,7 +26,7 @@ function gmInte.postLogPlayerSay(ply, text, teamChat)
 
     gmInte.http.post("/logs/playerSay",
         {
-            ["ply"] = gmInte.playerFormat(ply),
+            ["ply"] = gmInte.getPlayerFormat(ply),
             ["text"] = text,
             ["teamChat"] = teamChat
         }
@@ -77,9 +38,9 @@ function gmInte.postLogPlayerDeath(ply, inflictor, attacker)
 
     gmInte.http.post("/logs/playerDeath",
         {
-            ["ply"] = gmInte.playerFormat(ply),
-            ["inflictor"] = logFormatEntity(inflictor),
-            ["attacker"] = gmInte.playerFormat(attacker)
+            ["ply"] = gmInte.getPlayerFormat(ply),
+            ["inflictor"] = gmInte.getEntityFormat(inflictor),
+            ["attacker"] = gmInte.getPlayerFormat(attacker)
         }
     )
 end
@@ -89,7 +50,7 @@ function gmInte.postLogPlayerInitialSpawn(ply)
 
     gmInte.http.post("/logs/playerInitialSpawn",
         {
-            ["ply"] = gmInte.playerFormat(ply)
+            ["ply"] = gmInte.getPlayerFormat(ply)
         }
     )
 end
@@ -111,8 +72,8 @@ function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
 
         gmInte.http.post("/logs/playerHurt",
             {
-                ["ply"] = gmInte.playerFormat(ply),
-                ["attacker"] = gmInte.playerFormat(attacker),
+                ["ply"] = gmInte.getPlayerFormat(ply),
+                ["attacker"] = gmInte.getPlayerFormat(attacker),
                 ["healthRemaining"] = healthRemaining,
                 ["damageTaken"] = ply.gmodInteTotalDamage
             }
@@ -126,8 +87,8 @@ function gmInte.postLogPlayerSpawnedSomething(object, ply, ent, model)
     gmInte.http.post("/logs/playerSpawnedSomething",
         {
             ["object"] = object,
-            ["ply"] = gmInte.playerFormat(ply),
-            ["ent"] = logFormatEntity(ent),
+            ["ply"] = gmInte.getPlayerFormat(ply),
+            ["ent"] = gmInte.getEntityFormat(ent),
             ["model"] = model || ""
         }
     )
@@ -138,7 +99,7 @@ function gmInte.postLogPlayerSpawn(ply)
 
     gmInte.http.post("/logs/playerSpawn",
         {
-            ["ply"] = gmInte.playerFormat(ply)
+            ["ply"] = gmInte.getPlayerFormat(ply)
         }
     )
 end
@@ -148,7 +109,7 @@ function gmInte.postLogPlayerDisconnect(ply)
 
     gmInte.http.post("/logs/playerDisconnect",
         {
-            ["ply"] = gmInte.playerFormat(ply)
+            ["ply"] = gmInte.getPlayerFormat(ply)
         }
     )
 end
@@ -171,7 +132,7 @@ function gmInte.postLogPlayerGivet(ply, class, swep)
 
     gmInte.http.post("/logs/playerGive",
         {
-            ["ply"] = gmInte.playerFormat(ply),
+            ["ply"] = gmInte.getPlayerFormat(ply),
             ["class"] = class,
             ["swep"] = swep
         }

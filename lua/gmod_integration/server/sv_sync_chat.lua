@@ -15,7 +15,7 @@ function gmInte.playerSay(ply, text, team)
 
     gmInte.http.post("/players/" .. ply:SteamID64() .. "/say",
         {
-            ["player"] = gmInte.playerFormat(ply),
+            ["player"] = gmInte.getPlayerFormat(ply),
             ["text"] = text,
             ["team"] = team,
         }

@@ -123,11 +123,7 @@ function gmInte.userFinishConnect(ply)
     // Send Public Config
     gmInte.publicGetConfig(ply)
 
-    gmInte.http.post("/players/" .. ply:SteamID64() .. "/finish-connect",
-        {
-            ["player"] = gmInte.playerFormat(ply),
-        }
-    )
+    gmInte.http.post("/players/" .. ply:SteamID64() .. "/finish-connect", gmInte.getPlayerFormat(ply))
 
     if (!gmInte.config.forcePlayerLink) then return end
     gmInte.verifyPlayer(ply)
@@ -138,7 +134,7 @@ function gmInte.playerDisconnected(ply)
 
     gmInte.http.post("/players/" .. ply:SteamID64() .. "/disconnect",
         {
-            ["player"] = gmInte.playerFormat(ply),
+            ["player"] = gmInte.getPlayerFormat(ply),
         }
     )
 end

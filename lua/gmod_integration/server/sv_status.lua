@@ -2,25 +2,12 @@
 // Methods
 //
 
-local function getServerFormat()
-    return {
-        ["hostname"] = GetHostName(),
-        ["ip"] = game.GetIPAddress(),
-        ["port"] = GetConVar("hostport"):GetInt(),
-        ["map"] = game.GetMap(),
-        ["players"] = #player.GetAll(),
-        ["maxplayers"] = game.MaxPlayers(),
-        ["gamemode"] = engine.ActiveGamemode(),
-        ["uptime"] = math.Round(RealTime() / 60)
-    }
-end
-
 function gmInte.sendStatus()
-    gmInte.http.post("/status", getServerFormat())
+    gmInte.http.post("/status", gmInte.getServerFormat())
 end
 
 -- function gmInte.serverStart()
---     gmInte.http.post("/start", getServerFormat())
+--     gmInte.http.post("/start", gmInte.getServerFormat())
 -- end
 
 function gmInte.serverShutDown()
