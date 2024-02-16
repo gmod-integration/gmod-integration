@@ -32,8 +32,20 @@ end
 
 // Generate a unique token that allow player to update data link to this server (ex: screnshot, report bug, etc.)
 function gmInte.getClientOneTimeToken(ply, callback)
-    gmInte.http.get("/players/" .. ply:SteamID64() .. "/get-one-time-token", function(code, data)
+    gmInte.http.get("/players/" .. ply:SteamID64() .. "/single-token", function(code, data)
         callback(data.token)
+    end)
+end
+
+function gmInte.createClientToken(ply, callback)
+    gmInte.http.get("/players/" .. ply:SteamID64() .. "/tokens", function(code, data)
+        callback(data)
+    end)
+end
+
+function gmInte.revokeClientToken(ply, callback)
+    gmInte.http.delete("/players/" .. ply:SteamID64() .. "/tokens", function(code, data)
+        callback(data)
     end)
 end
 
