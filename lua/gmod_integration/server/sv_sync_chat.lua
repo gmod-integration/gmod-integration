@@ -3,7 +3,7 @@
 //
 
 function gmInte.wsPlayerSay(data)
-    gmInte.SendNet(1, data, nil)
+    gmInte.SendNet("wsRelayDiscordChat", data, nil)
 end
 
 //

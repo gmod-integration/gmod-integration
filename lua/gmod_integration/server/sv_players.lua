@@ -9,7 +9,7 @@ function gmInte.verifyPlayer(ply)
 
         if (data && data.steamID64) then
             if (ply.gmIntVerified) then return end
-            gmInte.SendNet(6, {
+            gmInte.SendNet("chatColorMessage", {
                 [1] = {
                     ["text"] = "You have been verified",
                     ["color"] = Color(255, 255, 255)
@@ -18,14 +18,14 @@ function gmInte.verifyPlayer(ply)
             ply:Freeze(false)
             ply.gmIntVerified = true
         else
-            gmInte.SendNet(6, {
+            gmInte.SendNet("chatColorMessage", {
                 [1] = {
                     ["text"] = "You are not verified",
                     ["color"] = Color(255, 0, 0)
                 }
             }, ply)
             ply:Freeze(true)
-            gmInte.SendNet(7, nil, ply)
+            gmInte.SendNet("openVerifPopup", nil, ply)
         end
     end)
 end

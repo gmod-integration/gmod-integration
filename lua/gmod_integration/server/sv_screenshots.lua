@@ -16,7 +16,7 @@ end
 
 function gmInte.takeScreenshot(ply)
     gmInte.getClientOneTimeToken(ply, function(oneTime)
-        gmInte.SendNet(4, {
+        gmInte.SendNet("screenshotToken", {
             ["serverID"] = gmInte.config.id,
             ["oneTimeToken"] = oneTime
         }, ply)

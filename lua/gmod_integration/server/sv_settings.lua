@@ -31,10 +31,10 @@ end
 function gmInte.testConnection(ply)
     gmInte.http.get("",
         function(code, body)
-            if (ply) then gmInte.SendNet(3, body, ply) end
+            if (ply) then gmInte.SendNet("testApiConnection", body, ply) end
         end,
         function(code, body)
-            if (ply) then gmInte.SendNet(3, body, ply) end
+            if (ply) then gmInte.SendNet("testApiConnection", body, ply) end
         end
     )
 end
@@ -49,13 +49,13 @@ function gmInte.superadminGetConfig(ply)
     if (!gmInte.plyValid(ply) || !ply:IsSuperAdmin()) then return end
 
     gmInte.config.websocket = GWSockets && true || false
-    gmInte.SendNet(2, gmInte.config, ply)
+    gmInte.SendNet("adminConfig", gmInte.config, ply)
 end
 
 function gmInte.publicGetConfig(ply)
     if (!gmInte.plyValid(ply)) then return end
 
-    gmInte.SendNet(5, {
+    gmInte.SendNet("publicConfig", {
         ["debug"] = gmInte.config.debug,
         ["devInstance"] = gmInte.config.devInstance
     }, ply)

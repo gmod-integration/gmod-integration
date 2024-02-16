@@ -2,7 +2,7 @@
 // Send Net
 //
 
-local netList = {
+local netSend = {
     ["ready"] = 0,
     ["testConnection"] = 1,
     ["getConfig"] = 2,
@@ -16,7 +16,7 @@ local netList = {
 
 function gmInte.SendNet(id, args, func)
     net.Start("gmIntegration")
-        net.WriteUInt(netList[id], 8)
+        net.WriteUInt(netSend[id], 8)
         net.WriteString(util.TableToJSON(args || {}))
         if (func) then func() end
     net.SendToServer()
@@ -26,7 +26,7 @@ end
 // Receive Net
 //
 
-local netFunc = {
+local netReceive = {
     [1] = function(data)
         gmInte.discordSyncChatPly(data)
     end,
@@ -59,5 +59,5 @@ local netFunc = {
 net.Receive("gmIntegration", function()
     local id = net.ReadUInt(8)
     local args = util.JSONToTable(net.ReadString())
-    if (netFunc[id]) then netFunc[id](args) end
+    if (netReceive[id]) then netReceive[id](args) end
 end)
