@@ -8,23 +8,26 @@ hook.Add("PostRender", "gmInteScreenshot", function()
 	ScreenshotRequested = false
 
 	local captureData = {
-        format = "png",
+        format = "jpeg",
         x = 0,
         y = 0,
         w = ScrW(),
-        h = ScrH()
+        h = ScrH(),
+        quality = 95,
     }
 
     local screenCapture = render.Capture(captureData)
     screenCapture = util.Base64Encode(screenCapture)
-    gmInte.log("Screenshot Taken - " .. string.len(#screenCapture / 1024) .. "KB", true)
+
+    local size = math.Round(string.len(screenCapture) / 1024)
+    gmInte.log("Screenshot Taken - " .. size .. "KB", true)
 
     gmInte.http.post("/screenshots",
         {
-            ["steamID64"] = LocalPlayer():SteamID64(),
+            ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
             ["screenshot"] = screenCapture,
-            ["options"] = captureData,
-            ["name"] = LocalPlayer():Nick()
+            ["captureData"] = captureData,
+            ["size"] = size .. "KB"
         },
         function(code, body)
             gmInte.log("Screenshot sent to Discord", true)
