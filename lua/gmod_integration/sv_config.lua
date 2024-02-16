@@ -71,6 +71,12 @@ gmInte.config.filterOnBan = true // If true, the addon will filter the players a
 gmInte.config.sendLog = false // Disable the logs
 
 //
+// Materials
+//
+
+gmInte.config.redownloadMaterials = false // If true, the addon will redownload the materials of the addon (useful if you have a problem with the materials)
+
+//
 // Debug & Development
 //
 
