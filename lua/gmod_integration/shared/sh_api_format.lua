@@ -9,6 +9,9 @@ function gmInte.getPlayerFormat(ply)
         ["deaths"] = ply:Deaths(),
         ["customValues"] = ply:gmIntGetCustomValues(),
         ["connectTime"] = math.Round(RealTime() - ply:gmIntGetConnectTime()),
+        ["ping"] = ply:Ping(),
+        ["pos"] = gmInte.getVectorFormat(ply:GetPos()),
+        ["ang"] = gmInte.getAngleFormat(ply:EyeAngles())
     }
 end
 
@@ -21,7 +24,7 @@ function gmInte.getServerFormat()
         ["players"] = #player.GetAll(),
         ["maxPlayers"] = game.MaxPlayers(),
         ["gameMode"] = engine.ActiveGamemode(),
-        ["uptime"] = math.Round(RealTime() / 60)
+        ["uptime"] = math.Round(RealTime())
     }
 end
 
@@ -57,7 +60,7 @@ function gmInte.getAngleFormat(ang)
     }
 end
 
-local function gmInte.getTeamFormat(teamID)
+function gmInte.getTeamFormat(teamID)
     return {
         ["id"] = teamID,
         ["name"] = team.GetName(teamID)
