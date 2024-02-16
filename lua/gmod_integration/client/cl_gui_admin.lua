@@ -1,5 +1,5 @@
 local function saveConfig(setting, value)
-    gmInte.SendNet(3, {
+    gmInte.SendNet("saveConfig", {
         [setting] = value
     })
 end
@@ -223,7 +223,7 @@ local buttonsInfo = {
     {
         ["label"] = "Test Connection",
         ["func"] = function()
-            gmInte.SendNet(1)
+            gmInte.SendNet("testConnection")
         end,
     },
     {
@@ -293,7 +293,7 @@ function gmInte.needRestart()
     button:SetText("Restart")
     button.DoClick = function()
         frame:Close()
-        gmInte.SendNet(5)
+        gmInte.SendNet("restartMap")
     end
     button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
     buttonGrid:AddItem(button)

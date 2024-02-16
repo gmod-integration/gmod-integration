@@ -39,7 +39,7 @@ function gmInte.openAdminConfig()
         return
     end
 
-    gmInte.SendNet(2)
+    gmInte.SendNet("getConfig")
 end
 
 //

@@ -56,7 +56,7 @@ end
 //
 
 concommand.Add("gmod_integration_screenshot", function()
-    gmInte.SendNet(4)
+    gmInte.SendNet("takeScreenShot")
 end)
 
 //
@@ -69,6 +69,6 @@ hook.Add("OnPlayerChat", "gmInteChatCommands", function(ply, text, teamChat, isD
     text = string.sub(text, 2)
 
     if (text == "screen") then
-        gmInte.SendNet(4)
+        gmInte.SendNet("takeScreenShot")
     end
 end)
