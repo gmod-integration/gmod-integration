@@ -24,6 +24,15 @@ local function getAPIURL(endpoint)
     return url .. endpoint
 end
 
+local function showableBody(endpoint)
+    // if start with /streams or /screenshots return false
+    if (string.sub(endpoint, 1, 8) == "/streams" || string.sub(endpoint, 1, 12) == "/screenshots") then
+        return false
+    end
+
+    return true
+end
+
 function gmInte.http.requestAPI(params)
     local body = params.body || ""
     local bodyLength = string.len(body)
@@ -33,6 +42,7 @@ function gmInte.http.requestAPI(params)
     local success = params.success || function() end
     local failed = params.failed || function(error) gmInte.logError(error.error || error) end
     local version = gmInte.config.version
+    local showableBody = showableBody(params.endpoint)
 
     local headers = {
         ["Content-Type"] = "application/json",
@@ -45,7 +55,7 @@ function gmInte.http.requestAPI(params)
     // Log
     if (gmInte.config.devInstance) then gmInte.log("HTTP Using dev Instance", true) end
     gmInte.log("HTTP Request: " .. method .. " " .. url, true)
-    gmInte.log("HTTP Body: " .. body, true)
+    gmInte.log("HTTP Body: " .. (showableBody && body || "HIDDEN"), true)
 
     // Send
     HTTP({
