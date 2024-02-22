@@ -13,7 +13,7 @@ hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
     LastFrame = CurTime() + 0.25
 
     // Capture frame
-	local captureData = {
+	local captureConfig = {
         format = "jpeg",
         x = 0,
         y = 0,
@@ -22,7 +22,7 @@ hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
         quality = 50,
     }
 
-    local screenCapture = render.Capture(captureData)
+    local screenCapture = render.Capture(captureConfig)
     screenCapture = util.Base64Encode(screenCapture)
 
     local size = math.Round(string.len(screenCapture) / 1024)
@@ -31,8 +31,8 @@ hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
     gmInte.http.post("/streams/frames",
         {
             ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
-            ["screenshot"] = screenCapture,
-            ["captureData"] = captureData,
+            ["base64Capture"] = screenCapture,
+            ["captureConfig"] = captureConfig,
             ["size"] = size .. "KB"
         },
         function(code, body)
@@ -42,6 +42,7 @@ hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
             gmInte.log("Failed to send frame to WebPanel", true)
         end
     )
+    StreamsRequeted = false
 end)
 
 //
@@ -51,10 +52,7 @@ end)
 function gmInte.takeScreenShot(serverID, authToken)
     gmInte.config.id = serverID
     gmInte.config.token = authToken
-
-    timer.Simple(0.2, function()
-        StreamsRequeted = true
-    end)
+    StreamsRequeted = true
 end
 
 function gmInte.stopScreenShot()
@@ -66,11 +64,14 @@ end
 //
 
 concommand.Add("gmod_integration_stream", function()
-    if (StreamsRequeted) then
-        gmInte.stopScreenShot()
-        gmInte.log("Stopped streaming frames to WebPanel")
-    else
-        gmInte.SendNet("getSingleUseToken")
-        gmInte.log("Started streaming frames to WebPanel")
-    end
+    StreamsRequeted = !StreamsRequeted
+    gmInte.log("Streaming frames to WebPanel: " .. tostring(StreamsRequeted))
+
+    -- if (StreamsRequeted) then
+    --     gmInte.stopScreenShot()
+    --     gmInte.log("Stopped streaming frames to WebPanel")
+    -- else
+    --     gmInte.SendNet("getSingleUseToken")
+    --     gmInte.log("Started streaming frames to WebPanel")
+    -- end
 end)
