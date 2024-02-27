@@ -33,7 +33,7 @@ if (!GWSockets) then
 end
 
 local function getWebSocketURL()
-    return "wss://" .. (gmInte.config.dev and websocketDevFQDN or websocketFQDN)
+    return "wss://" .. (gmInte.config.devInstance and websocketDevFQDN or websocketFQDN)
 end
 
 local socket = GWSockets.createWebSocket(getWebSocketURL())
