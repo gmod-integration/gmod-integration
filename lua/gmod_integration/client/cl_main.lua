@@ -21,10 +21,6 @@ function gmInte.chatAddText(data)
     chat.AddText(unpack(args))
 end
 
-function gmInte.discordSyncChatPly(data)
-    chat.AddText(Color(92, 105, 255), "(DISCORD) ", Color(12, 151, 12), formatName(data.name) .. ": ", Color(255, 255, 255), data.content)
-end
-
 function gmInte.showTestConnection(data)
     if (data && data.id) then
         chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(63, 102, 63), "Connection Successfull", Color(255, 255, 255), ", server logged as '" .. data.name .. "'")
