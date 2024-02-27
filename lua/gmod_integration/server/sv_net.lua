@@ -39,7 +39,7 @@ end
 
 local netReceive = {
     [0] = function(ply)
-        gmInte.userFinishConnect(ply)
+        hook.Run("gmInte:PlayerReady", ply)
     end,
     [1] = function(ply, data)
         gmInte.testConnection(ply, data)
