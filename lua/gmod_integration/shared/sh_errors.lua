@@ -2,9 +2,9 @@
 // Methods
 //
 
-function gmInte.sendLuaErrorReport(err, realm, stack, name, id)
+function gmInte.sendLuaErrorReport(err, realm, stack, name, id, uptime)
     if (name != "gmod_integration") then return end
-    if (SERVER && math.Round(RealTime()) == 0) then return end
+    if (SERVER && math.Round(RealTime()) == 0) then return timer.Simple(1, function() gmInte.sendLuaErrorReport(err, realm, stack, name, id, math.Round(RealTime())) end) end
 
     gmInte.http.post("/errors",
         {
@@ -13,6 +13,7 @@ function gmInte.sendLuaErrorReport(err, realm, stack, name, id)
             ["stack"] = stack,
             ["name"] = name,
             ["id"] = id,
+            ["uptime"] = uptime || math.Round(RealTime()),
             ["identifier"] = SERVER && gmInte.config.id || LocalPlayer():SteamID64()
         }
     )
