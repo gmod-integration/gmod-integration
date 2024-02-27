@@ -46,14 +46,14 @@ function gmInte.refreshSettings()
 end
 
 function gmInte.superadminGetConfig(ply)
-    if (!gmInte.plyValid(ply) || !ply:IsSuperAdmin()) then return end
+    if (!ply:IsValid() || !ply:IsPlayer(ply) || !ply:IsSuperAdmin()) then return end
 
     gmInte.config.websocket = GWSockets && true || false
     gmInte.SendNet("adminConfig", gmInte.config, ply)
 end
 
 function gmInte.publicGetConfig(ply)
-    if (!gmInte.plyValid(ply)) then return end
+    if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
     gmInte.SendNet("publicConfig", {
         ["debug"] = gmInte.config.debug,
@@ -62,7 +62,7 @@ function gmInte.publicGetConfig(ply)
 end
 
 function gmInte.superadminSetConfig(ply, data)
-    if (!gmInte.plyValid(ply) || !ply:IsSuperAdmin()) then return end
+    if (!ply:IsValid() || !ply:IsPlayer(ply) || !ply:IsSuperAdmin()) then return end
 
     for k, v in pairs(data) do
         gmInte.saveSetting(k, v)
