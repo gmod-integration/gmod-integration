@@ -10,8 +10,8 @@ function gmInte.getPlayerFormat(ply)
         ["customValues"] = ply:gmIntGetCustomValues(),
         ["connectTime"] = math.Round(RealTime() - ply:gmIntGetConnectTime()),
         ["ping"] = ply:Ping(),
-        ["pos"] = gmInte.getVectorFormat(ply:GetPos()),
-        ["ang"] = gmInte.getAngleFormat(ply:EyeAngles())
+        ["position"] = gmInte.getVectorFormat(ply:GetPos()),
+        ["angle"] = gmInte.getAngleFormat(ply:EyeAngles())
     }
 end
 
@@ -39,8 +39,8 @@ function gmInte.getEntityFormat(ent)
     return {
         ["class"] = ent:GetClass(),
         ["model"] = ent:GetModel(),
-        ["pos"] = gmInte.getVectorFormat(ent:GetPos()),
-        ["ang"] = gmInte.getAngleFormat(ent:GetAngles())
+        ["position"] = gmInte.getVectorFormat(ent:GetPos()),
+        ["angle"] = gmInte.getAngleFormat(ent:GetAngles())
     }
 end
 
