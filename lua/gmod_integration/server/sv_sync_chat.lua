@@ -26,6 +26,6 @@ end
 // Hooks
 //
 
-hook.Add("PlayerSay", "gmInte:PlayerSay:SyncChat", function(ply, text, team)
+hook.Add("PlayerSay", "gmInte:SyncChat:PlayerSay", function(ply, text, team)
     gmInte.playerSay(ply, text, team)
 end)
