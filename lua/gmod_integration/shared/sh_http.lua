@@ -33,6 +33,10 @@ local function showableBody(endpoint)
     return true
 end
 
+local function genRequestID()
+    return "gmInte-" .. util.CRC(tostring(SysTime()))
+end
+
 function gmInte.http.requestAPI(params)
     local body = params.body && util.TableToJSON(params.body || {}) || ""
     local bodyLength = string.len(body)
@@ -43,6 +47,7 @@ function gmInte.http.requestAPI(params)
     local failed = params.failed || function() if (!gmInte.config.debug) then gmInte.log("HTTP Failed, if this error persists please contact support") end end
     local version = gmInte.config.version
     local showableBody = showableBody(params.endpoint)
+    local requestID = genRequestID()
 
     local headers = {
         ["Content-Type"] = "application/json",
@@ -54,6 +59,7 @@ function gmInte.http.requestAPI(params)
 
     // Log
     if (gmInte.config.devInstance) then gmInte.log("HTTP Using dev Instance", true) end
+    gmInte.log("HTTP Request ID: " .. requestID, true)
     gmInte.log("HTTP Request: " .. method .. " " .. url, true)
     gmInte.log("HTTP Body: " .. (showableBody && body || "HIDDEN"), true)
 
@@ -66,6 +72,7 @@ function gmInte.http.requestAPI(params)
         ["type"] = type,
         ["success"] = function(code, body, headers)
             // Log
+            gmInte.log("HTTP Request ID: " .. requestID, true)
             gmInte.log("HTTP Response: " .. code, true)
             if (gmInte.config.debug) then gmInte.log("HTTP Body: " .. body, true) end
 
@@ -88,6 +95,7 @@ function gmInte.http.requestAPI(params)
         end,
         ["failed"] = function(error)
             // Log
+            gmInte.log("HTTP Request ID: " .. requestID, true)
             gmInte.log("HTTP Failed: " .. error, true)
 
             // Return failed
