@@ -70,7 +70,3 @@ end
 function ply:gmIntGetCustomValues()
     return getCustomValues(self)
 end
-
-function gmInte.plyValid(ply)
-    return ply:IsValid() && ply:IsPlayer() && !ply:IsBot()
-end
