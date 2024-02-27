@@ -44,7 +44,7 @@ function gmInte.openVerifPopup()
     local button = vgui.Create("DButton")
     button:SetText("Refresh Verification")
     button.DoClick = function()
-        gmInte.http.get("/players/" .. LocalPlayer():SteamID64(), function(code, body)
+        gmInte.http.get("/users/" .. LocalPlayer():SteamID64(), function(code, body)
             gmInte.SendNet("verifyMe")
             frame:Close()
         end,

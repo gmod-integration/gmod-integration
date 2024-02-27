@@ -14,7 +14,7 @@ local function getAPIURL(endpoint)
     if (SERVER) then
         url = url .. "/servers/" .. gmInte.config.id
     else
-        if (string.sub(endpoint, 1, 8) == "/players" || string.sub(endpoint, 1, 7) == "/errors") then
+        if (string.sub(endpoint, 1, 8) == "/users") then
             return url .. endpoint
         end
 
