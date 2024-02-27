@@ -34,13 +34,13 @@ local function showableBody(endpoint)
 end
 
 function gmInte.http.requestAPI(params)
-    local body = params.body || ""
+    local body = params.body && util.TableToJSON(params.body || {}) || ""
     local bodyLength = string.len(body)
     local token = params.token || gmInte.config.token || ""
     local url = getAPIURL(params.endpoint)
     local method = params.method
     local success = params.success || function() end
-    local failed = params.failed || function(error) gmInte.logError(error.error || error) end
+    local failed = params.failed || function() if (!gmInte.config.debug) then gmInte.log("HTTP Failed, if this error persists please contact support") end end
     local version = gmInte.config.version
     local showableBody = showableBody(params.endpoint)
 
@@ -76,6 +76,7 @@ function gmInte.http.requestAPI(params)
 
             // if not application/json return failed
             if (string.sub(headers["Content-Type"], 1, 16) != "application/json") then
+                gmInte.log("HTTP Failed: Invalid Content-Type", true)
                 return failed({ ["error"] = "Invalid Content-Type" }, code, headers)
             end
 
@@ -86,7 +87,11 @@ function gmInte.http.requestAPI(params)
             return success(code, body)
         end,
         ["failed"] = function(error)
-            gmInte.logError(error)
+            // Log
+            gmInte.log("HTTP Failed: " .. error, true)
+
+            // Return failed
+            return failed({ ["error"] = error })
         end
     })
 end
@@ -108,7 +113,7 @@ function gmInte.http.post(endpoint, data, onSuccess, onFailed)
     gmInte.http.requestAPI({
         ["endpoint"] = endpoint,
         ["method"] = "POST",
-        ["body"] = util.TableToJSON(data),
+        ["body"] = data,
         ["success"] = onSuccess,
         ["failed"] = onFailed
     })
@@ -118,7 +123,7 @@ function gmInte.http.put(endpoint, data, onSuccess, onFailed)
     gmInte.http.requestAPI({
         ["endpoint"] = endpoint,
         ["method"] = "PUT",
-        ["body"] = util.TableToJSON(data),
+        ["body"] = data,
         ["success"] = onSuccess,
         ["failed"] = onFailed
     })
