@@ -8,7 +8,7 @@ local configCat = {
     "Authentication",
     "Main",
     "Trust & Safety",
-    "Punishment",
+    -- "Punishment",
     "Advanced",
 }
 
@@ -39,30 +39,30 @@ local possibleConfig = {
         ["onEditDelay"] = 0.5,
         ["category"] = "Authentication"
     },
-    ["sendLog"] = {
-        ["label"] = "Logs",
-        ["description"] = "Activate or deactivate logs.",
-        ["type"] = "checkbox",
-        ["value"] = function(setting, value)
-            return value
-        end,
-        ["onEdit"] = function(setting, value)
-            saveConfig(setting, value == "Enabled" && true || false)
-        end,
-        ["category"] = "Main"
-    },
-    ["logBotActions"] = {
-        ["label"] = "Log Bot Actions",
-        ["description"] = "Activate or deactivate logs for bot actions.",
-        ["type"] = "checkbox",
-        ["value"] = function(setting, value)
-            return value
-        end,
-        ["onEdit"] = function(setting, value)
-            saveConfig(setting, value == "Enabled" && true || false)
-        end,
-        ["category"] = "Main"
-    },
+    -- ["sendLog"] = {
+    --     ["label"] = "Logs",
+    --     ["description"] = "Activate or deactivate logs.",
+    --     ["type"] = "checkbox",
+    --     ["value"] = function(setting, value)
+    --         return value
+    --     end,
+    --     ["onEdit"] = function(setting, value)
+    --         saveConfig(setting, value == "Enabled" && true || false)
+    --     end,
+    --     ["category"] = "Main"
+    -- },
+    -- ["logBotActions"] = {
+    --     ["label"] = "Log Bot Actions",
+    --     ["description"] = "Activate or deactivate logs for bot actions.",
+    --     ["type"] = "checkbox",
+    --     ["value"] = function(setting, value)
+    --         return value
+    --     end,
+    --     ["onEdit"] = function(setting, value)
+    --         saveConfig(setting, value == "Enabled" && true || false)
+    --     end,
+    --     ["category"] = "Main"
+    -- },
     ["filterOnBan"] = {
         ["label"] = "Block Discord Ban Player",
         ["description"] = "Block players banned on the discord server.",
@@ -75,90 +75,90 @@ local possibleConfig = {
         end,
         ["category"] = "Trust & Safety"
     },
-    ["filterOnTrust"] = {
-        ["label"] = "Block UnTrust Player",
-        ["description"] = "Block players with a trust level lower than the minimal trust level set in the config.",
-        ["type"] = "checkbox",
-        ["value"] = function(setting, value)
-            return value
-        end,
-        ["onEdit"] = function(setting, value)
-            saveConfig(setting, value == "Enabled" && true || false)
-        end,
-        ["category"] = "Trust & Safety"
-    },
-    ["minimalTrust"] = {
-        ["label"] = "Minimal Trust Level",
-        ["description"] = "The minimal trust level to be able to join the server.",
-        ["type"] = "textEntry",
-        ["value"] = function(setting, value)
-            return value
-        end,
-        ["onEdit"] = function(setting, value)
-            saveConfig(setting, value)
-        end,
-        ["onEditDelay"] = 0.5,
-        ["category"] = "Trust & Safety"
-    },
-    ["syncChat"] = {
-        ["label"] = "Sync Chat",
-        ["description"] = "Sync chat between the server and the discord server.",
-        ["websocket"] = true,
-        ["restart"] = true,
-        ["type"] = "checkbox",
-        ["value"] = function(setting, value)
-            return value
-        end,
-        ["onEdit"] = function(setting, value)
-            saveConfig(setting, value == "Enabled" && true || false)
-        end,
-        ["category"] = "Main"
-    },
-    ["syncBan"] = {
-        ["label"] = "Sync Ban",
-        ["description"] = "Sync chat between the server and the discord server.",
-        ["type"] = "checkbox",
-        ["condition"] = function(data)
-            return false // Disabled for now
-        end,
-        ["value"] = function(setting, value)
-            return value
-        end,
-        ["onEdit"] = function(setting, value)
-            saveConfig(setting, value == "Enabled" && true || false)
-        end,
-        ["category"] = "Punishment"
-    },
-    ["syncTimeout"] = {
-        ["label"] = "Sync Timeout",
-        ["description"] = "Sync chat between the server and the discord server.",
-        ["type"] = "checkbox",
-        ["condition"] = function(data)
-            return false // Disabled for now
-        end,
-        ["value"] = function(setting, value)
-            return value
-        end,
-        ["onEdit"] = function(setting, value)
-            saveConfig(setting, value == "Enabled" && true || false)
-        end,
-        ["category"] = "Punishment"
-    },
-    ["syncKick"] = {
-        ["label"] = "Sync Kick",
-        ["description"] = "Sync chat between the server and the discord server.",
-        ["type"] = "checkbox",
-        ["condition"] = function(data)
-            return false // Disabled for now
-        end,
-        ["value"] = function(setting, value)
-            return value
-        end,
-        ["onEdit"] = function(setting, value)
-            saveConfig(setting, value == "Enabled" && true || false)
-        end,
-        ["category"] = "Punishment"
-    },
+    -- ["filterOnTrust"] = {
+    --     ["label"] = "Block UnTrust Player",
+    --     ["description"] = "Block players with a trust level lower than the minimal trust level set in the config.",
+    --     ["type"] = "checkbox",
+    --     ["value"] = function(setting, value)
+    --         return value
+    --     end,
+    --     ["onEdit"] = function(setting, value)
+    --         saveConfig(setting, value == "Enabled" && true || false)
+    --     end,
+    --     ["category"] = "Trust & Safety"
+    -- },
+    -- ["minimalTrust"] = {
+    --     ["label"] = "Minimal Trust Level",
+    --     ["description"] = "The minimal trust level to be able to join the server.",
+    --     ["type"] = "textEntry",
+    --     ["value"] = function(setting, value)
+    --         return value
+    --     end,
+    --     ["onEdit"] = function(setting, value)
+    --         saveConfig(setting, value)
+    --     end,
+    --     ["onEditDelay"] = 0.5,
+    --     ["category"] = "Trust & Safety"
+    -- },
+    -- ["syncChat"] = {
+    --     ["label"] = "Sync Chat",
+    --     ["description"] = "Sync chat between the server and the discord server.",
+    --     ["websocket"] = true,
+    --     ["restart"] = true,
+    --     ["type"] = "checkbox",
+    --     ["value"] = function(setting, value)
+    --         return value
+    --     end,
+    --     ["onEdit"] = function(setting, value)
+    --         saveConfig(setting, value == "Enabled" && true || false)
+    --     end,
+    --     ["category"] = "Main"
+    -- },
+    -- ["syncBan"] = {
+    --     ["label"] = "Sync Ban",
+    --     ["description"] = "Sync chat between the server and the discord server.",
+    --     ["type"] = "checkbox",
+    --     ["condition"] = function(data)
+    --         return false // Disabled for now
+    --     end,
+    --     ["value"] = function(setting, value)
+    --         return value
+    --     end,
+    --     ["onEdit"] = function(setting, value)
+    --         saveConfig(setting, value == "Enabled" && true || false)
+    --     end,
+    --     ["category"] = "Punishment"
+    -- },
+    -- ["syncTimeout"] = {
+    --     ["label"] = "Sync Timeout",
+    --     ["description"] = "Sync chat between the server and the discord server.",
+    --     ["type"] = "checkbox",
+    --     ["condition"] = function(data)
+    --         return false // Disabled for now
+    --     end,
+    --     ["value"] = function(setting, value)
+    --         return value
+    --     end,
+    --     ["onEdit"] = function(setting, value)
+    --         saveConfig(setting, value == "Enabled" && true || false)
+    --     end,
+    --     ["category"] = "Punishment"
+    -- },
+    -- ["syncKick"] = {
+    --     ["label"] = "Sync Kick",
+    --     ["description"] = "Sync chat between the server and the discord server.",
+    --     ["type"] = "checkbox",
+    --     ["condition"] = function(data)
+    --         return false // Disabled for now
+    --     end,
+    --     ["value"] = function(setting, value)
+    --         return value
+    --     end,
+    --     ["onEdit"] = function(setting, value)
+    --         saveConfig(setting, value == "Enabled" && true || false)
+    --     end,
+    --     ["category"] = "Punishment"
+    -- },
     ["forcePlayerLink"] = {
         ["label"] = "Force Player Verif",
         ["description"] = "Sync chat between the server and the discord server.",
