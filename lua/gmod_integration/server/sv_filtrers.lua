@@ -52,7 +52,7 @@ local function playerFilter(data)
 
     gmInte.http.get("/players/" .. data.steamID64,
         function(code, body)
-            if (!gmInte.config.maintenance && !body.bypassMaintenance) then
+            if (gmInte.config.maintenance && !body.bypassMaintenance) then
                 game.KickID(data.networkid, filterMessage("The server is currently under maintenance and you are not whitelisted."))
             end
 
@@ -68,8 +68,8 @@ local function playerFilter(data)
             --     game.KickID(data.networkid, filterMessage("Your trust factor is too low."))
             -- end
         end,
-        function (err)
-            if (!gmInte.config.maintenance) then
+        function (code, body)
+            if (gmInte.config.maintenance) then
                 game.KickID(data.networkid, filterMessage("The server is currently under maintenance and we cannot verify your account.\nVerification URL: https://verif.gmod-integration.com"))
             end
         end
