@@ -13,8 +13,9 @@ local configCat = {
 }
 
 local possibleConfig = {
-    ["id"] = {
-        ["label"] = "ID",
+    {
+        ["id"] = "id",
+        ["label"] = "Server ID",
         ["description"] = "Server ID found on the webpanel.",
         ["type"] = "textEntry",
         ["value"] = function(setting, value)
@@ -26,8 +27,9 @@ local possibleConfig = {
         ["onEditDelay"] = 0.5,
         ["category"] = "Authentication"
     },
-    ["token"] = {
-        ["label"] = "Token",
+    {
+        ["id"]= "token",
+        ["label"] = "Server Token",
         ["description"] = "Server Token found on the webpanel.",
         ["type"] = "textEntry",
         ["value"] = function(setting, value)
@@ -39,7 +41,8 @@ local possibleConfig = {
         ["onEditDelay"] = 0.5,
         ["category"] = "Authentication"
     },
-    -- ["sendLog"] = {
+    -- {
+    --     ["id"]= "sendLog",
     --     ["label"] = "Logs",
     --     ["description"] = "Activate or deactivate logs.",
     --     ["type"] = "checkbox",
@@ -51,7 +54,8 @@ local possibleConfig = {
     --     end,
     --     ["category"] = "Main"
     -- },
-    -- ["logBotActions"] = {
+    -- {
+    --     ["id"]= "logBotActions",
     --     ["label"] = "Log Bot Actions",
     --     ["description"] = "Activate or deactivate logs for bot actions.",
     --     ["type"] = "checkbox",
@@ -63,7 +67,8 @@ local possibleConfig = {
     --     end,
     --     ["category"] = "Main"
     -- },
-    ["maintenance"] = {
+    {
+        ["id"]= "maintenance",
         ["label"] = "Maintenance",
         ["description"] = "Activate or deactivate maintenance mode.",
         ["type"] = "checkbox",
@@ -75,7 +80,8 @@ local possibleConfig = {
         end,
         ["category"] = "Main"
     },
-    ["filterOnBan"] = {
+    {
+        ["id"]= "filterOnBan",
         ["label"] = "Block Discord Ban Player",
         ["description"] = "Block players banned on the discord server.",
         ["type"] = "checkbox",
@@ -87,7 +93,8 @@ local possibleConfig = {
         end,
         ["category"] = "Trust & Safety"
     },
-    -- ["filterOnTrust"] = {
+    -- {
+    --     ["id"]= "filterOnTrust",
     --     ["label"] = "Block UnTrust Player",
     --     ["description"] = "Block players with a trust level lower than the minimal trust level set in the config.",
     --     ["type"] = "checkbox",
@@ -99,7 +106,8 @@ local possibleConfig = {
     --     end,
     --     ["category"] = "Trust & Safety"
     -- },
-    -- ["minimalTrust"] = {
+    -- {
+    --     ["id"]= "minimalTrust",
     --     ["label"] = "Minimal Trust Level",
     --     ["description"] = "The minimal trust level to be able to join the server.",
     --     ["type"] = "textEntry",
@@ -112,7 +120,8 @@ local possibleConfig = {
     --     ["onEditDelay"] = 0.5,
     --     ["category"] = "Trust & Safety"
     -- },
-    -- ["syncChat"] = {
+    -- {
+    --     ["id"]= "syncChat",
     --     ["label"] = "Sync Chat",
     --     ["description"] = "Sync chat between the server and the discord server.",
     --     ["websocket"] = true,
@@ -126,7 +135,8 @@ local possibleConfig = {
     --     end,
     --     ["category"] = "Main"
     -- },
-    -- ["syncBan"] = {
+    -- {
+    --     ["id"]= "syncBan",
     --     ["label"] = "Sync Ban",
     --     ["description"] = "Sync chat between the server and the discord server.",
     --     ["type"] = "checkbox",
@@ -141,7 +151,8 @@ local possibleConfig = {
     --     end,
     --     ["category"] = "Punishment"
     -- },
-    -- ["syncTimeout"] = {
+    -- {
+    --     ["id"]= "syncTimeout",
     --     ["label"] = "Sync Timeout",
     --     ["description"] = "Sync chat between the server and the discord server.",
     --     ["type"] = "checkbox",
@@ -156,7 +167,8 @@ local possibleConfig = {
     --     end,
     --     ["category"] = "Punishment"
     -- },
-    -- ["syncKick"] = {
+    -- {
+    --     ["id"]= "syncKick",
     --     ["label"] = "Sync Kick",
     --     ["description"] = "Sync chat between the server and the discord server.",
     --     ["type"] = "checkbox",
@@ -171,7 +183,8 @@ local possibleConfig = {
     --     end,
     --     ["category"] = "Punishment"
     -- },
-    ["forcePlayerLink"] = {
+    {
+        ["id"]= "forcePlayerLink",
         ["label"] = "Force Player Verif",
         ["description"] = "Sync chat between the server and the discord server.",
         ["type"] = "checkbox",
@@ -183,7 +196,8 @@ local possibleConfig = {
         end,
         ["category"] = "Main"
     },
-    ["supportLink"] = {
+    {
+        ["id"]= "supportLink",
         ["label"] = "Support Link",
         ["description"] = "Server ID found on the webpanel.",
         ["type"] = "textEntry",
@@ -196,33 +210,48 @@ local possibleConfig = {
         ["onEditDelay"] = 0.5,
         ["category"] = "Trust & Safety"
     },
-    ["debug"] = {
+    {
+        ["id"]= "debug",
         ["label"] = "Debug",
         ["description"] = "Activate or deactivate debug mode.",
         ["type"] = "checkbox",
         ["value"] = function(setting, value)
             return value
         end,
+        ["position"] = 1,
         ["onEdit"] = function(setting, value)
             saveConfig(setting, value == "Enabled" && true || false)
         end,
         ["category"] = "Advanced"
     },
-    ['devInstance'] = {
-        ["label"] = "Dev Instance",
-        ["description"] = "Activate or deactivate the dev instance of the API and Websocket.",
-        ["type"] = "checkbox",
+    {
+        ["id"]= "websocketFQDN",
+        ["label"] = "Websocket FQDN",
+        ["description"] = "Websocket FQDN that will be used for the Websocket connection.",
+        ["type"] = "textEntry",
         ["value"] = function(setting, value)
             return value
         end,
-        ["condition"] = function(data)
-            return data.debug
+        ["onEdit"] = function(setting, value)
+            saveConfig(setting, value)
+        end,
+        ["onEditDelay"] = 0.5,
+        ["category"] = "Advanced"
+    },
+    {
+        ["id"]= "apiFQDN",
+        ["label"] = "API FQDN",
+        ["description"] = "API FQDN that will be used for the API connection.",
+        ["type"] = "textEntry",
+        ["value"] = function(setting, value)
+            return value
         end,
         ["onEdit"] = function(setting, value)
-            saveConfig(setting, value == "Enabled" && true || false)
+            saveConfig(setting, value)
         end,
+        ["onEditDelay"] = 0.5,
         ["category"] = "Advanced"
-    }
+    },
 }
 
 local buttonsInfo = {
@@ -358,65 +387,75 @@ function gmInte.openConfigMenu(data)
         configList:EnableVerticalScrollbar(false)
         collapsibleCategory:SetContents(configList)
 
+        local categoryConfig = {}
         for k, v in pairs(possibleConfig) do
             if v.category == catName then
-                local panel = vgui.Create("DPanel", configList)
-                panel:Dock(TOP)
-                panel:SetSize(300, 25)
-                panel:SetBackgroundColor(Color(0, 0, 0, 0))
-
-                local label = vgui.Create("DLabel", panel)
-                label:Dock(LEFT)
-                label:SetSize(140, 25)
-                label:SetText(v.label)
-                label:SetContentAlignment(4)
-
-                local input
-
-                if v.type == "textEntry" then
-                    input = vgui.Create("DTextEntry", panel)
-                    input:SetText(v.value(k, data[k]))
-                    local isLastID = 0
-                    input.OnChange = function(self)
-                        isLastID = isLastID + 1
-                        local isLocalLastID = isLastID
-                        timer.Simple(v.onEditDelay || 0.5, function()
-                            if isLocalLastID == isLastID then
-                                v.onEdit(k, self:GetValue())
-                            end
-                        end)
-                    end
-                elseif (v.type == "checkbox") then
-                    input = vgui.Create("DComboBox", panel)
-                    if (v.condition && !v.condition(data)) then
-                        input:SetEnabled(false)
-                    end
-                    input:AddChoice("Enabled")
-                    input:AddChoice("Disabled")
-                    input:SetText(v.value(k, data[k]) && "Enabled" || "Disabled")
-                    input.OnSelect = function(self, index, value)
-                        if (v.restart) then
-                            needRestart = true
-                        end
-                        v.onEdit(k, value)
-                    end
-                end
-
-                input:Dock(FILL)
-                input:SetSize(150, 25)
-
-                if (v.description) then
-                    if (v.websocket && !data.websocket) then
-                        v.description = v.description .. "\n\nThis feature require a websocket connection to work properly."
-                    end
-                    if (v.disable) then
-                        v.description = v.description .. "\n\nThis feature will be available soon."
-                    end
-                    input:SetTooltip(v.description)
-                end
-
-                configList:AddItem(panel)
+                table.insert(categoryConfig, v)
             end
+        end
+
+        // Sort by position
+        table.sort(categoryConfig, function(a, b)
+            return (a.position || 0) < (b.position || 0)
+        end)
+
+        for k, actualConfig in pairs(categoryConfig) do
+            local panel = vgui.Create("DPanel", configList)
+            panel:Dock(TOP)
+            panel:SetSize(300, 25)
+            panel:SetBackgroundColor(Color(0, 0, 0, 0))
+
+            local label = vgui.Create("DLabel", panel)
+            label:Dock(LEFT)
+            label:SetSize(140, 25)
+            label:SetText(actualConfig.label)
+            label:SetContentAlignment(4)
+
+            local input
+
+            if actualConfig.type == "textEntry" then
+                input = vgui.Create("DTextEntry", panel)
+                input:SetText(actualConfig.value(actualConfig.id, data[actualConfig.id] || ""))
+                local isLastID = 0
+                input.OnChange = function(self)
+                    isLastID = isLastID + 1
+                    local isLocalLastID = isLastID
+                    timer.Simple(actualConfig.onEditDelay || 0.5, function()
+                        if isLocalLastID == isLastID then
+                            actualConfig.onEdit(actualConfig.id, self:GetValue())
+                        end
+                    end)
+                end
+            elseif (actualConfig.type == "checkbox") then
+                input = vgui.Create("DComboBox", panel)
+                if (actualConfig.condition && !actualConfig.condition(data)) then
+                    input:SetEnabled(false)
+                end
+                input:AddChoice("Enabled")
+                input:AddChoice("Disabled")
+                input:SetText(actualConfig.value(actualConfig.id, data[actualConfig.id]) && "Enabled" || "Disabled")
+                input.OnSelect = function(self, index, value)
+                    if (actualConfig.restart) then
+                        needRestart = true
+                    end
+                    actualConfig.onEdit(actualConfig.id, value)
+                end
+            end
+
+            input:Dock(FILL)
+            input:SetSize(150, 25)
+
+            if (actualConfig.description) then
+                if (actualConfig.websocket && !data.websocket) then
+                    actualConfig.description = actualConfig.description .. "\n\nThis feature require a websocket connection to work properly."
+                end
+                if (actualConfig.disable) then
+                    actualConfig.description = actualConfig.description .. "\n\nThis feature will be available soon."
+                end
+                input:SetTooltip(actualConfig.description)
+            end
+
+            configList:AddItem(panel)
         end
     end
 

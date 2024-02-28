@@ -25,6 +25,8 @@
 // API Connection
 gmInte.config.id = "" // Server ID
 gmInte.config.token = "" // Server Token
+gmInte.config.websocketFQDN = "ws.gmod-integration.com" // The FQDN of the websocket server
+gmInte.config.apiFQDN = "api.gmod-integration.com" // The FQDN of the API server
 
 // Other
 gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
