@@ -57,7 +57,8 @@ function gmInte.publicGetConfig(ply)
 
     gmInte.SendNet("publicConfig", {
         ["debug"] = gmInte.config.debug,
-        ["devInstance"] = gmInte.config.devInstance
+        ["apiFQDN"] = gmInte.config.apiFQDN,
+        ["websocketFQDN"] = gmInte.config.websocketFQDN,
     }, ply)
 end
 

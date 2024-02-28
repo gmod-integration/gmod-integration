@@ -1,6 +1,3 @@
-local websocketFQDN = "ws.gmod-integration.com"
-local websocketDevFQDN = "dev-ws.gmod-integration.com"
-
 //
 // WebSocket
 //
@@ -33,7 +30,7 @@ if (!GWSockets) then
 end
 
 local function getWebSocketURL()
-    return "wss://" .. (gmInte.config.devInstance and websocketDevFQDN or websocketFQDN)
+    return "wss://" .. gmInte.config.websocketFQDN
 end
 
 local socket = GWSockets.createWebSocket(getWebSocketURL())

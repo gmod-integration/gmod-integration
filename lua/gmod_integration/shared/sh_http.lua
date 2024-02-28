@@ -1,7 +1,4 @@
 local apiVersion = "v3"
-local apiFQDN = "api.gmod-integration.com"
-local apiDevFQDN = "dev-api.gmod-integration.com"
-
 gmInte.http = gmInte.http || {}
 
 //
@@ -9,7 +6,7 @@ gmInte.http = gmInte.http || {}
 //
 
 local function getAPIURL(endpoint)
-    local url = "https://" .. (gmInte.config.devInstance && apiDevFQDN || apiFQDN) .. "/" .. apiVersion
+    local url = "https://" .. gmInte.config.apiFQDN .. "/" .. apiVersion
 
     if (SERVER) then
         url = url .. "/servers/" .. gmInte.config.id
@@ -58,7 +55,7 @@ function gmInte.http.requestAPI(params)
     local type = "application/json"
 
     // Log
-    if (gmInte.config.devInstance) then gmInte.log("HTTP Using dev Instance", true) end
+    gmInte.log("HTTP FQDN: " .. gmInte.config.apiFQDN, true)
     gmInte.log("HTTP Request ID: " .. requestID, true)
     gmInte.log("HTTP Request: " .. method .. " " .. url, true)
     gmInte.log("HTTP Body: " .. (showableBody && body || "HIDDEN"), true)
@@ -76,11 +73,6 @@ function gmInte.http.requestAPI(params)
             gmInte.log("HTTP Response: " .. code, true)
             if (gmInte.config.debug) then gmInte.log("HTTP Body: " .. body, true) end
 
-            // if not 2xx return failed
-            if (code < 200 || code >= 300) then
-                return failed(body, code, headers)
-            end
-
             // if not application/json return failed
             if (string.sub(headers["Content-Type"], 1, 16) != "application/json") then
                 gmInte.log("HTTP Failed: Invalid Content-Type", true)
@@ -89,6 +81,11 @@ function gmInte.http.requestAPI(params)
 
             // Parse body
             body = util.JSONToTable(body || "{}")
+
+            // if not 2xx return failed
+            if (code < 200 || code >= 300) then
+                return failed(code, body, headers)
+            end
 
             // Return success
             return success(code, body)
