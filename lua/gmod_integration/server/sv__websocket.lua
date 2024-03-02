@@ -46,14 +46,12 @@ end
 // log on message
 function socket:onMessage(txt)
     gmInte.log("WebSocket Message: " .. txt, true)
+
     local data = util.JSONToTable(txt)
-    if (gmInte.config.debug) then
-        gmInte.log("WebSocket Message: " .. txt, true)
-    end
     if (gmInte[data.method]) then
         gmInte[data.method](data)
     else
-        gmInte.logError("WebSocket Message: " .. txt .. " is not a valid method !")
+        gmInte.logError("WebSocket Message: " .. txt .. " is not a valid method !", true)
     end
 end
 
