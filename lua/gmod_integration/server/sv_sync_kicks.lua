@@ -15,7 +15,7 @@ end
 //
 
 function gmInte.playerKick(data)
-    if (data.reason != "Kicked by console" || data.reason != "No reason given") then
+    if (string.StartWith(data.reason, "Kicked by ") || data.reason == "No reason provided.") then
         return
     end
 
