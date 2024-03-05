@@ -15,6 +15,7 @@ end
 //
 
 function gmInte.playerBan(data)
+    data.steamID64 = util.SteamIDTo64(data.networkid)
     gmInte.http.post("/players/" .. util.SteamIDTo64(data.networkid) .. "/ban", data)
 end
 
