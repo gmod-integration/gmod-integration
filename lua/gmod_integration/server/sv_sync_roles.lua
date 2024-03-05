@@ -84,8 +84,9 @@ function gmInte.playerChangeGroup(steamID64, oldGroup, newGroup)
     cachedPlayers[steamID64] = newGroup
 
     gmInte.http.post("/players/" .. steamID64 .. "/group", {
-        oldGroup = oldGroup || "user",
-        newGroup = newGroup
+        ["player"] = gmInte.getPlayerFormat(ply),
+        ["oldGroup"] = oldGroup || "user",
+        ["newGroup"] = newGroup
     })
 end
 
