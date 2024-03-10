@@ -10,8 +10,6 @@ local netSend = {
     ["takeScreenShot"] = 4,
     ["restartMap"] = 5,
     ["verifyMe"] = 6,
-    ["getSingleUseToken"] = 7,
-    ["getMultiUseToken"] = 8
 }
 
 function gmInte.SendNet(id, args, func)
@@ -36,9 +34,6 @@ local netReceive = {
     [3] = function(data)
         gmInte.showTestConnection(data)
     end,
-    [4] = function(data)
-        gmInte.takeScreenShot(data.serverID, data.authToken)
-    end,
     [5] = function(data)
         gmInte.config = data
     end,
@@ -49,10 +44,7 @@ local netReceive = {
         gmInte.openVerifPopup()
     end,
     [8] = function(data)
-        gmInte.singleUseToken(data)
-    end,
-    [9] = function(data)
-        gmInte.multiUseToken(data)
+        gmInte.config.token = data.token
     end
 }
 

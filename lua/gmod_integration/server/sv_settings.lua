@@ -56,6 +56,7 @@ function gmInte.publicGetConfig(ply)
     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
     gmInte.SendNet("publicConfig", {
+        ["id"] = gmInte.config.id,
         ["debug"] = gmInte.config.debug,
         ["apiFQDN"] = gmInte.config.apiFQDN,
         ["websocketFQDN"] = gmInte.config.websocketFQDN,

@@ -15,7 +15,7 @@ local function getAPIURL(endpoint)
             return url .. endpoint
         end
 
-        url = url .. "/clients/" .. LocalPlayer():SteamID64()
+        url = url .. "/clients/" .. LocalPlayer():SteamID64() .. "/servers/" .. gmInte.config.id
     end
 
     return url .. endpoint
