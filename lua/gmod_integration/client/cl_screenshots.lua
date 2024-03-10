@@ -49,7 +49,9 @@ end)
 //
 
 function gmInte.takeScreenShot()
-    ScreenshotRequested = true
+    timer.Simple(0.5, function()
+        ScreenshotRequested = true
+    end)
 end
 
 //
