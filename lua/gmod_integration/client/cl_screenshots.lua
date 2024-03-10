@@ -17,6 +17,11 @@ hook.Add("PostRender", "gmInteScreenshot", function()
     }
 
     local screenCapture = render.Capture(captureData)
+    if (!screenCapture) then
+        chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(102, 63, 63), "Failed to take screenshot, your system may not support this feature.")
+        return
+    end
+
     screenCapture = util.Base64Encode(screenCapture)
 
     local size = math.Round(string.len(screenCapture) / 1024)
@@ -31,6 +36,7 @@ hook.Add("PostRender", "gmInteScreenshot", function()
         },
         function(code, body)
             gmInte.log("Screenshot sent to Discord", true)
+            chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(255, 255, 255), "Screenshot sent to Discord.")
         end,
         function(code, body)
             gmInte.log("Screenshot failed to send to Discord, error code: " .. code, true)
@@ -42,13 +48,8 @@ end)
 // Methods
 //
 
-function gmInte.takeScreenShot(serverID, authToken)
-    gmInte.config.id = serverID
-    gmInte.config.token = authToken
-
-    timer.Simple(0.2, function()
-        ScreenshotRequested = true
-    end)
+function gmInte.takeScreenShot()
+    ScreenshotRequested = true
 end
 
 //
@@ -56,7 +57,7 @@ end
 //
 
 concommand.Add("gmod_integration_screenshot", function()
-    gmInte.SendNet("takeScreenShot")
+    gmInte.takeScreenShot()
 end)
 
 //
@@ -69,6 +70,7 @@ hook.Add("OnPlayerChat", "gmInteChatCommands", function(ply, text, teamChat, isD
     text = string.sub(text, 2)
 
     if (text == "screen") then
-        gmInte.SendNet("takeScreenShot")
+        gmInte.takeScreenShot()
+        return true
     end
 end)

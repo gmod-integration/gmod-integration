@@ -23,6 +23,7 @@ hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
     }
 
     local screenCapture = render.Capture(captureConfig)
+    if (!screenCapture) then return end
     screenCapture = util.Base64Encode(screenCapture)
 
     local size = math.Round(string.len(screenCapture) / 1024)
@@ -45,33 +46,33 @@ hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
     StreamsRequeted = false
 end)
 
-//
-// Methods
-//
+-- //
+-- // Methods
+-- //
 
-function gmInte.takeScreenShot(serverID, authToken)
-    gmInte.config.id = serverID
-    gmInte.config.token = authToken
-    StreamsRequeted = true
-end
+-- function gmInte.takeScreenShot(serverID, authToken)
+--     gmInte.config.id = serverID
+--     gmInte.config.token = authToken
+--     StreamsRequeted = true
+-- end
 
-function gmInte.stopScreenShot()
-    StreamsRequeted = false
-end
+-- function gmInte.stopScreenShot()
+--     StreamsRequeted = false
+-- end
 
-//
-// Console Commands
-//
+-- //
+-- // Console Commands
+-- //
 
-concommand.Add("gmod_integration_stream", function()
-    StreamsRequeted = !StreamsRequeted
-    gmInte.log("Streaming frames to WebPanel: " .. tostring(StreamsRequeted))
+-- concommand.Add("gmod_integration_stream", function()
+--     StreamsRequeted = !StreamsRequeted
+--     gmInte.log("Streaming frames to WebPanel: " .. tostring(StreamsRequeted))
 
-    -- if (StreamsRequeted) then
-    --     gmInte.stopScreenShot()
-    --     gmInte.log("Stopped streaming frames to WebPanel")
-    -- else
-    --     gmInte.SendNet("getSingleUseToken")
-    --     gmInte.log("Started streaming frames to WebPanel")
-    -- end
-end)
+--     -- if (StreamsRequeted) then
+--     --     gmInte.stopScreenShot()
+--     --     gmInte.log("Stopped streaming frames to WebPanel")
+--     -- else
+--     --     gmInte.SendNet("getSingleUseToken")
+--     --     gmInte.log("Started streaming frames to WebPanel")
+--     -- end
+-- end)
