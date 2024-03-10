@@ -4,7 +4,18 @@
 
 function gmInte.sendLuaErrorReport(err, realm, stack, name, id, uptime)
     if (name != "gmod_integration") then return end
-    if (SERVER && math.Round(RealTime()) == 0) then return timer.Simple(1, function() gmInte.sendLuaErrorReport(err, realm, stack, name, id, math.Round(RealTime())) end) end
+
+    if (SERVER && math.Round(RealTime()) == 0) then
+        return timer.Simple(1, function()
+            gmInte.sendLuaErrorReport(err, realm, stack, name, id, math.Round(RealTime()))
+        end)
+    end
+
+    if (CLIENT && (!IsValid(LocalPlayer()) || !gmInte.config.token)) then
+        return timer.Simple(1, function()
+        gmInte.sendLuaErrorReport(err, realm, stack, name, id, math.Round(RealTime()))
+        end)
+    end
 
     gmInte.http.post("/errors",
         {
