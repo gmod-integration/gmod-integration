@@ -18,7 +18,9 @@ end)
 function gmInte.playerReady(ply)
     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
-    gmInte.http.post("/players/" .. ply:SteamID64() .. "/ready", gmInte.getPlayerFormat(ply))
+    gmInte.http.post("/players/" .. ply:SteamID64() .. "/ready", {
+        ["player"] = gmInte.getPlayerFormat(ply)
+    })
 end
 
 function gmInte.playerConnect(data)
