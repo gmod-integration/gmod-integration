@@ -1,4 +1,5 @@
 function gmInte.getPlayerFormat(ply)
+    if (!IsValid(ply) || !ply:IsPlayer()) then return end
     return {
         ["steamID"] = ply:SteamID(),
         ["steamID64"] = ply:SteamID64(),
@@ -29,6 +30,7 @@ function gmInte.getServerFormat()
 end
 
 function gmInte.getWeaponFormat(weapon)
+    if (!IsValid(weapon) || !weapon:IsWeapon()) then return end
     return {
         ["class"] = weapon:GetClass(),
         ["printName"] = weapon:GetPrintName()
@@ -36,6 +38,7 @@ function gmInte.getWeaponFormat(weapon)
 end
 
 function gmInte.getEntityFormat(ent)
+    if (!IsValid(ent)) then return end
     return {
         ["class"] = ent:GetClass(),
         ["model"] = ent:GetModel(),
@@ -45,6 +48,7 @@ function gmInte.getEntityFormat(ent)
 end
 
 function gmInte.getVectorFormat(vec)
+    if (!isvector(vec)) then return end
     return {
         ["x"] = vec.x,
         ["y"] = vec.y,
@@ -53,6 +57,7 @@ function gmInte.getVectorFormat(vec)
 end
 
 function gmInte.getAngleFormat(ang)
+    if (!isangle(ang)) then return end
     return {
         ["p"] = ang.p,
         ["y"] = ang.y,
@@ -61,6 +66,7 @@ function gmInte.getAngleFormat(ang)
 end
 
 function gmInte.getTeamFormat(teamID)
+    if (!isnumber(teamID)) then return end
     return {
         ["id"] = teamID,
         ["name"] = team.GetName(teamID)
