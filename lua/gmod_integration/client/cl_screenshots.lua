@@ -3,6 +3,7 @@
 //
 
 local ScreenshotRequested = false
+local FailAttempts = 0
 hook.Add("PostRender", "gmInteScreenshot", function()
 	if (!ScreenshotRequested) then return end
 	ScreenshotRequested = false
@@ -18,19 +19,29 @@ hook.Add("PostRender", "gmInteScreenshot", function()
 
     local screenCapture = render.Capture(captureData)
     if (!screenCapture) then
-        chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(102, 63, 63), "Failed to take screenshot, your system may not support this feature.")
-        return
+        if (FailAttempts < 3) then
+            timer.Simple(0.5, function()
+                ScreenshotRequested = true
+                FailAttempts = FailAttempts + 1
+                gmInte.log("Failed to take screenshot, retrying... (" .. FailAttempts .. "/3)", true)
+            end)
+            return
+        else
+            FailAttempts = 0
+            chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(102, 63, 63), "Failed to take screenshot, your system may not support this feature.")
+            return
+        end
     end
 
-    screenCapture = util.Base64Encode(screenCapture)
+    local base64Capture = util.Base64Encode(screenCapture)
 
-    local size = math.Round(string.len(screenCapture) / 1024)
+    local size = math.Round(string.len(base64Capture) / 1024)
     gmInte.log("Screenshot Taken - " .. size .. "KB", true)
 
     gmInte.http.post("/screenshots",
         {
             ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
-            ["screenshot"] = screenCapture,
+            ["screenshot"] = base64Capture,
             ["captureData"] = captureData,
             ["size"] = size .. "KB"
         },
