@@ -3,14 +3,9 @@
 //
 
 local StreamsRequeted = false
-local LastFrame = 0
-
 hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
 	if (!StreamsRequeted) then return end
-
-    // Limit frame rate
-    if (LastFrame > CurTime()) then return end
-    LastFrame = CurTime() + 0.25
+    StreamsRequeted = false
 
     // Capture frame
 	local captureConfig = {
@@ -19,7 +14,7 @@ hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
         y = 0,
         w = ScrW(),
         h = ScrH(),
-        quality = 50,
+        quality = 30,
     }
 
     local screenCapture = render.Capture(captureConfig)
@@ -43,36 +38,20 @@ hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
             gmInte.log("Failed to send frame to WebPanel", true)
         end
     )
-    StreamsRequeted = false
 end)
 
--- //
--- // Methods
--- //
+local Steam = false
+timer.Create("gmInte:Stream:Frame", 0.5, 0, function()
+    if (Steam) then
+        StreamsRequeted = true
+    end
+end)
 
--- function gmInte.takeScreenShot(serverID, authToken)
---     gmInte.config.id = serverID
---     gmInte.config.token = authToken
---     StreamsRequeted = true
--- end
+//
+// Console Commands
+//
 
--- function gmInte.stopScreenShot()
---     StreamsRequeted = false
--- end
-
--- //
--- // Console Commands
--- //
-
--- concommand.Add("gmod_integration_stream", function()
---     StreamsRequeted = !StreamsRequeted
---     gmInte.log("Streaming frames to WebPanel: " .. tostring(StreamsRequeted))
-
---     -- if (StreamsRequeted) then
---     --     gmInte.stopScreenShot()
---     --     gmInte.log("Stopped streaming frames to WebPanel")
---     -- else
---     --     gmInte.SendNet("getSingleUseToken")
---     --     gmInte.log("Started streaming frames to WebPanel")
---     -- end
--- end)
+concommand.Add("gmod_integration_stream", function()
+    Steam = !Steam
+    gmInte.log("Streaming frames to WebPanel: " .. tostring(Steam))
+end)
