@@ -35,7 +35,7 @@ local netReceive = {
         gmInte.showTestConnection(data)
     end,
     [5] = function(data)
-        gmInte.config = data
+        gmInte.config = table.Merge(gmInte.config, data)
     end,
     [6] = function(data)
         gmInte.chatAddText(data)
