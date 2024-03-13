@@ -15,10 +15,6 @@ end
 //
 
 function gmInte.playerKick(data)
-    if (string.StartWith(data.reason, "Kicked by ") || data.reason == "No reason provided.") then
-        return
-    end
-
     gmInte.http.post("/players/" .. util.SteamIDTo64(data.networkid) .. "/kick", data)
 end
 
@@ -28,5 +24,7 @@ end
 
 gameevent.Listen("player_disconnect")
 hook.Add("player_disconnect", "gmInte:SyncKick:Disconnect", function(data)
-    gmInte.playerKick(data)
+    if (string.StartWith(data.reason, "Kicked by ") || data.reason == "No reason provided.") then
+        gmInte.playerKick(data)
+    end
 end)
