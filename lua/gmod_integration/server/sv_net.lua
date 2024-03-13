@@ -1,29 +1,30 @@
 //
-// Network
+// Networking
 //
-
-/*
-Upload
-    1 - Add Chat Message
-    2 - Get Config
-    3 - Test Connection
-    4 - Take Screenshot
-Receive
-    0 - Player is Ready
-    1 - Test Connection
-    2 - Get Config
-    3 - Set Config
-    4 - Take Screenshot
-    5 - Restart Map
-*/
 
 util.AddNetworkString("gmIntegration")
 
+//
+// Send Net
+//
+
+local netSend = {
+    ["wsRelayDiscordChat"] = 1,
+    ["adminConfig"] = 2,
+    ["testApiConnection"] = 3,
+    ["publicConfig"] = 5,
+    ["chatColorMessage"] = 6,
+    ["openVerifPopup"] = 7,
+    ["savePlayerToken"] = 8
+}
+
 // Send
 function gmInte.SendNet(id, data, ply, func)
+    if (!netSend[id]) then return end
+
     net.Start("gmIntegration")
-        net.WriteUInt(id, 8)
-        net.WriteString(util.TableToJSON(data))
+        net.WriteUInt(netSend[id], 8)
+        net.WriteString(util.TableToJSON(data || {}))
         if (func) then func() end
     if (ply == nil) then
         net.Broadcast()
@@ -32,11 +33,13 @@ function gmInte.SendNet(id, data, ply, func)
     end
 end
 
-// Receive
-local netFuncs = {
+//
+// Receive net
+//
+
+local netReceive = {
     [0] = function(ply)
-        gmInte.userFinishConnect(ply)
-        ply.gmIntTimeConnect = math.Round(RealTime())
+        hook.Run("gmInte:PlayerReady", ply)
     end,
     [1] = function(ply, data)
         gmInte.testConnection(ply, data)
@@ -54,11 +57,21 @@ local netFuncs = {
         if (!ply:IsSuperAdmin()) then return end
         RunConsoleCommand("changelevel", game.GetMap())
     end,
+    [6] = function(ply)
+        gmInte.verifyPlayer(ply)
+    end,
+    [7] = function(ply, data)
+        sendPlayerToken(ply)
+    end
 }
 
 net.Receive("gmIntegration", function(len, ply)
-    if !ply:IsPlayer() then return end
+    if (!ply || ply && !ply:IsValid()) then return end
+
     local id = net.ReadUInt(8)
     local data = util.JSONToTable(net.ReadString() || "{}")
-    if (netFuncs[id]) then netFuncs[id](ply, data) end
+
+    if (!netReceive[id]) then return end
+
+    netReceive[id](ply, data)
 end)

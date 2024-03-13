@@ -1,126 +1,144 @@
+local apiVersion = "v3"
+gmInte.http = gmInte.http || {}
+
 //
 // HTTP
 //
 
-local failMessage = {
-    ["401"] = "Bad Credentials",
-    ["403"] = "Forbidden",
-    ["404"] = "Not Found",
-    ["500"] = "Internal Server Error",
-    ["503"] = "Service Unavailable",
-    ["504"] = "Gateway Timeout",
-}
+local function getAPIURL(endpoint)
+    local url = "https://" .. gmInte.config.apiFQDN .. "/" .. apiVersion
 
-local function errorMessage(body, code)
-    if (body && body.error) then
-        if (failMessage[code]) then
-            return failMessage[code]
-        else
-            return body.error
-        end
-    elseif (failMessage[code]) then
-        return failMessage[code]
+    if (SERVER) then
+        url = url .. "/servers/" .. gmInte.config.id
     else
-        return code
-    end
-end
+        if (string.sub(endpoint, 1, 8) == "/users") then
+            return url .. endpoint
+        end
 
-local function getAPIURL()
-    local url = "https://api.gmod-integration.com"
-    local devURL = "https://dev-api.gmod-integration.com"
-
-    if (!gmInte.config.debug) then return url end
-    if (gmInte.config.devInstance) then
-        gmInte.log("Using dev Instance", true)
-        return devURL
+        url = url .. "/clients/" .. LocalPlayer():SteamID64() .. "/servers/" .. gmInte.config.id
     end
 
-    return url
+    return url .. endpoint
 end
 
-local function sendHTTP(params)
-    // Log the HTTP request
-    gmInte.log("HTTP Request: " .. params.method .. " " .. params.endpoint, true)
-    gmInte.log("HTTP Body: " .. (params.body || "No body"), true)
+local function showableBody(endpoint)
+    // if start with /streams or /screenshots return false
+    if (string.sub(endpoint, 1, 8) == "/streams" || string.sub(endpoint, 1, 12) == "/screenshots") then
+        return false
+    end
 
-    // Send the HTTP request
+    return true
+end
+
+local function genRequestID()
+    return "gmInte-" .. util.CRC(tostring(SysTime()))
+end
+
+function gmInte.http.requestAPI(params)
+    local body = params.body && util.TableToJSON(params.body || {}) || ""
+    local bodyLength = string.len(body)
+    local token = params.token || gmInte.config.token || ""
+    local url = getAPIURL(params.endpoint)
+    local method = params.method
+    local success = params.success || function() end
+    local failed = params.failed || function() if (!gmInte.config.debug) then gmInte.log("HTTP Failed, if this error persists please contact support") end end
+    local version = gmInte.config.version
+    local showableBody = showableBody(params.endpoint)
+    local requestID = genRequestID()
+
+    local headers = {
+        ["Content-Type"] = "application/json",
+        ["Content-Length"] = bodyLength,
+        ["Authorization"] = "Bearer " .. token,
+        ["Version"] = version
+    }
+    local type = "application/json"
+
+    // Log
+    gmInte.log("HTTP FQDN: " .. gmInte.config.apiFQDN, true)
+    gmInte.log("HTTP Request ID: " .. requestID, true)
+    gmInte.log("HTTP Request: " .. method .. " " .. url, true)
+    gmInte.log("HTTP Body: " .. (showableBody && body || "HIDDEN"), true)
+
+    // Send
     HTTP({
-        url = getAPIURL() .. params.endpoint,
-        method = params.method,
-        headers = {
-            ["Content-Type"] = "application/json",
-            ["Content-Length"] = params.body && string.len(params.body) || 0,
-            ["id"] = gmInte.config.id,
-            ["token"] = gmInte.config.token,
-            ["version"] = gmInte.version
-        },
-        body = params.body && params.body || "",
-        type = "application/json",
-        success = function(code, body, headers)
-            // Log the HTTP response
+        ["url"] = url,
+        ["method"] = method,
+        ["headers"] = headers,
+        ["body"] = body,
+        ["type"] = type,
+        ["success"] = function(code, body, headers)
+            // Log
+            gmInte.log("HTTP Request ID: " .. requestID, true)
             gmInte.log("HTTP Response: " .. code, true)
             if (gmInte.config.debug) then gmInte.log("HTTP Body: " .. body, true) end
 
-            // if body and is json extract it
-            if (body && string.sub(headers["Content-Type"], 1, 16) == "application/json") then
-                body = util.JSONToTable(body)
+            // if not application/json return failed
+            if (string.sub(headers["Content-Type"], 1, 16) != "application/json") then
+                gmInte.log("HTTP Failed: Invalid Content-Type", true)
+                return failed({ ["error"] = "Invalid Content-Type" }, code, headers)
             end
 
-            // Check if the request was successful
-            if (string.sub(code, 1, 1) == "2") then
-                if (params.success) then
-                    params.success(code, body, headers)
-                else
-                    gmInte.log("HTTP Request Successful", true)
-                end
-            else
-                if (params.failed) then
-                    params.failed(code, body, headers)
-                else
-                    gmInte.logError(errorMessage(body, code))
-                end
+            // Parse body
+            body = util.JSONToTable(body || "{}")
+
+            // if not 2xx return failed
+            if (code < 200 || code >= 300) then
+                return failed(code, body, headers)
             end
+
+            // Return success
+            return success(code, body)
         end,
-        failed = function(error)
-            gmInte.logError(error)
+        ["failed"] = function(error)
+            // Log
+            gmInte.log("HTTP Request ID: " .. requestID, true)
+            gmInte.log("HTTP Failed: " .. error, true)
+
+            // Return failed
+            return failed({ ["error"] = error })
         end
     })
 end
 
-function gmInte.get(endpoint, onSuccess, onFailed)
-    sendHTTP({
-        endpoint = endpoint,
-        method = "GET",
-        success = onSuccess,
-        failed = onFailed
+//
+// HTTP Methods
+//
+
+function gmInte.http.get(endpoint, onSuccess, onFailed)
+    gmInte.http.requestAPI({
+        ["endpoint"] = endpoint,
+        ["method"] = "GET",
+        ["success"] = onSuccess,
+        ["failed"] = onFailed
     })
 end
 
-function gmInte.post(endpoint, data, onSuccess, onFailed)
-    sendHTTP({
-        endpoint = endpoint,
-        method = "POST",
-        body = util.TableToJSON(data),
-        success = onSuccess,
-        failed = onFailed
+function gmInte.http.post(endpoint, data, onSuccess, onFailed)
+    gmInte.http.requestAPI({
+        ["endpoint"] = endpoint,
+        ["method"] = "POST",
+        ["body"] = data,
+        ["success"] = onSuccess,
+        ["failed"] = onFailed
     })
 end
 
-function gmInte.put(endpoint, data, onSuccess, onFailed)
-    sendHTTP({
-        endpoint = endpoint,
-        method = "PUT",
-        body = util.TableToJSON(data),
-        success = onSuccess,
-        failed = onFailed
+function gmInte.http.put(endpoint, data, onSuccess, onFailed)
+    gmInte.http.requestAPI({
+        ["endpoint"] = endpoint,
+        ["method"] = "PUT",
+        ["body"] = data,
+        ["success"] = onSuccess,
+        ["failed"] = onFailed
     })
 end
 
-function gmInte.delete(endpoint, onSuccess, onFailed)
-    sendHTTP({
-        endpoint = endpoint,
-        method = "DELETE",
-        success = onSuccess,
-        failed = onFailed
+function gmInte.http.delete(endpoint, onSuccess, onFailed)
+    gmInte.http.requestAPI({
+        ["endpoint"] = endpoint,
+        ["method"] = "DELETE",
+        ["success"] = onSuccess,
+        ["failed"] = onFailed
     })
 end

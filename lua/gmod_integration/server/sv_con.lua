@@ -1,7 +1,3 @@
-//
-// Console Commands
-//
-
 local conFuncs = {
     ["version"] = function()
         gmInte.log("Version: " .. gmInte.version)
