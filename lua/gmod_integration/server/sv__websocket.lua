@@ -60,7 +60,7 @@ function socket:onDisconnected()
 end
 
 function socket:onError(txt)
-    gmInte.logError("WebSocket Error: " .. txt)
+    gmInte.logError("WebSocket Error: " .. txt, true)
 end
 
 function gmInte.websocketWrite(data)
