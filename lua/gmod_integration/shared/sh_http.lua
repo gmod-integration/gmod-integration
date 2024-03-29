@@ -31,7 +31,8 @@ end
 
 local lastErrorMessages = 0
 local function noTokenError()
-    if (curTime() - lastErrorMessages < 10) then return end
+    if CurTime() - lastErrorMessages < 5 then return end
+    lastErrorMessages = CurTime()
     gmInte.log("HTTP Failed: No token provided")
 end
 
