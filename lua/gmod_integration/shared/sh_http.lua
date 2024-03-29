@@ -49,7 +49,8 @@ function gmInte.http.requestAPI(params)
     local requestID = genRequestID()
 
     if (token == "") then
-        return noTokenError()
+        noTokenError()
+        return failed(401, "No token provided")
     end
 
     local headers = {
