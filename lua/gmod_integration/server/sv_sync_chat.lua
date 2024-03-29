@@ -11,8 +11,6 @@ end
 //
 
 function gmInte.playerSay(ply, text, teamOnly)
-    if (!gmInte.config.syncChat) then return end
-
     gmInte.http.post("/players/" .. ply:SteamID64() .. "/say",
         {
             ["player"] = gmInte.getPlayerFormat(ply),
