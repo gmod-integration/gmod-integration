@@ -39,7 +39,9 @@ local socket = GWSockets.createWebSocket(getWebSocketURL())
 socket:setHeader("id", gmInte.config.id)
 socket:setHeader("token", gmInte.config.token)
 
+local hasConnected = false
 function socket:onConnected()
+    hasConnected = true
     gmInte.log("WebSocket Connected")
 end
 
@@ -56,18 +58,14 @@ function socket:onMessage(txt)
 end
 
 function socket:onDisconnected()
-    gmInte.log("WebSocket Disconnected")
+    if (hasConnected) then
+        gmInte.log("WebSocket Disconnected")
+    else
+        gmInte.logError("WebSocket Connection Failed", true)
+    end
 end
 
-local lastConnectError = 0
 function socket:onError(txt)
-    if (string.StartWith(txt, "Connection failed:")) then
-        if (CurTime() - lastConnectError < 5) then
-            return
-        end
-        gmInte.logError("WebSocket Error: " .. txt, true)
-        return
-    end
     gmInte.logError("WebSocket Error: " .. txt, true)
 end
 
