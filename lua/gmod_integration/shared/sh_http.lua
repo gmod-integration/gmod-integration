@@ -1,10 +1,6 @@
 local apiVersion = "v3"
 gmInte.http = gmInte.http || {}
 
-//
-// HTTP
-//
-
 local function getAPIURL(endpoint)
     local url = "https://" .. gmInte.config.apiFQDN .. "/" .. apiVersion
 
@@ -22,7 +18,6 @@ local function getAPIURL(endpoint)
 end
 
 local function showableBody(endpoint)
-    // if start with /streams or /screenshots return false
     if (string.sub(endpoint, 1, 8) == "/streams" || string.sub(endpoint, 1, 12) == "/screenshots") then
         return false
     end
@@ -32,6 +27,12 @@ end
 
 local function genRequestID()
     return "gmInte-" .. util.CRC(tostring(SysTime()))
+end
+
+local lastErrorMessages = 0
+local function noTokenError()
+    if (curTime() - lastErrorMessages < 10) then return end
+    gmInte.log("HTTP Failed: No token provided")
 end
 
 function gmInte.http.requestAPI(params)
@@ -45,6 +46,10 @@ function gmInte.http.requestAPI(params)
     local version = gmInte.config.version
     local showableBody = showableBody(params.endpoint)
     local requestID = genRequestID()
+
+    if (token == "") then
+        return noTokenError()
+    end
 
     local headers = {
         ["Content-Type"] = "application/json",

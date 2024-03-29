@@ -40,7 +40,7 @@ socket:setHeader("id", gmInte.config.id)
 socket:setHeader("token", gmInte.config.token)
 
 function socket:onConnected()
-    gmInte.log("WebSocket Connected", true)
+    gmInte.log("WebSocket Connected")
 end
 
 // log on message
@@ -56,11 +56,19 @@ function socket:onMessage(txt)
 end
 
 function socket:onDisconnected()
-    gmInte.log("WebSocket Disconnected", true)
+    gmInte.log("WebSocket Disconnected")
 end
 
+local lastConnectError = 0
 function socket:onError(txt)
-    gmInte.logError("WebSocket Error: " .. txt)
+    if (string.StartWith(txt, "Connection failed:")) then
+        if (CurTime() - lastConnectError < 5) then
+            return
+        end
+        gmInte.logError("WebSocket Error: " .. txt, true)
+        return
+    end
+    gmInte.logError("WebSocket Error: " .. txt, true)
 end
 
 function gmInte.websocketWrite(data)
