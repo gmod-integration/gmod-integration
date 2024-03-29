@@ -42,7 +42,7 @@ function gmInte.http.requestAPI(params)
     local url = getAPIURL(params.endpoint)
     local method = params.method
     local success = params.success || function() end
-    local failed = params.failed || function() if (!gmInte.config.debug) then gmInte.log("HTTP Failed, if this error persists please contact support") end end
+    local failed = params.failed || function() end
     local version = gmInte.config.version
     local showableBody = showableBody(params.endpoint)
     local requestID = genRequestID()
@@ -57,51 +57,40 @@ function gmInte.http.requestAPI(params)
         ["Authorization"] = "Bearer " .. token,
         ["Version"] = version
     }
-    local type = "application/json"
 
-    // Log
     gmInte.log("HTTP FQDN: " .. gmInte.config.apiFQDN, true)
     gmInte.log("HTTP Request ID: " .. requestID, true)
     gmInte.log("HTTP Request: " .. method .. " " .. url, true)
     gmInte.log("HTTP Body: " .. (showableBody && body || "HIDDEN"), true)
 
-    // Send
     HTTP({
         ["url"] = url,
         ["method"] = method,
         ["headers"] = headers,
         ["body"] = body,
-        ["type"] = type,
+        ["type"] = "application/json",
         ["success"] = function(code, body, headers)
-            // Log
             gmInte.log("HTTP Request ID: " .. requestID, true)
             gmInte.log("HTTP Response: " .. code, true)
-            if (gmInte.config.debug) then gmInte.log("HTTP Body: " .. body, true) end
+            gmInte.log("HTTP Body: " .. body, true)
 
-            // if not application/json return failed
+            if (code < 200 || code >= 300) then
+                gmInte.log("HTTP Failed: Invalid Status Code", true)
+                return failed(code, body)
+            end
+
             if (string.sub(headers["Content-Type"], 1, 16) != "application/json") then
                 gmInte.log("HTTP Failed: Invalid Content-Type", true)
-                return failed({ ["error"] = "Invalid Content-Type" }, code, headers)
+                return failed(code, body)
             end
 
-            // Parse body
             body = util.JSONToTable(body || "{}")
 
-            // if not 2xx return failed
-            if (code < 200 || code >= 300) then
-                return failed(code, body, headers)
-            end
-
-            // Return success
             return success(code, body)
         end,
         ["failed"] = function(error)
-            // Log
             gmInte.log("HTTP Request ID: " .. requestID, true)
             gmInte.log("HTTP Failed: " .. error, true)
-
-            // Return failed
-            return failed({ ["error"] = error })
         end
     })
 end
