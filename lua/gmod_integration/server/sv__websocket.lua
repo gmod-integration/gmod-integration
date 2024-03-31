@@ -2,22 +2,6 @@
 // WebSocket
 //
 
-local useWebsocket = false
-local websocketFeature = {
-    'syncChat',
-    'websocket',
-}
-
-for k, v in pairs(websocketFeature) do
-    if (gmInte.config[v]) then
-        useWebsocket = true
-    end
-end
-
-if (!useWebsocket) then
-    return gmInte.log("WebSocket is not used")
-end
-
 require("gwsockets")
 
 if (!GWSockets) then
