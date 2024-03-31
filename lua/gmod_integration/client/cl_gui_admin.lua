@@ -32,6 +32,7 @@ local possibleConfig = {
         ["label"] = "Server Token",
         ["description"] = "Server Token found on the webpanel.",
         ["type"] = "textEntry",
+        ["secret"] = true,
         ["value"] = function(setting, value)
             return value
         end,
@@ -306,10 +307,11 @@ function gmInte.needRestart()
     local frame = vgui.Create("DFrame")
     frame:SetSize(400, 120)
     frame:Center()
-    frame:SetTitle("Gmod Integration - Restart Required")
+    frame:SetTitle(gmInte.getFrameName("Restart Required"))
     frame:SetDraggable(true)
     frame:ShowCloseButton(true)
     frame:MakePopup()
+    gmInte.applyPaint(frame)
 
     local messagePanel = vgui.Create("DPanel", frame)
     messagePanel:Dock(TOP)
@@ -327,7 +329,7 @@ function gmInte.needRestart()
     buttonGrid:Dock(BOTTOM)
     buttonGrid:DockMargin(5, 10, 5, 5)
     buttonGrid:SetCols(2)
-    buttonGrid:SetColWide(frame:GetWide() / 2 - 10)
+    buttonGrid:SetColWide(frame:GetWide() / 2 - 5)
     buttonGrid:SetRowHeight(35)
 
     local button = vgui.Create("DButton")
@@ -336,7 +338,8 @@ function gmInte.needRestart()
         frame:Close()
         gmInte.SendNet("restartMap")
     end
-    button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+    button:SetSize(buttonGrid:GetColWide() -10, buttonGrid:GetRowHeight())
+    gmInte.applyPaint(button)
     buttonGrid:AddItem(button)
 
     local button = vgui.Create("DButton")
@@ -344,7 +347,8 @@ function gmInte.needRestart()
     button.DoClick = function()
         frame:Close()
     end
-    button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+    button:SetSize(buttonGrid:GetColWide() -10, buttonGrid:GetRowHeight())
+    gmInte.applyPaint(button)
     buttonGrid:AddItem(button)
 end
 
@@ -354,10 +358,11 @@ function gmInte.openConfigMenu(data)
     local frame = vgui.Create("DFrame")
     frame:SetSize(400, (600 / 1080) * ScrH())
     frame:Center()
-    frame:SetTitle("Gmod Integration - Server Config")
+    frame:SetTitle(gmInte.getFrameName("Server Config"))
     frame:SetDraggable(true)
     frame:ShowCloseButton(true)
     frame:MakePopup()
+    gmInte.applyPaint(frame)
 
     local scrollPanel = vgui.Create("DScrollPanel", frame)
     scrollPanel:Dock(FILL)
@@ -370,7 +375,7 @@ function gmInte.openConfigMenu(data)
 
     local messageLabel = vgui.Create("DLabel", messagePanel)
     messageLabel:Dock(FILL)
-    messageLabel:SetText("This config is superior to the webpanel config.\nIf you change something here you can override the webpanel config.\nSome features require a websocket connection to work properly.")
+    messageLabel:SetText("Here you can configure your server settings.\nServer ID and Token are available on the webpanel in the server settings.\nThe documentation is available at https://docs.gmod-integration.com/\nIf you need help, please contact us on our discord server.")
     messageLabel:SetWrap(true)
 
     for k, catName in pairs(configCat) do
@@ -379,6 +384,7 @@ function gmInte.openConfigMenu(data)
         collapsibleCategory:DockMargin(10, 0, 10, 10)
         collapsibleCategory:SetLabel(catName)
         collapsibleCategory:SetExpanded(true)
+        gmInte.applyPaint(collapsibleCategory)
 
         local configList = vgui.Create("DPanelList", collapsibleCategory)
         configList:Dock(FILL)
@@ -415,7 +421,22 @@ function gmInte.openConfigMenu(data)
 
             if actualConfig.type == "textEntry" then
                 input = vgui.Create("DTextEntry", panel)
-                input:SetText(actualConfig.value(actualConfig.id, data[actualConfig.id] || ""))
+                local value = actualConfig.value(actualConfig.id, data[actualConfig.id] || "")
+                if (actualConfig.secret) then
+                    input:SetText("*** Click to show ***")
+                else
+                    input:SetText(value)
+                end
+                input.OnGetFocus = function(self)
+                    if (actualConfig.secret) then
+                        self:SetText(value)
+                    end
+                end
+                input.OnLoseFocus = function(self)
+                    if (actualConfig.secret) then
+                        self:SetText("*** Click to show ***")
+                    end
+                end
                 local isLastID = 0
                 input.OnChange = function(self)
                     isLastID = isLastID + 1
@@ -461,10 +482,10 @@ function gmInte.openConfigMenu(data)
 
     local buttonGrid = vgui.Create("DGrid", frame)
     buttonGrid:Dock(BOTTOM)
-    buttonGrid:DockMargin(5, 10, 5, 5)
+    buttonGrid:DockMargin(5, 10, 5, -5)
     buttonGrid:SetCols(2)
-    buttonGrid:SetColWide(frame:GetWide() / 2 - 10)
-    buttonGrid:SetRowHeight(35)
+    buttonGrid:SetColWide(frame:GetWide() / 2 - 5)
+    buttonGrid:SetRowHeight(45)
 
     local buttonsCount = 0
     for k, v in pairs(buttonsInfo) do
@@ -474,7 +495,8 @@ function gmInte.openConfigMenu(data)
         button.DoClick = function()
             v.func(data)
         end
-        button:SetSize(buttonGrid:GetColWide(), buttonGrid:GetRowHeight())
+        gmInte.applyPaint(button)
+        button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight() - 10)
         buttonGrid:AddItem(button)
         buttonsCount = buttonsCount + 1
     end
@@ -488,3 +510,10 @@ function gmInte.openConfigMenu(data)
         if (needRestart) then gmInte.needRestart() end
     end
 end
+
+//
+// Concommands
+//
+
+concommand.Add("gmod_integration_admin", gmInte.openAdminConfig)
+concommand.Add("gmi_admin", gmInte.openAdminConfig)
