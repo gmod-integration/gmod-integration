@@ -33,7 +33,7 @@ function gmInte.http.requestAPI(params)
     local method = params.method || "GET"
     local success = params.success || function() end
     local failed = params.failed || function() end
-    local version = gmInte.config.version || "Unknown"
+    local version = gmInte.version || "Unknown"
     local showableBody = showableBody(params.endpoint)
     local localRequestID = util.CRC(tostring(SysTime()))
 

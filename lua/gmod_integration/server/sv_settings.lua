@@ -15,10 +15,10 @@ function gmInte.saveSetting(setting, value)
     file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
     gmInte.log("Setting Saved")
 
-    // send to all players if it's a public setting
+    // send to all players the new public config
     for _, ply in pairs(player.GetAll()) do
         if (ply:IsValid() && ply:IsPlayer(ply)) then
-            gmInte.log("Sending new Public Config to " .. ply:Nick())
+            gmInte.log("Sending new Public Config to " .. ply:Nick(), true)
             gmInte.publicGetConfig(ply)
         end
     end
@@ -69,10 +69,10 @@ function gmInte.publicGetConfig(ply)
             ["debug"] = gmInte.config.debug,
             ["apiFQDN"] = gmInte.config.apiFQDN,
             ["websocketFQDN"] = gmInte.config.websocketFQDN,
-            ["version"] = gmInte.config.version,
         },
         ["other"] = {
             ["aprovedCredentials"] = gmInte.aprovedCredentials,
+            ["version"] = gmInte.version,
         }
     }, ply)
 end

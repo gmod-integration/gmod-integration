@@ -45,5 +45,5 @@ function gmInte.applyPaint(element, id)
 end
 
 function gmInte.getFrameName(name)
-    return "Gmod Integration v" .. gmInte.config.version .. " - " .. name
+    return "Gmod Integration v" .. (gmInte.version || "0.0.0") .. " - " .. name
 end

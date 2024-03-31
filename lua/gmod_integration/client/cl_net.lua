@@ -36,6 +36,7 @@ local netReceive = {
     end,
     [5] = function(data)
         gmInte.config = table.Merge(gmInte.config, data.config)
+        gmInte.version = data.other.version
         if (!data.other.aprovedCredentials) then RunConsoleCommand("gmod_integration_admin") end
     end,
     [6] = function(data)

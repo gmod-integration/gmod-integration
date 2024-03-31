@@ -355,6 +355,9 @@ end
 function gmInte.openConfigMenu(data)
     local needRestart = false
 
+    if (gmInte.openAdminPanel) then return end
+    gmInte.openAdminPanel = true
+
     local frame = vgui.Create("DFrame")
     frame:SetSize(400, (600 / 1080) * ScrH())
     frame:Center()
@@ -507,6 +510,7 @@ function gmInte.openConfigMenu(data)
     end
 
     frame.OnClose = function()
+        gmInte.openAdminPanel = false
         if (needRestart) then gmInte.needRestart() end
     end
 end
@@ -515,5 +519,5 @@ end
 // Concommands
 //
 
-concommand.Add("gmod_integration_admin", gmInte.openAdminConfig)
-concommand.Add("gmi_admin", gmInte.openAdminConfig)
+concommand.Add("gmod_integration_admin", function() gmInte.SendNet("getConfig") end)
+concommand.Add("gmi_admin", function() gmInte.SendNet("getConfig") end)
