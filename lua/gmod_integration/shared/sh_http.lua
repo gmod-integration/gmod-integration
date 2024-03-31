@@ -79,6 +79,7 @@ function gmInte.http.requestAPI(params)
                 return failed(code, body)
             end
 
+            gmInte.aprovedCredentials = true
             return success(code, body)
         end,
         ["failed"] = function(error)

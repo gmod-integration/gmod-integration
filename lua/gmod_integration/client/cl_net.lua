@@ -35,7 +35,8 @@ local netReceive = {
         gmInte.showTestConnection(data)
     end,
     [5] = function(data)
-        gmInte.config = table.Merge(gmInte.config, data)
+        gmInte.config = table.Merge(gmInte.config, data.config)
+        if (!data.other.aprovedCredentials) then RunConsoleCommand("gmod_integration_admin") end
     end,
     [6] = function(data)
         gmInte.chatAddText(data)
