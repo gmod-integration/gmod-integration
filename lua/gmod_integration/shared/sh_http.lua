@@ -25,43 +25,34 @@ local function showableBody(endpoint)
     return true
 end
 
-local function genRequestID()
-    return "gmInte-" .. util.CRC(tostring(SysTime()))
-end
-
-local lastErrorMessages = 0
-local function noTokenError()
-    if CurTime() - lastErrorMessages < 5 then return end
-    lastErrorMessages = CurTime()
-    gmInte.log("HTTP Failed: No token provided")
-end
-
 function gmInte.http.requestAPI(params)
     local body = params.body && util.TableToJSON(params.body || {}) || ""
     local bodyLength = string.len(body)
     local token = params.token || gmInte.config.token || ""
-    local url = getAPIURL(params.endpoint)
-    local method = params.method
+    local url = getAPIURL(params.endpoint || "")
+    local method = params.method || "GET"
     local success = params.success || function() end
     local failed = params.failed || function() end
-    local version = gmInte.config.version
+    local version = gmInte.config.version || "Unknown"
     local showableBody = showableBody(params.endpoint)
-    local requestID = genRequestID()
+    local localRequestID = util.CRC(tostring(SysTime()))
 
     if (token == "") then
-        noTokenError()
-        return failed(401, "No token provided")
+        return failed(401, {
+            ["error"] = "No token provided"
+        })
     end
 
     local headers = {
         ["Content-Type"] = "application/json",
         ["Content-Length"] = bodyLength,
         ["Authorization"] = "Bearer " .. token,
-        ["Version"] = version
+        ["Gmod-Integrations-Version"] = version,
+        ["Gmod-Integrations-Request-ID"] = localRequestID
     }
 
     gmInte.log("HTTP FQDN: " .. gmInte.config.apiFQDN, true)
-    gmInte.log("HTTP Request ID: " .. requestID, true)
+    gmInte.log("HTTP Request ID: " .. localRequestID, true)
     gmInte.log("HTTP Request: " .. method .. " " .. url, true)
     gmInte.log("HTTP Body: " .. (showableBody && body || "HIDDEN"), true)
 
@@ -72,14 +63,9 @@ function gmInte.http.requestAPI(params)
         ["body"] = body,
         ["type"] = "application/json",
         ["success"] = function(code, body, headers)
-            gmInte.log("HTTP Request ID: " .. requestID, true)
+            gmInte.log("HTTP Request ID: " .. localRequestID, true)
             gmInte.log("HTTP Response: " .. code, true)
             gmInte.log("HTTP Body: " .. body, true)
-
-            if (code < 200 || code >= 300) then
-                gmInte.log("HTTP Failed: Invalid Status Code", true)
-                return failed(code, body)
-            end
 
             if (string.sub(headers["Content-Type"], 1, 16) != "application/json") then
                 gmInte.log("HTTP Failed: Invalid Content-Type", true)
@@ -88,10 +74,15 @@ function gmInte.http.requestAPI(params)
 
             body = util.JSONToTable(body || "{}")
 
+            if (code < 200 || code >= 300) then
+                gmInte.log("HTTP Failed: Invalid Status Code", true)
+                return failed(code, body)
+            end
+
             return success(code, body)
         end,
         ["failed"] = function(error)
-            gmInte.log("HTTP Request ID: " .. requestID, true)
+            gmInte.log("HTTP Request ID: " .. localRequestID, true)
             gmInte.log("HTTP Failed: " .. error, true)
         end
     })
