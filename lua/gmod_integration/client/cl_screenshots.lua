@@ -69,9 +69,8 @@ end
 // Console Commands
 //
 
-concommand.Add("gmod_integration_screenshot", function()
-    gmInte.takeScreenShot()
-end)
+concommand.Add("gmod_integration_screenshot", gmInte.takeScreenShot)
+concommand.Add("gmi_screen", gmInte.takeScreenShot)
 
 //
 // Chat Commands

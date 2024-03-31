@@ -27,9 +27,3 @@ function gmInte.openAdminConfig()
 
     gmInte.SendNet("getConfig")
 end
-
-//
-// Concommands
-//
-
-concommand.Add("gmod_integration_admin", gmInte.openAdminConfig)
