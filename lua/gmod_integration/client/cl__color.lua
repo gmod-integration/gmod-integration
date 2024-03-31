@@ -21,3 +21,29 @@ local colorTbl = {
 function gmInte.getColor(name)
     return colorTbl[name]
 end
+
+function gmInte.applyPaint(element, id)
+    if (element.DoClick) then
+        element:SetTextColor(gmInte.getColor("font"))
+
+        element.Paint = function(self, w, h)
+            local color = gmInte.getColor("primary")
+
+            if (self:IsHovered()) then
+                color = gmInte.getColor("primary-active")
+            end
+
+            draw.RoundedBox(0, 0, 0, w, h, color)
+        end
+    elseif (element.SetTitle) then
+        element.Paint = function(self, w, h)
+            draw.RoundedBox(0, 0, 0, w, h, gmInte.getColor("background"))
+            // first 20px = title bar = primary
+            draw.RoundedBox(0, 0, 0, w, 22, gmInte.getColor("primary"))
+        end
+    end
+end
+
+function gmInte.getFrameName(name)
+    return "Gmod Integration v" .. gmInte.config.version .. " - " .. name
+end

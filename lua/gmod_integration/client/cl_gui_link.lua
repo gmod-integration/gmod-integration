@@ -6,9 +6,7 @@ function gmInte.openVerifPopup()
     frame:SetDraggable(false)
     frame:ShowCloseButton(false)
     frame:MakePopup()
-    frame.Paint = function(self, w, h)
-        draw.RoundedBox(8, 0, 0, w, h, gmInte.getColor("background"))
-    end
+    gmInte.applyPaint(frame)
 
     local messageLabel = vgui.Create("DLabel", frame)
     messageLabel:Dock(FILL)
@@ -31,15 +29,8 @@ function gmInte.openVerifPopup()
         gui.OpenURL("https://verif.gmod-integration.com")
     end
     button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
+    gmInte.applyPaint(button)
     buttonGrid:AddItem(button)
-    button:SetTextColor(Color(255, 255, 255))
-    button.Paint = function(self, w, h)
-        local color = gmInte.getColor("primary")
-        if self:IsHovered() then
-            color = gmInte.getColor("primary-active")
-        end
-        draw.RoundedBox(8, 0, 0, w, h, color)
-    end
 
     local button = vgui.Create("DButton")
     button:SetText("Refresh Verification")
@@ -48,18 +39,11 @@ function gmInte.openVerifPopup()
             gmInte.SendNet("verifyMe")
             frame:Close()
         end,
-        function(err)
-            LocalPlayer():ChatPrint("Failed to refresh verification: " .. err)
+        function(code, body)
+            LocalPlayer():ChatPrint("Failed to refresh verification: " .. code)
         end)
     end
     button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
+    gmInte.applyPaint(button)
     buttonGrid:AddItem(button)
-    button:SetTextColor(Color(255, 255, 255))
-    button.Paint = function(self, w, h)
-        local color = gmInte.getColor("primary")
-        if self:IsHovered() then
-            color = gmInte.getColor("primary-active")
-        end
-        draw.RoundedBox(8, 0, 0, w, h, color)
-    end
 end
