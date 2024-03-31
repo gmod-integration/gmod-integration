@@ -31,39 +31,39 @@ function gmInte.playerDisconnected(ply)
     )
 end
 
--- function gmInte.playerSpawn(ply)
---     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
+function gmInte.playerSpawn(ply)
+    if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
---     gmInte.http.post("/players/" .. ply:SteamID64() .. "/spawn",
---         {
---             ["player"] = gmInte.getPlayerFormat(ply)
---         }
---     )
--- end
+    gmInte.http.post("/players/" .. ply:SteamID64() .. "/spawn",
+        {
+            ["player"] = gmInte.getPlayerFormat(ply)
+        }
+    )
+end
 
--- function gmInte.postLogPlayerDeath(ply, inflictor, attacker)
---     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
---     if (!attacker:IsValid() || !attacker:IsPlayer(attacker)) then return end
---     if (!inflictor:IsValid()) then return end
+function gmInte.playerDeath(ply, inflictor, attacker)
+    if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
+    if (!attacker:IsValid() || !attacker:IsPlayer(attacker)) then return end
+    if (!inflictor:IsValid()) then return end
 
---     gmInte.http.post("/logs/playerDeath",
---         {
---             ["player"] = gmInte.getPlayerFormat(ply),
---             ["inflictor"] = gmInte.getEntityFormat(inflictor),
---             ["attacker"] = gmInte.getPlayerFormat(attacker)
---         }
---     )
--- end
+    gmInte.http.post("/players/" .. ply:SteamID64() .. "/death",
+        {
+            ["player"] = gmInte.getPlayerFormat(ply),
+            ["inflictor"] = gmInte.getEntityFormat(inflictor),
+            ["attacker"] = gmInte.getPlayerFormat(attacker)
+        }
+    )
+end
 
--- function gmInte.postLogPlayerInitialSpawn(ply)
---     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
+function gmInte.playerInitialSpawn(ply)
+    if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
---     gmInte.http.post("/logs/playerInitialSpawn",
---         {
---             ["ply"] = gmInte.getPlayerFormat(ply)
---         }
---     )
--- end
+    gmInte.http.post("/players/" .. ply:SteamID64() .. "/initial-spawn",
+        {
+            ["ply"] = gmInte.getPlayerFormat(ply)
+        }
+    )
+end
 
 -- function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
 --     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
@@ -142,21 +142,21 @@ hook.Add("PlayerDisconnected", "gmInte:Player:Disconnect", function(ply)
     gmInte.playerDisconnected(ply)
 end)
 
--- hook.Add("PlayerSpawn", "gmInte:Player:Spawn", function(ply)
---     gmInte.playerSpawn(ply)
--- end)
+hook.Add("PlayerSpawn", "gmInte:Player:Spawn", function(ply)
+    gmInte.playerSpawn(ply)
+end)
 
--- hook.Add("PlayerInitialSpawn", "gmInte:Player:InitialSpawn", function(ply)
---     gmInte.postLogPlayerInitialSpawn(ply)
--- end)
+hook.Add("PlayerInitialSpawn", "gmInte:Player:InitialSpawn", function(ply)
+    gmInte.playerInitialSpawn(ply)
+end)
 
 -- hook.Add("PlayerGiveSWEP", "gmInte:Player:SWEPs", function( ply, class, swep )
 --     gmInte.postLogPlayerGivet(ply, class, swep)
 -- end)
 
--- hook.Add("PlayerDeath", "gmInte:Player:Death", function(ply, inflictor, attacker)
---     gmInte.postLogPlayerDeath(ply, inflictor, attacker)
--- end)
+hook.Add("PlayerDeath", "gmInte:Player:Death", function(ply, inflictor, attacker)
+    gmInte.playerDeath(ply, inflictor, attacker)
+end)
 
 -- hook.Add("PlayerHurt", "gmInte:Player:Hurt", function(ply, attacker, healthRemaining, damageTaken)
 --     gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
