@@ -10,8 +10,6 @@ local function getAPIURL(endpoint)
         endpoint = string.gsub(endpoint, ":steamID64", LocalPlayer():SteamID64())
     end
 
-    print(url .. endpoint)
-
     return url .. endpoint
 end
 
