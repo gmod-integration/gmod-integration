@@ -2,16 +2,15 @@
 // WebSocket
 //
 
-require("gwsockets")
-
-if (!GWSockets) then
-    timer.Simple(1, function()
-        if (!GWSockets) then
-            gmInte.logError("GWSockets is not installed! Please install it from https://github.com/FredyH/GWSockets/releases")
-        end
+if !file.Exists("bin/gm_gwsockets.dll", "LUA") then
+    timer.Simple(4, function()
+        gmInte.logHint("GWSockets is not installed !, Syncronize feature will not work !")
+        gmInte.logHint("Please install it from https://github.com/FredyH/GWSockets/releases")
     end)
     return
 end
+
+require("gwsockets")
 
 local function getWebSocketURL()
     return "wss://" .. gmInte.config.websocketFQDN
