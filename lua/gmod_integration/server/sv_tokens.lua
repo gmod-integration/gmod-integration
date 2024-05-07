@@ -9,7 +9,7 @@ function gmInte.getPublicServerToken(callback)
         return
     end
 
-    gmInte.http.get("/public-token", function(code, data)
+    gmInte.http.get("/servers/:serverID/public-token", function(code, data)
         gmInte.serverPublicToken = data.publicTempToken
         callback(data.publicTempToken)
     end)

@@ -5,7 +5,7 @@
 function gmInte.verifyPlayer(ply)
     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
-    gmInte.http.get("/players/" .. ply:SteamID64(), function(code, data)
+    gmInte.http.get("/servers/:serverID/players/" .. ply:SteamID64(), function(code, data)
         if (!gmInte.config.forcePlayerLink) then return end
 
         if (data && data.steamID64) then

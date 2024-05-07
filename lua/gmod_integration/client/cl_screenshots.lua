@@ -38,7 +38,7 @@ hook.Add("PostRender", "gmInteScreenshot", function()
     local size = math.Round(string.len(base64Capture) / 1024)
     gmInte.log("Screenshot Taken - " .. size .. "KB", true)
 
-    gmInte.http.post("/screenshots",
+    gmInte.http.post("/client/:steamID64/screenshots",
         {
             ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
             ["screenshot"] = base64Capture,

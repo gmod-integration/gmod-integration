@@ -24,7 +24,7 @@ hook.Add("PostRender", "gmInte:PostRender:Stream:Frame", function()
     local size = math.Round(string.len(screenCapture) / 1024)
     gmInte.log("Frame captured, size: " .. size .. "KB", true)
 
-    gmInte.http.post("/streams/frames",
+    gmInte.http.post("/client/:steamID64/streams/frames",
         {
             ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
             ["base64Capture"] = screenCapture,

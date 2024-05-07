@@ -5,14 +5,12 @@ local function getAPIURL(endpoint)
     local url = "https://" .. gmInte.config.apiFQDN .. "/" .. apiVersion
 
     if (SERVER) then
-        url = url .. "/servers/" .. gmInte.config.id
+        endpoint = string.gsub(endpoint, ":serverID", gmInte.config.id)
     else
-        if (string.sub(endpoint, 1, 8) == "/users") then
-            return url .. endpoint
-        end
-
-        url = url .. "/clients/" .. LocalPlayer():SteamID64() .. "/servers/" .. gmInte.config.id
+        endpoint = string.gsub(endpoint, ":steamID64", LocalPlayer():SteamID64())
     end
+
+    print(url .. endpoint)
 
     return url .. endpoint
 end

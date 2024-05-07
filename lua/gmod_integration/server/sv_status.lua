@@ -3,7 +3,7 @@
 //
 
 function gmInte.sendStatus()
-    gmInte.http.post("/status", gmInte.getServerFormat())
+    gmInte.http.post("/servers/:serverID/status", gmInte.getServerFormat())
 end
 
 -- function gmInte.serverStart()
@@ -11,7 +11,7 @@ end
 -- end
 
 function gmInte.serverShutDown()
-    gmInte.http.post("/shutdown")
+    gmInte.http.post("/servers/:serverID/shutdown")
 end
 
 //

@@ -17,7 +17,8 @@ function gmInte.sendLuaErrorReport(err, realm, stack, name, id, uptime)
         end)
     end
 
-    gmInte.http.post("/errors",
+    local endpoint = SERVER && "/servers/:serverID/errors" || "/client/:steamID64/errors"
+    gmInte.http.post(endpoint,
         {
             ["error"] = err,
             ["realm"] = realm,

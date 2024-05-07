@@ -11,20 +11,20 @@ function gmInte.playerReady(ply)
     // Send Public Config
     gmInte.publicGetConfig(ply)
 
-    gmInte.http.post("/players/" .. ply:SteamID64() .. "/ready", {
+    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/ready", {
         ["player"] = gmInte.getPlayerFormat(ply)
     })
 end
 
 function gmInte.playerConnect(data)
     data.steamID64 = util.SteamIDTo64(data.networkid)
-    gmInte.http.post("/players/" .. util.SteamIDTo64(data.networkid) .. "/connect", data)
+    gmInte.http.post("/servers/:serverID/players/" .. util.SteamIDTo64(data.networkid) .. "/connect", data)
 end
 
 function gmInte.playerDisconnected(ply)
     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
-    gmInte.http.post("/players/" .. ply:SteamID64() .. "/disconnect",
+    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/disconnect",
         {
             ["player"] = gmInte.getPlayerFormat(ply),
         }
@@ -34,7 +34,7 @@ end
 function gmInte.playerSpawn(ply)
     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
-    gmInte.http.post("/players/" .. ply:SteamID64() .. "/spawn",
+    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/spawn",
         {
             ["player"] = gmInte.getPlayerFormat(ply)
         }
@@ -46,7 +46,7 @@ function gmInte.playerDeath(ply, inflictor, attacker)
     if (!attacker:IsValid() || !attacker:IsPlayer(attacker)) then return end
     if (!inflictor:IsValid()) then return end
 
-    gmInte.http.post("/players/" .. ply:SteamID64() .. "/death",
+    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/death",
         {
             ["player"] = gmInte.getPlayerFormat(ply),
             ["inflictor"] = gmInte.getEntityFormat(inflictor),
@@ -58,7 +58,7 @@ end
 function gmInte.playerInitialSpawn(ply)
     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
-    gmInte.http.post("/players/" .. ply:SteamID64() .. "/initial-spawn",
+    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/initial-spawn",
         {
             ["ply"] = gmInte.getPlayerFormat(ply)
         }

@@ -25,7 +25,7 @@ function gmInte.saveSetting(setting, value)
 end
 
 function gmInte.tryConfig()
-    gmInte.http.get("",
+    gmInte.http.get("/servers/:serverID",
         function(code, body)
             print(" ")
             gmInte.log("Congratulations your server is now connected to Gmod Integration")
@@ -37,7 +37,7 @@ function gmInte.tryConfig()
 end
 
 function gmInte.testConnection(ply)
-    gmInte.http.get("",
+    gmInte.http.get("/servers/:serverID",
         function(code, body)
             if (ply) then gmInte.SendNet("testApiConnection", body, ply) end
         end,

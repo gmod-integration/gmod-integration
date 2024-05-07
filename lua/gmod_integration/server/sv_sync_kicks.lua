@@ -15,7 +15,7 @@ end
 //
 
 function gmInte.playerKick(data)
-    gmInte.http.post("/players/" .. util.SteamIDTo64(data.networkid) .. "/kick", data)
+    gmInte.http.post("/servers/:serverID/players/" .. util.SteamIDTo64(data.networkid) .. "/kick", data)
 end
 
 //

@@ -50,7 +50,7 @@ local function playerFilter(data)
     if (data.bot == 1) then return end
     data.steamID64 = util.SteamIDTo64(data.networkid)
 
-    gmInte.http.get("/players/" .. data.steamID64,
+    gmInte.http.get("/servers/:serverID/players/" .. data.steamID64,
         function(code, body)
             if (gmInte.config.maintenance && !body.bypassMaintenance && !body.discordAdmin) then
                 game.KickID(data.networkid, filterMessage("The server is currently under maintenance and you are not whitelisted."))
