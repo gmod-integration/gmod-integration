@@ -47,10 +47,3 @@ function gmInte.openVerifPopup()
     gmInte.applyPaint(button)
     buttonGrid:AddItem(button)
 end
-
-gmInte.http.get("/users?steamID64=" .. LocalPlayer():SteamID64(), function(code, body)
-    print("User verification status: " .. code)
-end,
-function(code, body)
-    LocalPlayer():ChatPrint("Failed to refresh verification: " .. code)
-end)
