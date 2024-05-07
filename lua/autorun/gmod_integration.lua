@@ -6,7 +6,7 @@ if (game.SinglePlayer()) then return print("Gmod Integration is not supported in
 
 gmInte = gmInte || {}
 
-gmInte.version = "0.3.2"
+gmInte.version = "0.3.3"
 gmInte.config = {}
 gmInte.materials = {}
 
