@@ -5,11 +5,14 @@
 function gmInte.verifyPlayer(ply)
     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
-    gmInte.http.get("/servers/:serverID/players/" .. ply:SteamID64(), function(code, data)
-        if (!gmInte.config.forcePlayerLink) then return end
+    gmInte.http.get("/user?steamID64=" .. ply:SteamID64(), function(code, data)
+        if (data && data.discordID) then
+            ply.gmIntVerified = true
+        end
 
-        if (data && data.steamID64) then
-            if (ply.gmIntVerified) then return end
+        if (!gmInte.config.forcePlayerLink || !ply.gmIntIsReady) then return end
+
+        if (ply:gmIntIsVerified()) then
             gmInte.SendNet("chatColorMessage", {
                 [1] = {
                     ["text"] = "You have been verified",
@@ -17,7 +20,6 @@ function gmInte.verifyPlayer(ply)
                 }
             }, ply)
             ply:Freeze(false)
-            ply.gmIntVerified = true
         else
             gmInte.SendNet("chatColorMessage", {
                 [1] = {
@@ -36,7 +38,8 @@ end
 //
 
 hook.Add("gmInte:PlayerReady", "gmInte:Verif:PlayerReady", function(ply)
-    if (!gmInte.config.forcePlayerLink) then return end
+    ply.gmIntIsReady = true
 
+    if (!gmInte.config.forcePlayerLink) then return end
     gmInte.verifyPlayer(ply)
 end)

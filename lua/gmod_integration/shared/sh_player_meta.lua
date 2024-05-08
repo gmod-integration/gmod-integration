@@ -8,6 +8,10 @@ function ply:gmIntGetConnectTime()
     return self.gmIntTimeConnect || 0
 end
 
+function ply:gmIntIsVerified()
+    return self.gmIntVerified || false
+end
+
 function ply:gmIntSetCustomValue(key, value)
     self.gmIntCustomValues = self.gmIntCustomValues || {}
     self.gmIntCustomValues[key] = value
