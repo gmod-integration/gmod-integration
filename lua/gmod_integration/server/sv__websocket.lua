@@ -2,7 +2,18 @@
 // WebSocket
 //
 
-if !file.Exists("bin/gm_gwsockets.dll", "LUA") then
+local function websocketDLLExist()
+    local files, _ = file.Find("lua/bin/*", "GAME")
+    for k, v in pairs(files) do
+        if (v:find("gwsockets")) then
+            return true
+        end
+    end
+
+    return false
+end
+
+if !websocketDLLExist then
     timer.Simple(4, function()
         gmInte.logHint("GWSockets is not installed !, Syncronize feature will not work !")
         gmInte.logHint("Please install it from https://github.com/FredyH/GWSockets/releases")
