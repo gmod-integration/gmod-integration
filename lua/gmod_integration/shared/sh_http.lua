@@ -4,9 +4,9 @@ gmInte.http = gmInte.http || {}
 local function getAPIURL(endpoint)
     local url = "https://" .. gmInte.config.apiFQDN .. "/" .. apiVersion
 
-    if (SERVER) then
-        endpoint = string.gsub(endpoint, ":serverID", gmInte.config.id)
-    else
+    endpoint = string.gsub(endpoint, ":serverID", gmInte.config.id)
+
+    if (CLIENT) then
         endpoint = string.gsub(endpoint, ":steamID64", LocalPlayer():SteamID64())
     end
 
