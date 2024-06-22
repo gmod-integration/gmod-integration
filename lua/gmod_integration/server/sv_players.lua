@@ -65,59 +65,57 @@ function gmInte.playerInitialSpawn(ply)
     )
 end
 
--- function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
---     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
---     if (!attacker:IsValid() || !attacker:IsPlayer(attacker)) then return end
+function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
+    if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
+    if (!attacker:IsValid() || !attacker:IsPlayer(attacker)) then return end
 
---     // Wait a second to see if the player is going to be hurt again
---     ply.gmodInteLastHurt = ply.gmodInteLastHurt || {}
---     local locCurTime = CurTime()
---     ply.gmodInteLastHurt[attacker:SteamID64()] = locCurTime
+    // Wait a second to see if the player is going to be hurt again
+    ply.gmodInteLastHurt = ply.gmodInteLastHurt || {}
+    local locCurTime = CurTime()
+    ply.gmodInteLastHurt[attacker:SteamID64()] = locCurTime
 
---     timer.Simple(1, function()
---         if (ply.gmodInteLastHurt[attacker:SteamID64()] != locCurTime) then
---             ply.gmodInteTotalDamage = ply.gmodInteTotalDamage || 0
---             ply.gmodInteTotalDamage = ply.gmodInteTotalDamage + damageTaken
---             return
---         end
+    timer.Simple(1, function()
+        if (ply.gmodInteLastHurt[attacker:SteamID64()] != locCurTime) then
+            ply.gmodInteTotalDamage = ply.gmodInteTotalDamage || 0
+            ply.gmodInteTotalDamage = ply.gmodInteTotalDamage + damageTaken
+            return
+        end
 
---         gmInte.http.post("/logs/playerHurt",
---             {
---                 ["victim"] = gmInte.getPlayerFormat(ply),
---                 ["attacker"] = gmInte.getPlayerFormat(attacker),
---                 ["healthRemaining"] = healthRemaining,
---                 ["damageTaken"] = ply.gmodInteTotalDamage
---             }
---         )
---     end)
--- end
+        gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/hurt",
+            {
+                ["victim"] = gmInte.getPlayerFormat(ply),
+                ["attacker"] = gmInte.getPlayerFormat(attacker),
+                ["healthRemaining"] = healthRemaining,
+                ["damageTaken"] = ply.gmodInteTotalDamage
+            }
+        )
+    end)
+end
 
--- function gmInte.postLogPlayerSpawnedSomething(object, ply, ent, model)
---     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
---     if (!ent:IsValid()) then return end
+function gmInte.postLogPlayerSpawnedSomething(object, ply, ent, model)
+    if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
+    if (!ent:IsValid()) then return end
 
---     gmInte.http.post("/logs/playerSpawnedSomething",
---         {
---             ["object"] = object,
---             ["player"] = gmInte.getPlayerFormat(ply),
---             ["entity"] = gmInte.getEntityFormat(ent),
---             ["model"] = model || ""
---         }
---     )
--- end
+    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/spawn/" .. object,
+        {
+            ["player"] = gmInte.getPlayerFormat(ply),
+            ["entity"] = gmInte.getEntityFormat(ent),
+            ["model"] = model || ""
+        }
+    )
+end
 
--- function gmInte.postLogPlayerGivet(ply, class, swep)
---     if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
+function gmInte.postLogPlayerGive(ply, class, swep)
+    if (!ply:IsValid() || !ply:IsPlayer(ply)) then return end
 
---     gmInte.http.post("/logs/playerGive",
---         {
---             ["player"] = gmInte.getPlayerFormat(ply),
---             ["class"] = class,
---             ["swep"] = swep
---         }
---     )
--- end
-
+    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/give",
+        {
+            ["player"] = gmInte.getPlayerFormat(ply),
+            ["class"] = class,
+            ["swep"] = swep
+        }
+    )
+end
 
 //
 // Hooks
@@ -150,42 +148,42 @@ hook.Add("PlayerInitialSpawn", "gmInte:Player:InitialSpawn", function(ply)
     gmInte.playerInitialSpawn(ply)
 end)
 
--- hook.Add("PlayerGiveSWEP", "gmInte:Player:SWEPs", function( ply, class, swep )
---     gmInte.postLogPlayerGivet(ply, class, swep)
--- end)
+hook.Add("PlayerGiveSWEP", "gmInte:Player:SWEPs", function( ply, class, swep )
+    gmInte.postLogPlayerGive(ply, class, swep)
+end)
 
 hook.Add("PlayerDeath", "gmInte:Player:Death", function(ply, inflictor, attacker)
     gmInte.playerDeath(ply, inflictor, attacker)
 end)
 
--- hook.Add("PlayerHurt", "gmInte:Player:Hurt", function(ply, attacker, healthRemaining, damageTaken)
---     gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
--- end)
+hook.Add("PlayerHurt", "gmInte:Player:Hurt", function(ply, attacker, healthRemaining, damageTaken)
+    gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
+end)
 
--- hook.Add("PlayerSpawnedProp", "gmInte:Player:SpawnedProp", function(ply, model, ent)
---     gmInte.postLogPlayerSpawnedSomething("SENT", ply, ent, model)
--- end)
+hook.Add("PlayerSpawnedProp", "gmInte:Player:SpawnedProp", function(ply, model, ent)
+    gmInte.postLogPlayerSpawnedSomething("sent", ply, ent, model)
+end)
 
--- hook.Add("PlayerSpawnedSENT", "gmInte:Player:SpawnedSENT", function(ply, ent)
---     gmInte.postLogPlayerSpawnedSomething("SENT", ply, ent)
--- end)
+hook.Add("PlayerSpawnedSENT", "gmInte:Player:SpawnedSENT", function(ply, ent)
+    gmInte.postLogPlayerSpawnedSomething("sent", ply, ent)
+end)
 
--- hook.Add("PlayerSpawnedNPC", "gmInte:Player:SpawnedNPC", function(ply, ent)
---     gmInte.postLogPlayerSpawnedSomething("NPC", ply, ent)
--- end)
+hook.Add("PlayerSpawnedNPC", "gmInte:Player:SpawnedNPC", function(ply, ent)
+    gmInte.postLogPlayerSpawnedSomething("npc", ply, ent)
+end)
 
--- hook.Add("PlayerSpawnedVehicle", "gmInte:Player:SpawnedVehicle", function(ply, ent)
---     gmInte.postLogPlayerSpawnedSomething("Vehicle", ply, ent)
--- end)
+hook.Add("PlayerSpawnedVehicle", "gmInte:Player:SpawnedVehicle", function(ply, ent)
+    gmInte.postLogPlayerSpawnedSomething("vehicle", ply, ent)
+end)
 
--- hook.Add("PlayerSpawnedEffect", "gmInte:Player:SpawnedEffect", function(ply, model, ent)
---     gmInte.postLogPlayerSpawnedSomething("Effect", ply, ent, model)
--- end)
+hook.Add("PlayerSpawnedEffect", "gmInte:Player:SpawnedEffect", function(ply, model, ent)
+    gmInte.postLogPlayerSpawnedSomething("effect", ply, ent, model)
+end)
 
--- hook.Add("PlayerSpawnedRagdoll", "gmInte:Player:SpawnedRagdoll", function(ply, model, ent)
---     gmInte.postLogPlayerSpawnedSomething("Ragdoll", ply, ent, model)
--- end)
+hook.Add("PlayerSpawnedRagdoll", "gmInte:Player:SpawnedRagdoll", function(ply, model, ent)
+    gmInte.postLogPlayerSpawnedSomething("ragdoll", ply, ent, model)
+end)
 
--- hook.Add("PlayerSpawnedSWEP", "gmInte:Player:SpawnedSWEP", function(ply, ent)
---     gmInte.postLogPlayerSpawnedSomething("SWEP", ply, ent)
--- end)
+hook.Add("PlayerSpawnedSWEP", "gmInte:Player:SpawnedSWEP", function(ply, ent)
+    gmInte.postLogPlayerSpawnedSomething("swep", ply, ent)
+end)
