@@ -36,7 +36,7 @@ socket:setHeader("token", gmInte.config.token)
 local hasConnected = false
 function socket:onConnected()
     hasConnected = true
-    gmInte.log("WebSocket Connected")
+    gmInte.log("WebSocket Connected", true)
 end
 
 // log on message
@@ -53,7 +53,7 @@ end
 
 function socket:onDisconnected()
     if (hasConnected) then
-        gmInte.log("WebSocket Disconnected")
+        gmInte.log("WebSocket Disconnected", true)
     else
         gmInte.logError("WebSocket Connection Failed", true)
     end
