@@ -2,7 +2,7 @@ local apiVersion = "v3"
 gmInte.http = gmInte.http || {}
 
 local function getAPIURL(endpoint)
-    local url = "https://" .. gmInte.config.apiFQDN .. "/" .. apiVersion
+    local method = gmInte.isPrivateIP(gmInte.config.apiFQDN) && "http" || "https"
 
     endpoint = string.gsub(endpoint, ":serverID", gmInte.config.id)
 
@@ -10,7 +10,7 @@ local function getAPIURL(endpoint)
         endpoint = string.gsub(endpoint, ":steamID64", LocalPlayer():SteamID64())
     end
 
-    return url .. endpoint
+    return method .. "://" .. gmInte.config.apiFQDN .. "/" .. apiVersion .. endpoint
 end
 
 local function showableBody(endpoint)
