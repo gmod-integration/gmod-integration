@@ -233,7 +233,10 @@ local possibleConfig = {
         ["value"] = function(setting, value)
             return value
         end,
+        ["resetIfEmpty"] = true,
+        ["defaultValue"] = "ws.gmod-integration.com",
         ["onEdit"] = function(setting, value)
+            if (!value || value == "") then return end
             saveConfig(setting, value)
         end,
         ["onEditDelay"] = 0.5,
@@ -244,10 +247,13 @@ local possibleConfig = {
         ["label"] = "API FQDN",
         ["description"] = "API FQDN that will be used for the API connection.",
         ["type"] = "textEntry",
+        ["resetIfEmpty"] = true,
+        ["defaultValue"] = "ws.gmod-integration.com",
         ["value"] = function(setting, value)
             return value
         end,
         ["onEdit"] = function(setting, value)
+            if (!value || value == "") then return end
             saveConfig(setting, value)
         end,
         ["onEditDelay"] = 0.5,
@@ -441,7 +447,13 @@ function gmInte.openConfigMenu(data)
                     end
                 end
                 local isLastID = 0
+                local initialValue = value
                 input.OnChange = function(self)
+                    if (self:GetValue() == initialValue) then return end
+                    if (actualConfig.resetIfEmpty && self:GetValue() == "" && actualConfig.defaultValue) then
+                        self:SetText(actualConfig.defaultValue)
+                        return
+                    end
                     isLastID = isLastID + 1
                     local isLocalLastID = isLastID
                     timer.Simple(actualConfig.onEditDelay || 0.5, function()
