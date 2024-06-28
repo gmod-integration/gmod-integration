@@ -13,7 +13,7 @@ local function websocketDLLExist()
     return false
 end
 
-if !websocketDLLExist then
+if !websocketDLLExist() then
     timer.Simple(4, function()
         gmInte.logHint("GWSockets is not installed !, Syncronize feature will not work !")
         gmInte.logHint("Please install it from https://github.com/FredyH/GWSockets/releases")
