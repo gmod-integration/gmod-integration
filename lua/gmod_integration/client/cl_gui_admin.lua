@@ -447,9 +447,7 @@ function gmInte.openConfigMenu(data)
                     end
                 end
                 local isLastID = 0
-                local initialValue = value
                 input.OnChange = function(self)
-                    if (self:GetValue() == initialValue) then return end
                     if (actualConfig.resetIfEmpty && self:GetValue() == "" && actualConfig.defaultValue) then
                         self:SetText(actualConfig.defaultValue)
                         return
