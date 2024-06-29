@@ -60,7 +60,7 @@ function gmInte.playerInitialSpawn(ply)
 
     gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/initial-spawn",
         {
-            ["ply"] = gmInte.getPlayerFormat(ply)
+            ["player"] = gmInte.getPlayerFormat(ply)
         }
     )
 end
