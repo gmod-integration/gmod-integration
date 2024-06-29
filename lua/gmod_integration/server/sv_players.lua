@@ -161,7 +161,7 @@ hook.Add("PlayerHurt", "gmInte:Player:Hurt", function(ply, attacker, healthRemai
 end)
 
 hook.Add("PlayerSpawnedProp", "gmInte:Player:SpawnedProp", function(ply, model, ent)
-    gmInte.postLogPlayerSpawnedSomething("sent", ply, ent, model)
+    gmInte.postLogPlayerSpawnedSomething("prop", ply, ent, model)
 end)
 
 hook.Add("PlayerSpawnedSENT", "gmInte:Player:SpawnedSENT", function(ply, ent)
