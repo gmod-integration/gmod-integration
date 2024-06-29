@@ -289,15 +289,15 @@ local buttonsInfo = {
             gui.OpenURL("https://github.com/FredyH/GWSockets/releases")
         end,
     },
-    {
-        ["label"] = "Load Server Config",
-        ["condition"] = function(data)
-            return data.debug
-        end,
-        ["func"] = function(data)
-            gmInte.config = data
-        end,
-    }
+    -- {
+    --     ["label"] = "Load Server Config",
+    --     ["condition"] = function(data)
+    --         return data.debug
+    --     end,
+    --     ["func"] = function(data)
+    --         gmInte.config = data
+    --     end,
+    -- }
 }
 
 local colorTable = {
