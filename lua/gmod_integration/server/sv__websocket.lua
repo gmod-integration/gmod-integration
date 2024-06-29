@@ -24,7 +24,8 @@ end
 require("gwsockets")
 
 local function getWebSocketURL()
-    return "wss://" .. gmInte.config.websocketFQDN
+    local method = gmInte.isPrivateIP(gmInte.config.websocketFQDN) && "ws" || "wss"
+    return method .. "://" .. gmInte.config.websocketFQDN
 end
 
 local socket = GWSockets.createWebSocket(getWebSocketURL())
