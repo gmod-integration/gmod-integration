@@ -72,13 +72,30 @@ function gmInte.websocketWrite(data)
 end
 
 timer.Create("gmInte:WebSocket:CheckConnection", 4, 0, function()
-    if (!socket:isConnected()) then
+    -- Check if the API is undergoing an update
+    if gmInte.isApiUpdating then
+        if socket:isConnected() then
+            gmInte.log("API Update detected, closing WebSocket connection.", true)
+            socket:close()
+        end
+        return
+    end
+
+    if socket:isConnected() then
+        -- Connection is already open, no need to do anything
+        -- Optionally, you can log this or handle it differently
+    else
         socket:open()
     end
 end)
 
-hook.Add("InitPostEntity", "gmInte:ServerReady:WebSocket", function()
-    timer.Simple(1, function()
-        socket:open()
-    end)
-end)
+-- Example function to set the API update status
+-- This could be triggered by some condition or external input
+function gmInte.setApiUpdateStatus(isUpdating)
+    gmInte.isApiUpdating = isUpdating
+    if isUpdating then
+        gmInte.log("API Update starting, WebSocket connections will be managed accordingly.", true)
+    else
+        gmInte.log("API Update completed, WebSocket connections can resume normal operation.", true)
+    end
+end
