@@ -18,11 +18,6 @@ local colorTbl = {
     ["font-secondary"] = Color(179, 179, 179)
 }
 
-// con cmd how create a error
-concommand.Add("gmi_error", function()
-    error("This is a test error")
-end)
-
 function gmInte.getColor(name)
     return colorTbl[name]
 end
