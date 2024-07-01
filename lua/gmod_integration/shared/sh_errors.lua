@@ -3,7 +3,7 @@
 //
 
 function gmInte.sendLuaErrorReport(err, realm, stack, name, id, uptime)
-    if (name != "gmod_integration") then return end
+    if (string.find(err, "Gmod Integration")) then return end
 
     if (SERVER && math.Round(RealTime()) == 0) then
         return timer.Simple(1, function()
