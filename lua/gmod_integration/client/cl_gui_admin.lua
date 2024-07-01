@@ -234,7 +234,7 @@ local possibleConfig = {
             return value
         end,
         ["resetIfEmpty"] = true,
-        ["defaultValue"] = "ws.gmod-integration.com",
+        ["defaultValue"] = "api.gmod-integration.com",
         ["onEdit"] = function(setting, value)
             if (!value || value == "") then return end
             saveConfig(setting, value)
