@@ -34,6 +34,13 @@ local socket = GWSockets.createWebSocket(getWebSocketURL())
 socket:setHeader("id", gmInte.config.id)
 socket:setHeader("token", gmInte.config.token)
 
+function gmInte.resetWebSocket()
+    socket:closeNow()
+    socket = GWSockets.createWebSocket(getWebSocketURL())
+    socket:setHeader("id", gmInte.config.id)
+    socket:setHeader("token", gmInte.config.token)
+end
+
 local hasConnected = false
 function socket:onConnected()
     hasConnected = true
@@ -54,6 +61,7 @@ end
 
 function socket:onDisconnected()
     if (hasConnected) then
+        hasConnected = false
         gmInte.log("WebSocket Disconnected", true)
     else
         gmInte.logError("WebSocket Connection Failed", true)
@@ -64,38 +72,16 @@ function socket:onError(txt)
     gmInte.logError("WebSocket Error: " .. txt, true)
 end
 
-function gmInte.websocketWrite(data)
-    if (!socket:isConnected()) then
-        socket:open()
-    end
-    socket:write(util.TableToJSON(data || {}))
-end
-
 timer.Create("gmInte:WebSocket:CheckConnection", 4, 0, function()
-    -- Check if the API is undergoing an update
-    if gmInte.isApiUpdating then
-        if socket:isConnected() then
-            gmInte.log("API Update detected, closing WebSocket connection.", true)
-            socket:close()
-        end
-        return
-    end
-
-    if socket:isConnected() then
-        -- Connection is already open, no need to do anything
-        -- Optionally, you can log this or handle it differently
-    else
+    if (!socket:isConnected()) then
+        gmInte.resetWebSocket()
         socket:open()
     end
 end)
 
--- Example function to set the API update status
--- This could be triggered by some condition or external input
-function gmInte.setApiUpdateStatus(isUpdating)
-    gmInte.isApiUpdating = isUpdating
-    if isUpdating then
-        gmInte.log("API Update starting, WebSocket connections will be managed accordingly.", true)
-    else
-        gmInte.log("API Update completed, WebSocket connections can resume normal operation.", true)
-    end
-end
+hook.Add("InitPostEntity", "gmInte:ServerReady:WebSocket", function()
+    timer.Simple(1, function()
+        gmInte.resetWebSocket()
+        socket:open()
+    end)
+end)

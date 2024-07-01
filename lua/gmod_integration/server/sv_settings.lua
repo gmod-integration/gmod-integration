@@ -15,6 +15,10 @@ function gmInte.saveSetting(setting, value)
     file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
     gmInte.log("Setting Saved")
 
+    if (value == "websocketFQDN" || value == "id" || value == "token") then
+        gmInte.resetWebSocket()
+    end
+
     // send to all players the new public config
     for _, ply in pairs(player.GetAll()) do
         if (ply:IsValid() && ply:IsPlayer(ply)) then
