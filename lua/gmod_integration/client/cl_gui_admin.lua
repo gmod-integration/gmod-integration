@@ -234,7 +234,7 @@ local possibleConfig = {
             return value
         end,
         ["resetIfEmpty"] = true,
-        ["defaultValue"] = "api.gmod-integration.com",
+        ["defaultValue"] = "ws.gmod-integration.com",
         ["onEdit"] = function(setting, value)
             if (!value || value == "") then return end
             saveConfig(setting, value)
@@ -248,7 +248,7 @@ local possibleConfig = {
         ["description"] = "API FQDN that will be used for the API connection.",
         ["type"] = "textEntry",
         ["resetIfEmpty"] = true,
-        ["defaultValue"] = "ws.gmod-integration.com",
+        ["defaultValue"] = "api.gmod-integration.com",
         ["value"] = function(setting, value)
             return value
         end,
