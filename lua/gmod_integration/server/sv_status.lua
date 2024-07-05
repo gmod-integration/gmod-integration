@@ -11,7 +11,7 @@ function gmInte.serverStart()
 end
 
 function gmInte.serverShutDown()
-    gmInte.http.post("/servers/:serverID/shutdown")
+    gmInte.http.post("/servers/:serverID/stop")
 end
 
 //
