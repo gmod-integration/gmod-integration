@@ -1,5 +1,17 @@
 local function filterMessage(reason)
-    local Message = {"\n----------------------------------------\n", "You cannot join this server", "", "Reason: " .. (reason && reason || "none"), "Help URL: " .. (gmInte.config.supportLink && gmInte.config.supportLink || "none"), "", "Have a nice day", "\n----------------------------------------\n", "Service provided by Gmod Integration",}
+    // format: multiline
+    local Message = {
+        "\n----------------------------------------\n",
+        "You cannot join this server",
+        "",
+        "Reason: " .. (reason && reason || "none"),
+        "Help URL: " .. (gmInte.config.supportLink && gmInte.config.supportLink || "none"),
+        "",
+        "Have a nice day",
+        "\n----------------------------------------\n",
+        "Service provided by Gmod Integration",
+    }
+
     for k, v in pairs(Message) do
         Message[k] = "\n" .. v
     end
