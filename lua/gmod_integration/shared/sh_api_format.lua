@@ -17,6 +17,14 @@ function gmInte.getPlayerFormat(ply)
     }
 end
 
+function gmInte.getPlayersFormat()
+    local players = {}
+    for k, v in pairs(player.GetAll()) do
+        table.insert(players, gmInte.getPlayerFormat(v))
+    end
+    return players
+end
+
 function gmInte.getServerFormat()
     return {
         ["hostname"] = GetHostName(),
@@ -24,6 +32,7 @@ function gmInte.getServerFormat()
         ["port"] = GetConVar("hostport"):GetInt(),
         ["map"] = game.GetMap(),
         ["players"] = #player.GetAll(),
+        ["playersList"] = gmInte.getPlayersFormat(),
         ["maxPlayers"] = game.MaxPlayers(),
         ["gameMode"] = engine.ActiveGamemode(),
         ["uptime"] = math.Round(RealTime())
@@ -51,18 +60,18 @@ end
 function gmInte.getVectorFormat(vec)
     if (!isvector(vec)) then return end
     return {
-        ["x"] = vec.x,
-        ["y"] = vec.y,
-        ["z"] = vec.z
+        ["x"] = math.Round(vec.x),
+        ["y"] = math.Round(vec.y),
+        ["z"] = math.Round(vec.z)
     }
 end
 
 function gmInte.getAngleFormat(ang)
     if (!isangle(ang)) then return end
     return {
-        ["p"] = ang.p,
-        ["y"] = ang.y,
-        ["r"] = ang.r
+        ["p"] = math.Round(ang.p),
+        ["y"] = math.Round(ang.y),
+        ["r"] = math.Round(ang.r)
     }
 end
 
