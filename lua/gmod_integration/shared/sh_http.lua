@@ -1,23 +1,14 @@
 local apiVersion = "v3"
 gmInte.http = gmInte.http || {}
-
 local function getAPIURL(endpoint)
     local method = gmInte.isPrivateIP(gmInte.config.apiFQDN) && "http" || "https"
-
     endpoint = string.gsub(endpoint, ":serverID", gmInte.config.id)
-
-    if (CLIENT) then
-        endpoint = string.gsub(endpoint, ":steamID64", LocalPlayer():SteamID64())
-    end
-
+    if CLIENT then endpoint = string.gsub(endpoint, ":steamID64", LocalPlayer():SteamID64()) end
     return method .. "://" .. gmInte.config.apiFQDN .. "/" .. apiVersion .. endpoint
 end
 
 local function showableBody(endpoint)
-    if (string.sub(endpoint, 1, 8) == "/streams" || string.sub(endpoint, 1, 12) == "/screenshots") then
-        return false
-    end
-
+    if string.sub(endpoint, 1, 8) == "/streams" || string.sub(endpoint, 1, 12) == "/screenshots" then return false end
     return true
 end
 
@@ -32,8 +23,7 @@ function gmInte.http.requestAPI(params)
     local version = gmInte.version || "Unknown"
     local showableBody = showableBody(params.endpoint)
     local localRequestID = util.CRC(tostring(SysTime()))
-
-    if (token == "") then
+    if token == "" then
         return failed(401, {
             ["error"] = "No token provided"
         })
@@ -51,7 +41,6 @@ function gmInte.http.requestAPI(params)
     gmInte.log("HTTP Request ID: " .. localRequestID, true)
     gmInte.log("HTTP Request: " .. method .. " " .. url, true)
     gmInte.log("HTTP Body: " .. (showableBody && body || "HIDDEN"), true)
-
     HTTP({
         ["url"] = url,
         ["method"] = method,
@@ -62,15 +51,13 @@ function gmInte.http.requestAPI(params)
             gmInte.log("HTTP Request ID: " .. localRequestID, true)
             gmInte.log("HTTP Response: " .. code, true)
             gmInte.log("HTTP Body: " .. body, true)
-
-            if (string.sub(headers["Content-Type"], 1, 16) != "application/json") then
+            if string.sub(headers["Content-Type"], 1, 16) != "application/json" then
                 gmInte.log("HTTP Failed: Invalid Content-Type", true)
                 return failed(code, body)
             end
 
             body = util.JSONToTable(body || "{}")
-
-            if (code < 200 || code >= 300) then
+            if code < 200 || code >= 300 then
                 gmInte.log("HTTP Failed: Invalid Status Code", true)
                 return failed(code, body)
             end
@@ -84,10 +71,6 @@ function gmInte.http.requestAPI(params)
         end
     })
 end
-
-//
-// HTTP Methods
-//
 
 function gmInte.http.get(endpoint, onSuccess, onFailed)
     gmInte.http.requestAPI({

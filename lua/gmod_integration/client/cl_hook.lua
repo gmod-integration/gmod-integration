@@ -1,19 +1,9 @@
-//
-// Hook
-//
-
-// Player Finish Init
-hook.Add("InitPostEntity", "gmInte:Ply:Ready", function()
-    gmInte.SendNet("ready")
-end)
-
+hook.Add("InitPostEntity", "gmInte:Ply:Ready", function() gmInte.SendNet("ready") end)
 hook.Add("OnPlayerChat", "gmInte:OnPlayerChat:AdminCmd", function(ply, strText, bTeamOnly, bPlayerIsDead)
-    if (ply != LocalPlayer()) then return end
-
+	if ply != LocalPlayer() then return end
 	strText = string.lower(strText)
-
-	if (strText == "/gmi") then
-        gmInte.openAdminConfig()
+	if strText == "/gmi" then
+		gmInte.openAdminConfig()
 		return true
 	end
 end)

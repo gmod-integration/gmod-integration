@@ -1,15 +1,8 @@
-//
-// WebSocket
-//
-
 local function websocketDLLExist()
     local files, _ = file.Find("lua/bin/*", "GAME")
     for k, v in pairs(files) do
-        if (v:find("gwsockets")) then
-            return true
-        end
+        if v:find("gwsockets") then return true end
     end
-
     return false
 end
 
@@ -22,18 +15,14 @@ if !websocketDLLExist() then
 end
 
 require("gwsockets")
-
 local function getWebSocketURL()
     local method = gmInte.isPrivateIP(gmInte.config.websocketFQDN) && "ws" || "wss"
     return method .. "://" .. gmInte.config.websocketFQDN
 end
 
 local socket = GWSockets.createWebSocket(getWebSocketURL())
-
-// Authentication
 socket:setHeader("id", gmInte.config.id)
 socket:setHeader("token", gmInte.config.token)
-
 function gmInte.resetWebSocket()
     socket:closeNow()
     socket = GWSockets.createWebSocket(getWebSocketURL())
@@ -47,12 +36,10 @@ function socket:onConnected()
     gmInte.log("WebSocket Connected", true)
 end
 
-// log on message
 function socket:onMessage(txt)
     gmInte.log("WebSocket Message: " .. txt, true)
-
     local data = util.JSONToTable(txt)
-    if (gmInte[data.method]) then
+    if gmInte[data.method] then
         gmInte[data.method](data)
     else
         gmInte.logError("WebSocket Message: " .. txt .. " is not a valid method !", true)
@@ -60,7 +47,7 @@ function socket:onMessage(txt)
 end
 
 function socket:onDisconnected()
-    if (hasConnected) then
+    if hasConnected then
         hasConnected = false
         gmInte.log("WebSocket Disconnected", true)
     else
@@ -73,7 +60,7 @@ function socket:onError(txt)
 end
 
 timer.Create("gmInte:WebSocket:CheckConnection", 4, 0, function()
-    if (!socket:isConnected()) then
+    if !socket:isConnected() then
         gmInte.resetWebSocket()
         socket:open()
     end

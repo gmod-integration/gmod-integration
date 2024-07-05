@@ -1,21 +1,8 @@
-//
-// Variables
-//
-
 local ImageCache = {}
-
-//
-// Functions
-//
-
 function gmInte.createImgurMaterials(materials, addon_var, folder, name)
-    if !file.Exists(folder, "DATA") then
-        file.CreateDir(folder)
-    end
-
+    if !file.Exists(folder, "DATA") then file.CreateDir(folder) end
     local function getMatFromUrl(url, id)
         materials[id] = Material("nil")
-
         if file.Exists(folder .. "/" .. id .. ".png", "DATA") && !gmInte.config.redownloadMaterials then
             addon_var[id] = Material("../data/" .. folder .. "/" .. id .. ".png", "noclamp smooth")
             gmInte.log("materials", name .. " - Image Loaded - " .. id .. ".png")
@@ -30,6 +17,7 @@ function gmInte.createImgurMaterials(materials, addon_var, folder, name)
                 ["addon_var"] = addon_var,
                 ["id"] = id
             }
+
             gmInte.log("materials", name .. " - Image Downloaded - " .. id .. ".png")
         end)
     end
@@ -46,10 +34,7 @@ function gmInte.redowloadMaterials()
     end
 end
 
-concommand.Add("gmod_integration_reload_materials", function()
-    gmInte.redowloadMaterials()
-end)
-
+concommand.Add("gmod_integration_reload_materials", function() gmInte.redowloadMaterials() end)
 local materialsList = {
     ["logo"] = "y3Mypbn"
 }

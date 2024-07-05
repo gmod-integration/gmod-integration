@@ -23,19 +23,14 @@ function gmInte.getColor(name)
 end
 
 function gmInte.applyPaint(element, id)
-    if (element.DoClick) then
+    if element.DoClick then
         element:SetTextColor(gmInte.getColor("font"))
-
         element.Paint = function(self, w, h)
             local color = gmInte.getColor("primary")
-
-            if (self:IsHovered()) then
-                color = gmInte.getColor("primary-active")
-            end
-
+            if self:IsHovered() then color = gmInte.getColor("primary-active") end
             draw.RoundedBox(0, 0, 0, w, h, color)
         end
-    elseif (element.SetTitle) then
+    elseif element.SetTitle then
         element.Paint = function(self, w, h)
             draw.RoundedBox(0, 0, 0, w, h, gmInte.getColor("background"))
             // first 20px = title bar = primary
