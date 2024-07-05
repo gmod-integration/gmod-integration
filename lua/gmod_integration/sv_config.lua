@@ -12,11 +12,6 @@
         5 Everything is ready, you can now restart your server
 
     To go further, you can check the documentation: https://docs.gmod-integration.com
-
-    WARNING:
-        NEVER SHARE THE TOKEN OF YOUR SERVER WITH ANYONE,
-        IF ANY PROBLEM OCCURS, GO TO OUR WEBSITE AND FOLLOW THE INSTRUCTIONS:
-        https://gmod-integration.com/emergency
 */
 // API Connection
 gmInte.config.id = "" // Server ID

@@ -232,7 +232,7 @@ local possibleConfig = {
 local buttonsInfo = {
     {
         ["label"] = "Open Webpanel",
-        ["func"] = function() gui.OpenURL("https://gmod-integration.com/config/server") end,
+        ["func"] = function() gui.OpenURL("https://gmod-integration.com/dashboard/guilds") end,
     },
     {
         ["label"] = "Test Connection",
@@ -249,15 +249,6 @@ local buttonsInfo = {
     },
 }
 
-// {
-//     ["label"] = "Load Server Config",
-//     ["condition"] = function(data)
-//         return data.debug
-//     end,
-//     ["func"] = function(data)
-//         gmInte.config = data
-//     end,
-// }
 local colorTable = {
     ["text"] = Color(255, 255, 255, 255),
     ["background"] = Color(0, 0, 0, 200),

@@ -22,7 +22,7 @@ function gmInte.openVerifPopup()
     buttonGrid:SetRowHeight(35)
     local button = vgui.Create("DButton")
     button:SetText("Open Verification Page")
-    button.DoClick = function() gui.OpenURL("https://verif.gmod-integration.com") end
+    button.DoClick = function() gui.OpenURL("https://gmod-integration.com/account") end
     button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
     gmInte.applyPaint(button)
     buttonGrid:AddItem(button)
