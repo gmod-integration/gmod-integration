@@ -85,8 +85,8 @@ function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
             {
                 ["victim"] = gmInte.getPlayerFormat(ply),
                 ["attacker"] = gmInte.getPlayerFormat(attacker),
-                ["healthRemaining"] = healthRemaining,
-                ["damageTaken"] = ply.gmodInteTotalDamage
+                ["healthRemaining"] = math.Round(healthRemaining),
+                ["damageTaken"] = math.Round(damageTaken)
             }
         )
     end)
