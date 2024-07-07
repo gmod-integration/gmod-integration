@@ -18,11 +18,6 @@ local function filterMessage(reason)
     return table.concat(Message)
 end
 
-local function checkTrustFactor(trustLevel)
-    if gmInte.config.filterOnTrust && (trustLevel < gmInte.config.minimalTrust) then return false end
-    return true
-end
-
 local function checkBanStatus(banStatus)
     if gmInte.config.filterOnBan && banStatus then return false end
     return true
@@ -37,12 +32,10 @@ local function playerFilter(data)
     if data.bot == 1 then return end
     data.steamID64 = util.SteamIDTo64(data.networkid)
     gmInte.http.get("/servers/:serverID/players/" .. data.steamID64, function(code, body)
+        if !body then return end
         if gmInte.config.maintenance && !body.bypassMaintenance && !body.discordAdmin then game.KickID(data.networkid, filterMessage("The server is currently under maintenance and you are not whitelisted.")) end
         if !checkBanStatus(body.ban) then game.KickID(data.networkid, filterMessage("You are banned from this server.")) end
         if !checkDiscordBanStatus(body.discord_ban) then game.KickID(data.networkid, filterMessage("You are banned from our discord server.")) end
-        // if (!checkTrustFactor(body.trust)) then
-        //     game.KickID(data.networkid, filterMessage("Your trust factor is too low."))
-        // end
     end, function(code, body) if gmInte.config.maintenance then game.KickID(data.networkid, filterMessage("The server is currently under maintenance and we cannot verify your account.\nVerification URL: https://verif.gmod-integration.com")) end end)
 end
 
