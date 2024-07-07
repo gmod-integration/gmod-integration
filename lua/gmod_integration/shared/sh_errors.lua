@@ -1,14 +1,15 @@
 local cacheErrors = {}
 function gmInte.sendLuaErrorReport(err, realm, stack, name, id)
+    local count = cacheErrors[err] && cacheErrors[err].count + 1 || 1
     cacheErrors[err] = {
         ["time"] = CurTime(),
-        ["count"] = cacheErrors[err] && cacheErrors[err].count + 1 || 1,
+        ["count"] = count,
     }
 
     if !gmInte.config.id || !gmInte.config.token then return end
     if CLIENT && !IsValid(LocalPlayer()) then return end
-    local count = cacheErrors[err].count
     timer.Simple(0.5, function()
+        if !cacheErrors[err] then return end
         if cacheErrors[err].count != count then
             if cacheErrors[err].count != 100 then return end
         else
