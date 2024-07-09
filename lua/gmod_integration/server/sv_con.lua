@@ -6,7 +6,7 @@ local conFuncs = {
     ["get-server-id"] = function() print(gmInte.config.id || "none") end,
     ["screenshot"] = function(args)
         if !args[2] then return gmInte.log("No SteamID64 provided") end
-        for _, ply in pairs(player.GetAll()) do
+        for _, ply in ipairs(player.GetAll()) do
             if ply:SteamID64() == args[2] then return gmInte.takeScreenshot(ply) end
         end
     end,
