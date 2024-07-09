@@ -51,12 +51,23 @@ function gmInte.playerChangeGroup(steamID64, oldGroup, newGroup)
     })
 end
 
-hook.Add("CAMI.PlayerUsergroupChanged", "gmInte:SyncChat:CAMI:PlayerUsergroupChanged", function(ply, old, new)
+// CAMI
+hook.Add("CAMI.PlayerUsergroupChanged", "gmInte:SyncRoles:CAMI:PlayerUsergroupChanged", function(ply, old, new)
     if ply:IsBot() || !ply:IsValid() then return end
     gmInte.playerChangeGroup(ply:SteamID64(), old, new)
 end)
 
-hook.Add("CAMI.SteamIDUsergroupChanged", "gmInte:SyncChat:CAMI:SteamIDUsergroupChanged", function(SteamID64, old, new)
+hook.Add("CAMI.SteamIDUsergroupChanged", "gmInte:SyncRoles:CAMI:SteamIDUsergroupChanged", function(SteamID64, old, new)
     if string.StartWith(SteamID64, "STEAM_") then SteamID64 = util.SteamIDTo64(SteamID64) end
     gmInte.playerChangeGroup(SteamID64, old, new)
+end)
+
+// For those who refuse to use CAMI (bro, WTF), routine scan
+local lastScan = {}
+timer.Create("gmInte:SyncRoles:PlayerScan", 3, 0, function()
+    for k, v in ipairs(player.GetAll()) do
+        if lastScan[v:SteamID64()] == v:GetUserGroup() then continue end
+        gmInte.playerChangeGroup(v:SteamID64(), lastScan[v:SteamID64()], v:GetUserGroup())
+        lastScan[v:SteamID64()] = v:GetUserGroup()
+    end
 end)
