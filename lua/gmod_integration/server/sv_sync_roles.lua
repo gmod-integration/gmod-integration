@@ -8,7 +8,14 @@ function gmInte.wsPlayerUpdateGroup(data)
     local ply = player.GetBySteamID(data.steamID)
     if ply && ply:IsValid() then ply:SetUserGroup(data.group) end
     // ULX
-    if ULib then ULib.ucl.addUser(data.steamID, nil, nil, data.group) end
+    if ULib then
+        if data.group == "user" then
+            ULib.ucl.removeUser(data.steamID)
+        else
+            ULib.ucl.addUser(data.steamID, nil, nil, data.group)
+        end
+    end
+
     // ServerGuard
     if serverguard then
         local ply = player.GetBySteamID(data.steamID)
