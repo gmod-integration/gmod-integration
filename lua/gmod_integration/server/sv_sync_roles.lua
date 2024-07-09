@@ -1,5 +1,6 @@
 local cachedPlayers = {}
 function gmInte.wsPlayerUpdateGroup(data)
+    gmInte.log("[Sync Role] Player " .. data.steamID .. " has been updated to group " .. data.group)
     if cachedPlayers[steamID64] == data.group then return end
     data.steamID = util.SteamIDFrom64(data.steamID64)
     data.group = data.add && data.group || "user"
@@ -45,7 +46,7 @@ function gmInte.playerChangeGroup(steamID64, oldGroup, newGroup)
     if cachedPlayers[steamID64] == newGroup then return end
     cachedPlayers[steamID64] = newGroup
     gmInte.http.post("/servers/:serverID/players/" .. steamID64 .. "/group", {
-        ["player"] = gmInte.getPlayerFormat(ply),
+        ["steamID64"] = steamID64,
         ["oldGroup"] = oldGroup || "user",
         ["newGroup"] = newGroup
     })
