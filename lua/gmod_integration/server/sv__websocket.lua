@@ -20,55 +20,40 @@ local function getWebSocketURL()
     return method .. "://" .. gmInte.config.websocketFQDN
 end
 
-local socket = GWSockets.createWebSocket(getWebSocketURL())
-socket:setHeader("id", gmInte.config.id)
-socket:setHeader("token", gmInte.config.token)
-function gmInte.resetWebSocket()
-    socket:closeNow()
-    socket = GWSockets.createWebSocket(getWebSocketURL())
+function gmInte.setupWebSocket()
+    local socket = GWSockets.createWebSocket(getWebSocketURL())
     socket:setHeader("id", gmInte.config.id)
     socket:setHeader("token", gmInte.config.token)
-end
-
-local hasConnected = false
-function socket:onConnected()
-    hasConnected = true
-    gmInte.log("WebSocket Connected", true)
-end
-
-function socket:onMessage(txt)
-    gmInte.log("WebSocket Message: " .. txt, true)
-    local data = util.JSONToTable(txt)
-    if gmInte[data.method] then
-        gmInte[data.method](data)
-    else
-        gmInte.logError("WebSocket Message: " .. txt .. " is not a valid method !", true)
+    socket:open()
+    function socket:onConnected()
+        gmInte.log("WebSocket Connected", true)
     end
-end
 
-function socket:onDisconnected()
-    if hasConnected then
-        hasConnected = false
+    function socket:onMessage(txt)
+        gmInte.log("WebSocket Message: " .. txt, true)
+        local data = util.JSONToTable(txt)
+        if gmInte[data.method] then
+            gmInte[data.method](data)
+        else
+            gmInte.logError("WebSocket Message: " .. txt .. " is not a valid method !", true)
+        end
+    end
+
+    function socket:onDisconnected()
         gmInte.log("WebSocket Disconnected", true)
-    else
-        gmInte.logError("WebSocket Connection Failed", true)
     end
-end
 
-function socket:onError(txt)
-    gmInte.logError("WebSocket Error: " .. txt, true)
-end
-
-timer.Create("gmInte:WebSocket:CheckConnection", 4, 0, function()
-    if !socket:isConnected() then
-        gmInte.resetWebSocket()
-        socket:open()
+    function socket:onError(txt)
+        gmInte.logError("WebSocket Error: " .. txt, true)
     end
-end)
 
-hook.Add("InitPostEntity", "gmInte:ServerReady:WebSocket", function()
-    timer.Simple(1, function()
-        gmInte.resetWebSocket()
-        socket:open()
+    timer.Create("gmInte:WebSocket:CheckConnection", 4, 0, function()
+        if !socket:isConnected() then
+            gmInte.log("WebSocket is not connected, trying to reconnect", true)
+            timer.Remove("gmInte:WebSocket:CheckConnection")
+            gmInte.setupWebSocket()
+        end
     end)
-end)
+end
+
+hook.Add("InitPostEntity", "gmInte:ServerReady:WebSocket", function() timer.Simple(1, function() gmInte.setupWebSocket() end) end)
