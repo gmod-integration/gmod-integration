@@ -29,7 +29,7 @@ function gmInte.getPlayerTempToken(ply, callback)
     end)
 end
 
-function sendPlayerToken(ply)
+function gmInte.sendPlayerToken(ply)
     gmInte.getPlayerTempToken(ply, function(token)
         gmInte.SendNet("savePlayerToken", {
             token = token,
