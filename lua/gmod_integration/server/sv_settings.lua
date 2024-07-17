@@ -66,7 +66,7 @@ end
 
 function gmInte.superadminSetConfig(ply, data)
     if !ply:IsValid() || !ply:IsPlayer(ply) || !ply:IsSuperAdmin() then return end
-    for k, v in pairs(data) do
+    for k, v in ipairs(data) do
         gmInte.saveSetting(k, v)
     end
 

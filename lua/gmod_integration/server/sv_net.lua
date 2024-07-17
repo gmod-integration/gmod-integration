@@ -34,7 +34,7 @@ local netReceive = {
         RunConsoleCommand("changelevel", game.GetMap())
     end,
     [6] = function(ply) gmInte.verifyPlayer(ply) end,
-    [7] = function(ply, data) sendPlayerToken(ply) end
+    [7] = function(ply, data) gmInte.sendPlayerToken(ply) end
 }
 
 net.Receive("gmIntegration", function(len, ply)

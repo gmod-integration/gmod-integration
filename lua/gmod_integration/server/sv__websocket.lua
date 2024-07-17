@@ -1,6 +1,6 @@
 local function websocketDLLExist()
     local files, _ = file.Find("lua/bin/*", "GAME")
-    for k, v in pairs(files) do
+    for k, v in ipairs(files) do
         if v:find("gwsockets") then return true end
     end
     return false
