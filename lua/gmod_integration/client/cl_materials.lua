@@ -22,13 +22,13 @@ function gmInte.createImgurMaterials(materials, addon_var, folder, name)
         end)
     end
 
-    for k, v in ipairs(materials) do
+    for k, v in pairs(materials) do
         getMatFromUrl("https://i.imgur.com/" .. v .. ".png", k)
     end
 end
 
 function gmInte.redowloadMaterials()
-    for k, v in ipairs(ImageCache) do
+    for k, v in pairs(ImageCache) do
         v.addon_var[v.id] = Material("../data/" .. v.folder .. "/" .. v.id .. ".png", "noclamp smooth")
         gmInte.log("materials", v.name .. " - Image Redownloaded - " .. v.id .. ".png")
     end

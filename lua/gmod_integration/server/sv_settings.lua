@@ -14,7 +14,7 @@ function gmInte.saveSetting(setting, value)
     gmInte.log("Setting Saved")
     if value == "websocketFQDN" || value == "id" || value == "token" then gmInte.resetWebSocket() end
     // send to all players the new public config
-    for _, ply in ipairs(player.GetAll()) do
+    for _, ply in pairs(player.GetAll()) do
         if ply:IsValid() && ply:IsPlayer(ply) then
             gmInte.log("Sending new Public Config to " .. ply:Nick(), true)
             gmInte.publicGetConfig(ply)
@@ -66,7 +66,7 @@ end
 
 function gmInte.superadminSetConfig(ply, data)
     if !ply:IsValid() || !ply:IsPlayer(ply) || !ply:IsSuperAdmin() then return end
-    for k, v in ipairs(data) do
+    for k, v in pairs(data) do
         gmInte.saveSetting(k, v)
     end
 

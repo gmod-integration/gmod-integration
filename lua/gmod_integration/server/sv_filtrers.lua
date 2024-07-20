@@ -12,7 +12,7 @@ local function filterMessage(reason)
         "Service provided by Gmod Integration",
     }
 
-    for k, v in ipairs(Message) do
+    for k, v in pairs(Message) do
         Message[k] = "\n" .. v
     end
     return table.concat(Message)

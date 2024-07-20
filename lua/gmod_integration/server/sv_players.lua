@@ -90,7 +90,7 @@ end
 
 hook.Add("gmInte:PlayerReady", "gmInte:Player:Ready", function(ply) gmInte.playerReady(ply) end)
 hook.Add("ShutDown", "gmInte:Server:Shutdown:SavePlayers", function()
-    for ply, ply in ipairs(player.GetAll()) do
+    for _, ply in pairs(player.GetAll()) do
         gmInte.playerDisconnected(ply)
     end
 end)

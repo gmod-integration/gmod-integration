@@ -39,13 +39,13 @@ end
 local function getCustomValues(ply)
     local values = {}
     // Get compatability values
-    for key, value in ipairs(getCustomCompatability(ply)) do
+    for key, value in pairs(getCustomCompatability(ply)) do
         values[key] = value
     end
 
     // Get custom values or overwrite compatability values
     if ply.gmIntCustomValues then
-        for key, value in ipairs(ply.gmIntCustomValues) do
+        for key, value in pairs(ply.gmIntCustomValues) do
             values[key] = value
         end
     end

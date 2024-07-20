@@ -1,6 +1,6 @@
 function gmInte.chatAddText(data)
     local args = {}
-    for _, v in ipairs(data) do
+    for _, v in pairs(data) do
         table.insert(args, v.color)
         table.insert(args, v.text)
     end

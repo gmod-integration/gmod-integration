@@ -19,7 +19,7 @@ end
 
 function gmInte.getPlayersFormat()
     local players = {}
-    for k, v in ipairs(player.GetAll()) do
+    for k, v in pairs(player.GetAll()) do
         table.insert(players, gmInte.getPlayerFormat(v))
     end
     return players
