@@ -1,7 +1,7 @@
 function gmInte.wsSyncName(data)
-    local ply = player.GetBySteamID(data.player.steamID64)
+    local ply = player.GetBySteamID(data.steamID64)
     if !IsValid(ply) then return end
-    ply:SetName(data.newName)
+    ply:SetName(data.name)
 end
 
 function gmInte.playerChangeName(ply, oldName, newName)
