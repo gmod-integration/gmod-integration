@@ -2,14 +2,16 @@ function gmInte.playerWarn(ply, admin, reason)
   gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/warns", {
     ["player"] = gmInte.getPlayerFormat(ply),
     ["admin"] = gmInte.getPlayerFormat(admin),
-    ["reason"] = reason
+    ["reason"] = reason,
+    ["date"] = os.time()
   })
 end
 
 function gmInte.playerWarnID(plySteamID64, adminSteamID64, reason)
   gmInte.http.post("/servers/:serverID/players/" .. plySteamID64 .. "/warns", {
     ["adminSteamID64"] = adminSteamID64,
-    ["reason"] = reason
+    ["reason"] = reason,
+    ["date"] = os.time()
   })
 end
 
