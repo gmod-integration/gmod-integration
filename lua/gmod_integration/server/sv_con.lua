@@ -4,19 +4,17 @@ local conFuncs = {
     ["try"] = function() gmInte.tryConfig() end,
     ["refresh"] = function() gmInte.refreshSettings() end,
     ["get-server-id"] = function() print(gmInte.config.id || "none") end,
-    ["screenshot"] = function(args)
-        if !args[2] then return gmInte.log("No SteamID64 provided") end
-        for _, ply in pairs(player.GetAll()) do
-            if ply:SteamID64() == args[2] then return gmInte.takeScreenshot(ply) end
-        end
-    end,
+    ["export-warns"] = function() hook.Run("GmodIntegration:ExportWarns") end
 }
 
-concommand.Add("gmi", function(ply, cmd, args)
+local function cmdExecuted(ply, cmd, args)
     if ply:IsPlayer() && !ply:IsSuperAdmin() then return end
     if conFuncs[args[1]] then
         conFuncs[args[1]](args)
     else
         gmInte.log("Unknown Command Argument")
     end
-end)
+end
+
+concommand.Add("gmi", cmdExecuted)
+concommand.Add("gmod-integration", cmdExecjsonuted)
