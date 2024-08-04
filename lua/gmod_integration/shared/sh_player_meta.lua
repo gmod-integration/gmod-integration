@@ -33,6 +33,9 @@ local function getCustomCompatability(ply)
         values.level = ply:GetLevel()
         values.xp = ply:GetXP()
     end
+
+    // Pointshop
+    if Pointshop2 then values.points = ply:PS2_GetPoints() end
     return values
 end
 
