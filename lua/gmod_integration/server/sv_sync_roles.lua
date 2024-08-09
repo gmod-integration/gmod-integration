@@ -32,10 +32,10 @@ function gmInte.wsPlayerUpdateGroup(data)
 
     // Evolve
     if evolve then evolve:RankPlayer(data.steamID64, data.group) end
-    // SAM
+    // sam - the gmodstore
+    if sam then sam.player.set_rank_id(data.steamID, data.group) end
+    // SAM - the other one
     if SAM then SAM:PlayerSetRank(data.steamID64, data.group) end
-    // sam (wtf another one?)
-    if sam then sam.player.setRank(data.steamID64, data.group) end
     // xAdmin
     if xAdmin then xAdmin.SetRank(data.steamID64, data.group) end
     // maestro
