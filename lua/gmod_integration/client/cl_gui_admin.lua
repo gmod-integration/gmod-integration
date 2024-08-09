@@ -215,7 +215,7 @@ function gmInte.openConfigMenu(data)
         configList:EnableVerticalScrollbar(false)
         collapsibleCategory:SetContents(configList)
         local categoryConfig = {}
-        for k, v in pairs(possibleConfig) do
+        for k, v in ipairs(possibleConfig) do
             if v.category == catName then table.insert(categoryConfig, v) end
         end
 
