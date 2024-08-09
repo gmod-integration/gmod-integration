@@ -28,14 +28,31 @@ local function checkDiscordBanStatus(banStatus)
     return true
 end
 
+local function checkPlayerFilter(code, body, data)
+    if !body then return end
+    if gmInte.config.maintenance && !body.bypassMaintenance && !body.discordAdmin then game.KickID(data.networkid, filterMessage("The server is currently under maintenance and you are not whitelisted.")) end
+    if !checkBanStatus(body.ban) then game.KickID(data.networkid, filterMessage("You are banned from this server.")) end
+    if !checkDiscordBanStatus(body.discord_ban) then game.KickID(data.networkid, filterMessage("You are banned from our discord server.")) end
+end
+
+local cachePlayerFilter = {}
 local function playerFilter(data)
     if data.bot == 1 then return end
     data.steamID64 = util.SteamIDTo64(data.networkid)
+    local cachedData = cachePlayerFilter[data.steamID64]
+    if cachedData && cachedData.curTime + 30 > CurTime() then
+        checkPlayerFilter(cachedData.code, cachedData.body, data)
+        return
+    end
+
     gmInte.http.get("/servers/:serverID/players/" .. data.steamID64, function(code, body)
-        if !body then return end
-        if gmInte.config.maintenance && !body.bypassMaintenance && !body.discordAdmin then game.KickID(data.networkid, filterMessage("The server is currently under maintenance and you are not whitelisted.")) end
-        if !checkBanStatus(body.ban) then game.KickID(data.networkid, filterMessage("You are banned from this server.")) end
-        if !checkDiscordBanStatus(body.discord_ban) then game.KickID(data.networkid, filterMessage("You are banned from our discord server.")) end
+        cachePlayerFilter[data.steamID64] = {
+            ["code"] = code,
+            ["body"] = body,
+            ["curTime"] = CurTime()
+        }
+
+        checkPlayerFilter(code, body, data)
     end, function(code, body) if gmInte.config.maintenance then game.KickID(data.networkid, filterMessage("The server is currently under maintenance and we cannot verify your account.\nVerification URL: https://verif.gmod-integration.com")) end end)
 end
 
