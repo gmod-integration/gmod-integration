@@ -12,6 +12,10 @@ function ply:gmIntSetCustomValue(key, value)
     self.gmIntCustomValues[key] = value
 end
 
+function ply:gmIntIsAdmin()
+    return gmInte.config.adminRank[self:GetUserGroup()] || false
+end
+
 function ply:gmIntGetCustomValue(key)
     return self.gmIntCustomValues && self.gmIntCustomValues[key]
 end

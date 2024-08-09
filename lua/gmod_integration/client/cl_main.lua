@@ -17,7 +17,7 @@ function gmInte.showTestConnection(data)
 end
 
 function gmInte.openAdminConfig()
-    if !LocalPlayer():IsSuperAdmin() then
+    if !ply:gmIntIsAdmin() then
         chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(102, 63, 63), "You are not superadmin")
         return
     end

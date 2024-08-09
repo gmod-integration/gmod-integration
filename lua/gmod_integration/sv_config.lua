@@ -18,10 +18,6 @@ gmInte.config.id = "" // Server ID
 gmInte.config.token = "" // Server Token
 gmInte.config.websocketFQDN = "ws.gmod-integration.com" // The FQDN of the websocket server
 gmInte.config.apiFQDN = "api.gmod-integration.com" // The FQDN of the API server
-// Other
-gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
-gmInte.config.supportLink = "" // The link of your support (shown when a player do not have the requiments to join the server)
-gmInte.config.maintenance = false // If true, the addon will only allow the players with the "gmod-integration.maintenance" permission to join the server
 // Punishment
 gmInte.config.syncBan = true // If true, the addon will sync gmod bans with discord bans (and vice versa)
 gmInte.config.syncTimeout = false // If true, the addon will sync gmod timeouts with discord timeouts (and vice versa)
@@ -31,4 +27,11 @@ gmInte.config.filterOnBan = true // If true, the addon will filter the players a
 // Materials
 gmInte.config.redownloadMaterials = false // If true, the addon will redownload the materials of the addon (useful if you have a problem with the materials)
 // Debug & Development
-gmInte.config.debug = false // If true, the addon will show debug informations in the console
+gmInte.config.debug = false // If true, the addon will show debug informations in the console// Other
+// Other
+gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
+gmInte.config.supportLink = "" // The link of your support (shown when a player do not have the requiments to join the server)
+gmInte.config.maintenance = false // If true, the addon will only allow the players with the "gmod-integration.maintenance" permission to join the server
+gmInte.config.adminRank = {
+    ["superadmin"] = true,
+}

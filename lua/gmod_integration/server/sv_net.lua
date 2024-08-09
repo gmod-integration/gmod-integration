@@ -30,7 +30,7 @@ local netReceive = {
     [3] = function(ply, data) gmInte.superadminSetConfig(ply, data) end,
     [4] = function(ply) gmInte.takeScreenshot(ply) end,
     [5] = function(ply)
-        if !ply:IsSuperAdmin() then return end
+        if !ply:gmIntIsAdmin() then return end
         RunConsoleCommand("changelevel", game.GetMap())
     end,
     [6] = function(ply) gmInte.verifyPlayer(ply) end,

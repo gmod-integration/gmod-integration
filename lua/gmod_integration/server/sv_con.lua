@@ -8,7 +8,7 @@ local conFuncs = {
 }
 
 local function cmdExecuted(ply, cmd, args)
-    if ply:IsPlayer() && !ply:IsSuperAdmin() then return end
+    if ply:IsPlayer() && !ply:gmIntIsAdmin() then return end
     if conFuncs[args[1]] then
         conFuncs[args[1]](args)
     else
