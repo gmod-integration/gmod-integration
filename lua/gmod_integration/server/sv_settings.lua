@@ -56,6 +56,7 @@ function gmInte.publicGetConfig(ply)
             ["debug"] = gmInte.config.debug,
             ["apiFQDN"] = gmInte.config.apiFQDN,
             ["websocketFQDN"] = gmInte.config.websocketFQDN,
+            ["adminRank"] = gmInte.config.adminRank
         },
         ["other"] = {
             ["aprovedCredentials"] = gmInte.aprovedCredentials,
