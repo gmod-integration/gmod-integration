@@ -1,5 +1,6 @@
 concommand.Add("gmi_test_error", function(ply, cmd, args)
-  if !SERVER && !LocalPlayer():gmIntIsAdmin() then
+  if ply && !ply:gmIntIsAdmin() then
+    if SERVER then return end
     print("[Gmod Integration] Missing permissions to run this command")
     return
   end
