@@ -39,7 +39,7 @@ if AWarn then
     AWarn3_MySQLite.query(query, function(result)
       if !result then return end
       local warns = {}
-      for k, v in pairs(result) do
+      for k, v in ipairs(result) do
         table.insert(warns, {
           playerSteamID64 = v.PlayerID,
           adminSteamID64 = v.AdminID,

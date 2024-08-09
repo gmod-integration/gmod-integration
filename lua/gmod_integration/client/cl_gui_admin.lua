@@ -201,7 +201,7 @@ function gmInte.openConfigMenu(data)
     messageLabel:Dock(FILL)
     messageLabel:SetText("Here you can configure your server settings.\nServer ID and Token are available on the webpanel in the server settings.\nThe documentation is available at https://docs.gmod-integration.com/\nIf you need help, please contact us on our discord server.")
     messageLabel:SetWrap(true)
-    for k, catName in pairs(configCat) do
+    for k, catName in ipairs(configCat) do
         local collapsibleCategory = vgui.Create("DCollapsibleCategory", scrollPanel)
         collapsibleCategory:Dock(TOP)
         collapsibleCategory:DockMargin(10, 0, 10, 10)
@@ -221,7 +221,7 @@ function gmInte.openConfigMenu(data)
 
         // Sort by position
         table.sort(categoryConfig, function(a, b) return (a.position || 0) < (b.position || 0) end)
-        for k, actualConfig in pairs(categoryConfig) do
+        for k, actualConfig in ipairs(categoryConfig) do
             local panel = vgui.Create("DPanel", configList)
             panel:Dock(TOP)
             panel:SetSize(300, 25)
@@ -285,7 +285,7 @@ function gmInte.openConfigMenu(data)
     buttonGrid:SetColWide(frame:GetWide() / 2 - 5)
     buttonGrid:SetRowHeight(45)
     local buttonsCount = 0
-    for k, v in pairs(buttonsInfo) do
+    for k, v in ipairs(buttonsInfo) do
         if v.condition && !v.condition(data) then continue end
         local button = vgui.Create("DButton")
         button:SetText(v.label)
