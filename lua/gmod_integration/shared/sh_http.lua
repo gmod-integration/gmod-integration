@@ -97,7 +97,6 @@ end
 local nextLogPacket = {}
 function gmInte.http.postLog(endpoint, data)
     local requestAverage = 0
-    PrintTable(requestIndicator)
     for k, v in ipairs(requestIndicator) do
         requestAverage = requestAverage + v
     end
