@@ -95,13 +95,17 @@ function gmInte.http.post(endpoint, data, onSuccess, onFailed)
 end
 
 local nextLogPacket = {}
-function gmInte.http.postLog(endpoint, data)
-    local requestAverage = 0
+local requestAverage = 0
+timer.Create("gmInte:http:requestAverage", 1, 0, function()
+    requestAverage = 0
     for k, v in ipairs(requestIndicator) do
         requestAverage = requestAverage + v
     end
 
     requestAverage = requestAverage / 10
+end)
+
+function gmInte.http.postLog(endpoint, data)
     if requestAverage >= 2 then
         local logPacketIndex = #nextLogPacket + 1
         table.insert(nextLogPacket, {
