@@ -12,6 +12,7 @@ local function showableBody(endpoint)
     return true
 end
 
+local requestIndicator = {}
 function gmInte.http.requestAPI(params)
     local body = params.body && util.TableToJSON(params.body || {}) || ""
     local bodyLength = string.len(body)
@@ -23,6 +24,8 @@ function gmInte.http.requestAPI(params)
     local version = gmInte.version || "Unknown"
     local showableBody = showableBody(params.endpoint)
     local localRequestID = util.CRC(tostring(SysTime()))
+    requestIndicator[CurTime()] = requestIndicator[CurTime()] + 1 || 1
+    timer.Simple(10, function() requestIndicator[CurTime()] = requestIndicator[CurTime()] - 1 end)
     if token == "" then
         return failed(401, {
             ["error"] = "No token provided"
@@ -89,6 +92,35 @@ function gmInte.http.post(endpoint, data, onSuccess, onFailed)
         ["success"] = onSuccess,
         ["failed"] = onFailed
     })
+end
+
+local nextLogPacket = {}
+function gmInte.http.postLog(endpoint, data)
+    if requestIndicator[CurTime()] > 20 then
+        local logPacketIndex = #nextLogPacket + 1
+        table.insert(nextLogPacket, {
+            ["endpoint"] = endpoint,
+            ["data"] = data
+        })
+
+        timer.Simple(3, function()
+            if #nextLogPacket == logPacketIndex then
+                gmInte.http.requestAPI({
+                    ["endpoint"] = "/servers/:serverID/logs",
+                    ["method"] = "POST",
+                    ["body"] = nextLogPacket
+                })
+
+                nextLogPacket = {}
+            end
+        end)
+    else
+        gmInte.http.requestAPI({
+            ["endpoint"] = endpoint,
+            ["method"] = "POST",
+            ["body"] = data
+        })
+    end
 end
 
 function gmInte.http.put(endpoint, data, onSuccess, onFailed)
