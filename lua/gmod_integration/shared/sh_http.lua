@@ -12,7 +12,7 @@ local function showableBody(endpoint)
     return true
 end
 
-local requestIndicator = {}
+local requestIndicator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 function gmInte.http.requestAPI(params)
     local body = params.body && util.TableToJSON(params.body || {}) || ""
     local bodyLength = string.len(body)
@@ -22,10 +22,10 @@ function gmInte.http.requestAPI(params)
     local success = params.success || function() end
     local failed = params.failed || function() end
     local version = gmInte.version || "Unknown"
-    local showableBody = showableBody(params.endpoint)
+    local actualSec = math.Round(SysTime()) % 10
     local localRequestID = util.CRC(tostring(SysTime()))
-    requestIndicator[CurTime()] = requestIndicator[CurTime()] + 1 || 1
-    timer.Simple(10, function() requestIndicator[CurTime()] = requestIndicator[CurTime()] - 1 end)
+    requestIndicator[actualSec] = requestIndicator[actualSec] && requestIndicator[actualSec] + 1 || 1
+    timer.Simple(10, function() requestIndicator[actualSec] = requestIndicator[actualSec] - 1 end)
     if token == "" then
         return failed(401, {
             ["error"] = "No token provided"
@@ -43,7 +43,7 @@ function gmInte.http.requestAPI(params)
     gmInte.log("HTTP FQDN: " .. gmInte.config.apiFQDN, true)
     gmInte.log("HTTP Request ID: " .. localRequestID, true)
     gmInte.log("HTTP Request: " .. method .. " " .. url, true)
-    gmInte.log("HTTP Body: " .. (showableBody && body || "HIDDEN"), true)
+    gmInte.log("HTTP Body: " .. (showableBody(params.endpoint) && body || "HIDDEN"), true)
     HTTP({
         ["url"] = url,
         ["method"] = method,
@@ -96,7 +96,14 @@ end
 
 local nextLogPacket = {}
 function gmInte.http.postLog(endpoint, data)
-    if requestIndicator[CurTime()] > 20 then
+    local requestAverage = 0
+    PrintTable(requestIndicator)
+    for k, v in ipairs(requestIndicator) do
+        requestAverage = requestAverage + v
+    end
+
+    requestAverage = requestAverage / 10
+    if requestAverage >= 2 then
         local logPacketIndex = #nextLogPacket + 1
         table.insert(nextLogPacket, {
             ["endpoint"] = endpoint,
