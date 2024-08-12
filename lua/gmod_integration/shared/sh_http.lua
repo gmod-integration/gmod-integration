@@ -12,7 +12,6 @@ local function showableBody(endpoint)
     return true
 end
 
-local requestIndicator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 function gmInte.http.requestAPI(params)
     local body = params.body && util.TableToJSON(params.body || {}) || ""
     local bodyLength = string.len(body)
@@ -22,10 +21,7 @@ function gmInte.http.requestAPI(params)
     local success = params.success || function() end
     local failed = params.failed || function() end
     local version = gmInte.version || "Unknown"
-    local actualSec = math.Round(SysTime()) % 10
     local localRequestID = util.CRC(tostring(SysTime()))
-    requestIndicator[actualSec] = requestIndicator[actualSec] && requestIndicator[actualSec] + 1 || 1
-    timer.Simple(10, function() requestIndicator[actualSec] = requestIndicator[actualSec] - 1 end)
     if token == "" then
         return failed(401, {
             ["error"] = "No token provided"
@@ -95,42 +91,26 @@ function gmInte.http.post(endpoint, data, onSuccess, onFailed)
 end
 
 local nextLogPacket = {}
-local requestAverage = 0
-timer.Create("gmInte:http:requestAverage", 1, 0, function()
-    requestAverage = 0
-    for k, v in ipairs(requestIndicator) do
-        requestAverage = requestAverage + v
-    end
-
-    requestAverage = requestAverage / 10
-end)
-
-function gmInte.http.postLog(endpoint, data)
-    if requestAverage >= 2 then
-        local logPacketIndex = #nextLogPacket + 1
-        table.insert(nextLogPacket, {
-            ["endpoint"] = endpoint,
-            ["data"] = data
-        })
-
-        timer.Simple(3, function()
-            if #nextLogPacket == logPacketIndex || #nextLogPacket >= 30 then
-                gmInte.http.requestAPI({
-                    ["endpoint"] = "/servers/:serverID/logs",
-                    ["method"] = "POST",
-                    ["body"] = nextLogPacket
-                })
-
-                nextLogPacket = {}
-            end
-        end)
-    else
+local function flushLogs()
+    if #nextLogPacket > 0 then
         gmInte.http.requestAPI({
-            ["endpoint"] = endpoint,
+            ["endpoint"] = "/servers/:serverID/logs",
             ["method"] = "POST",
-            ["body"] = data
+            ["body"] = nextLogPacket
         })
+
+        nextLogPacket = {}
     end
+end
+
+timer.Create("gmInte:http:flushLogs", 3, 0, flushLogs)
+function gmInte.http.postLog(endpoint, data)
+    table.insert(nextLogPacket, {
+        ["endpoint"] = endpoint,
+        ["data"] = data
+    })
+
+    if #nextLogPacket >= 30 then flushLogs() end
 end
 
 function gmInte.http.put(endpoint, data, onSuccess, onFailed)
