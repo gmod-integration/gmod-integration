@@ -114,7 +114,7 @@ function gmInte.http.postLog(endpoint, data)
         })
 
         timer.Simple(3, function()
-            if #nextLogPacket == logPacketIndex then
+            if #nextLogPacket == logPacketIndex || #nextLogPacket >= 30 then
                 gmInte.http.requestAPI({
                     ["endpoint"] = "/servers/:serverID/logs",
                     ["method"] = "POST",
