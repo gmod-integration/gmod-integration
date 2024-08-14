@@ -49,7 +49,7 @@ function gmInte.openReportBug()
   local frame = vgui.Create("DFrame")
   frame:SetSize(500, (700 / 1080) * ScrH())
   frame:Center()
-  frame:SetTitle(Localize("gmod_integration.report_bug.title", "Report Bug"))
+  frame:SetTitle(gmInte.getFrameName(Localize("gmod_integration.report_bug.title", "Report Bug")))
   frame:MakePopup()
   gmInte.applyPaint(frame)
   // bug report = screenshot, description, steps to reproduce, expected result, actual result
