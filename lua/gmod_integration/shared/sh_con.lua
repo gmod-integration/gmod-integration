@@ -1,4 +1,4 @@
-concommand.Add("gmi_test_error", function(ply, cmd, args)
+local function testConError(ply, cmd, args)
   if ply && !ply:gmIntIsAdmin() then
     if SERVER then return end
     print("[Gmod Integration] Missing permissions to run this command")
@@ -19,4 +19,7 @@ concommand.Add("gmi_test_error", function(ply, cmd, args)
       error("This is a test error")
     end
   end
-end)
+end
+
+concommand.Add("gmod_integration_test_error", testConError)
+concommand.Add("gmi_test_error", testConError)

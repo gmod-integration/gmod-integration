@@ -47,6 +47,7 @@ function gmInte.takeScreenShot()
 end
 
 concommand.Add("gmi_screen", gmInte.takeScreenShot)
+concommand.Add("gmod_integration_screen", gmInte.takeScreenShot)
 hook.Add("OnPlayerChat", "gmInteChatCommands", function(ply, text, teamChat, isDead)
   if ply != LocalPlayer() then return end
   text = string.lower(text)
