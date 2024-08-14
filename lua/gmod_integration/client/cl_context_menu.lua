@@ -12,7 +12,7 @@ list.Set("DesktopWindows", "GmodIntegration:DesktopWindows", {
 
 list.Set("DesktopWindows", "GmodIntegration:DesktopWindows:ReportBug", {
     icon = "gmod_integration/logo_context_report.png",
-    title = "Report Bug",
+    title = Localize("gmod_integration.report_bug.title", "Report Bug"),
     width = 960,
     height = 700,
     onewindow = true,
