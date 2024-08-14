@@ -12,7 +12,13 @@ local Fields = {
   {
     ["title"] = language.GetPhrase("gmod_integration.report_bug.importance_level", "Importance Level"),
     ["type"] = "dropdown",
-    ["options"] = {language.GetPhrase("gmod_integration.report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."), language.GetPhrase("gmod_integration.report_bug.importance_level.high", "High - Critical functionality is unusable."), language.GetPhrase("gmod_integration.report_bug.importance_level.medium", "Medium - Important functionality is unusable."), language.GetPhrase("gmod_integration.report_bug.importance_level.low", "Low - Cosmetic issue."), language.GetPhrase("gmod_integration.report_bug.importance_level.trivial", "Trivial - Very minor issue."),},
+    ["options"] = {
+      ["critical"] = language.GetPhrase("gmod_integration.report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."),
+      ["high"] = language.GetPhrase("gmod_integration.report_bug.importance_level.high", "High - Critical functionality is unusable."),
+      ["medium"] = language.GetPhrase("gmod_integration.report_bug.importance_level.medium", "Medium - Important functionality is unusable."),
+      ["low"] = language.GetPhrase("gmod_integration.report_bug.importance_level.low", "Low - Cosmetic issue."),
+      ["trivial"] = language.GetPhrase("gmod_integration.report_bug.importance_level.trivial", "Trivial - Very minor issue."),
+    },
   },
   {
     ["title"] = language.GetPhrase("gmod_integration.report_bug.steps_to_reproduce", "Steps to Reproduce"),
@@ -84,8 +90,8 @@ function gmInte.openReportBug()
       dropdown:Dock(TOP)
       dropdown:DockMargin(5, 5, 5, 5)
       dropdown:SetValue(language.GetPhrase("gmod_integration.report_bug.importance_level.dsc", "How important is this bug?"))
-      for i = 1, #field.options do
-        dropdown:AddChoice(field.options[i])
+      for key, value in pairs(field.options) do
+        dropdown:AddChoice(value, key)
       end
 
       dropdown:SetSortItems(false)
@@ -106,11 +112,15 @@ function gmInte.openReportBug()
   gmInte.applyPaint(button)
   buttonGrid:AddItem(button)
   button.DoClick = function()
-    for _, element in ipairs(elements) do
-      if element:GetText() == "" then
-        notification.AddLegacy(language.GetPhrase("gmod_integration.report_bug.error.missing_fields", "All fields are required"), NOTIFY_ERROR, 5)
-        return
-      end
+    local readyForSend = true
+    if !elements[1]:GetText() || elements[1]:GetText() == "" then readyForSend = false end
+    if !elements[2]:GetSelected() then readyForSend = false end
+    if !elements[3]:GetText() || elements[3]:GetText() == "" then readyForSend = false end
+    if !elements[4]:GetText() || elements[4]:GetText() == "" then readyForSend = false end
+    if !elements[5]:GetText() || elements[5]:GetText() == "" then readyForSend = false end
+    if !readyForSend then
+      notification.AddLegacy(language.GetPhrase("gmod_integration.report_bug.error.missing_fields", "All fields are required"), NOTIFY_ERROR, 5)
+      return
     end
 
     local screenData = {}
@@ -124,11 +134,12 @@ function gmInte.openReportBug()
       }
     end
 
+    local _, importanceValue = elements[2]:GetSelected()
     gmInte.http.post("/clients/:steamID64/servers/:serverID/bugs", {
       ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
       ["screenshot"] = screenData,
       ["description"] = elements[1]:GetText(),
-      ["importance"] = elements[2]:GetValue(),
+      ["importance"] = importanceValue,
       ["steps"] = elements[3]:GetText(),
       ["expected"] = elements[4]:GetText(),
       ["actual"] = elements[5]:GetText(),
