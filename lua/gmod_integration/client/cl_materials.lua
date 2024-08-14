@@ -34,7 +34,8 @@ function gmInte.redowloadMaterials()
     end
 end
 
-concommand.Add("gmod_integration_reload_materials", function() gmInte.redowloadMaterials() end)
+concommand.Add("gmod_integration_reload_materials", gmInte.redowloadMaterials)
+concommand.Add("gmi_reload_materials", gmInte.redowloadMaterials)
 local materialsList = {
     ["logo"] = "y3Mypbn"
 }
