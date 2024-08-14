@@ -1,35 +1,35 @@
 local Fields = {
   {
-    ["title"] = Localize("gmod_integration.report_bug.title", "Report a bug"),
+    ["title"] = Localize("#gmod_integration.report_bug.title", "Report a bug"),
     ["type"] = "image",
   },
   {
-    ["title"] = Localize("gmod_integration.report_bug.description", "Report a bug to the developers of this game."),
+    ["title"] = Localize("#gmod_integration.report_bug.description", "Report a bug to the developers of this game."),
     ["type"] = "text",
-    ["dsc"] = Localize("gmod_integration.report_bug.description.dsc", "Please provide as much information as possible to help us fix the issue."),
+    ["dsc"] = Localize("#gmod_integration.report_bug.description.dsc", "Please provide as much information as possible to help us fix the issue."),
     ["tall"] = 80,
   },
   {
-    ["title"] = Localize("gmod_integration.report_bug.importance_level", "Importance Level"),
+    ["title"] = Localize("#gmod_integration.report_bug.importance_level", "Importance Level"),
     ["type"] = "dropdown",
-    ["options"] = {Localize("gmod_integration.report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."), Localize("gmod_integration.report_bug.importance_level.high", "High - Critical functionality is unusable."), Localize("gmod_integration.report_bug.importance_level.medium", "Medium - Important functionality is unusable."), Localize("gmod_integration.report_bug.importance_level.low", "Low - Cosmetic issue."), Localize("gmod_integration.report_bug.importance_level.trivial", "Trivial - Very minor issue."),},
+    ["options"] = {Localize("#gmod_integration.report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."), Localize("#gmod_integration.report_bug.importance_level.high", "High - Critical functionality is unusable."), Localize("#gmod_integration.report_bug.importance_level.medium", "Medium - Important functionality is unusable."), Localize("#gmod_integration.report_bug.importance_level.low", "Low - Cosmetic issue."), Localize("#gmod_integration.report_bug.importance_level.trivial", "Trivial - Very minor issue."),},
   },
   {
-    ["title"] = Localize("gmod_integration.report_bug.steps_to_reproduce", "Steps to Reproduce"),
+    ["title"] = Localize("#gmod_integration.report_bug.steps_to_reproduce", "Steps to Reproduce"),
     ["type"] = "text",
-    ["dsc"] = Localize("gmod_integration.report_bug.steps_to_reproduce.dsc", "Please provide a step-by-step guide on how to reproduce the bug."),
+    ["dsc"] = Localize("#gmod_integration.report_bug.steps_to_reproduce.dsc", "Please provide a step-by-step guide on how to reproduce the bug."),
     ["tall"] = 80,
   },
   {
-    ["title"] = Localize("gmod_integration.report_bug.expected_result", "Expected result"),
+    ["title"] = Localize("#gmod_integration.report_bug.expected_result", "Expected result"),
     ["type"] = "text",
-    ["dsc"] = Localize("gmod_integration.report_bug.expected_result.dsc", "What did you expect to happen?"),
+    ["dsc"] = Localize("#gmod_integration.report_bug.expected_result.dsc", "What did you expect to happen?"),
     ["tall"] = 50,
   },
   {
-    ["title"] = Localize("gmod_integration.report_bug.actual_result", "Actual result"),
+    ["title"] = Localize("#gmod_integration.report_bug.actual_result", "Actual result"),
     ["type"] = "text",
-    ["dsc"] = Localize("gmod_integration.report_bug.actual_result.dsc", "What actually happened?"),
+    ["dsc"] = Localize("#gmod_integration.report_bug.actual_result.dsc", "What actually happened?"),
     ["tall"] = 50,
   },
 }
@@ -49,7 +49,7 @@ function gmInte.openReportBug()
   local frame = vgui.Create("DFrame")
   frame:SetSize(500, (700 / 1080) * ScrH())
   frame:Center()
-  frame:SetTitle(gmInte.getFrameName(Localize("gmod_integration.report_bug.title", "Report Bug")))
+  frame:SetTitle(gmInte.getFrameName(Localize("#gmod_integration.report_bug.title", "Report Bug")))
   frame:MakePopup()
   gmInte.applyPaint(frame)
   // bug report = screenshot, description, steps to reproduce, expected result, actual result
@@ -83,7 +83,7 @@ function gmInte.openReportBug()
       local dropdown = vgui.Create("DComboBox", dPanel)
       dropdown:Dock(TOP)
       dropdown:DockMargin(5, 5, 5, 5)
-      dropdown:SetValue(Localize("gmod_integration.report_bug.importance_level.dsc", "How important is this bug?"))
+      dropdown:SetValue(Localize("#gmod_integration.report_bug.importance_level.dsc", "How important is this bug?"))
       for i = 1, #field.options do
         dropdown:AddChoice(field.options[i])
       end
@@ -108,7 +108,7 @@ function gmInte.openReportBug()
   button.DoClick = function()
     for _, element in ipairs(elements) do
       if element:GetText() == "" then
-        notification.AddLegacy(Localize("gmod_integration.report_bug.error.missing_fields", "All fields are required"), NOTIFY_ERROR, 5)
+        notification.AddLegacy(Localize("#gmod_integration.report_bug.error.missing_fields", "All fields are required"), NOTIFY_ERROR, 5)
         return
       end
     end
@@ -133,9 +133,9 @@ function gmInte.openReportBug()
       ["expected"] = elements[4]:GetText(),
       ["actual"] = elements[5]:GetText(),
     }, function()
-      notification.AddLegacy(Localize("gmod_integration.report_bug.success", "Bug report sent successfully"), NOTIFY_GENERIC, 5)
+      notification.AddLegacy(Localize("#gmod_integration.report_bug.success", "Bug report sent successfully"), NOTIFY_GENERIC, 5)
       frame:Close()
-    end, function() notification.AddLegacy(Localize("gmod_integration.report_bug.error.failed", "Failed to send bug report retry later"), NOTIFY_ERROR, 5) end)
+    end, function() notification.AddLegacy(Localize("#gmod_integration.report_bug.error.failed", "Failed to send bug report retry later"), NOTIFY_ERROR, 5) end)
   end
 end
 
