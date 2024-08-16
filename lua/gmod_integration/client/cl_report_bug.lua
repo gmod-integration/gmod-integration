@@ -41,8 +41,29 @@ local Fields = {
 }
 
 local ScreenshotRequested = false
+local contextMenuOpen = false
+hook.Add("OnContextMenuOpen", "gmInte:BugReport:ContextMenu:Open", function() contextMenuOpen = true end)
+hook.Add("OnContextMenuClose", "gmInte:BugReport:ContextMenu:Close", function() contextMenuOpen = false end)
+hook.Add("HUDPaint", "gmInte:BugReport:Screenshot", function()
+  if !ScreenshotRequested then return end
+  if !contextMenuOpen then return end
+  surface.SetDrawColor(230, 230, 230)
+  surface.DrawRect(0, 0, ScrW(), 3)
+  surface.DrawRect(0, 0, 3, ScrH())
+  surface.DrawRect(ScrW() - 3, 0, 3, ScrH())
+  surface.DrawRect(0, ScrH() - 3, ScrW(), 3)
+  surface.DrawRect(ScrW() / 2 - 10, ScrH() / 2 - 1, 20, 2)
+  surface.DrawRect(ScrW() / 2 - 1, ScrH() / 2 - 10, 2, 20)
+  surface.SetDrawColor(0, 0, 0, 50)
+  surface.DrawRect(0, 0, ScrW(), ScrH())
+  draw.SimpleText(gmInte.getTranslation("report_bug.context_menu.screen_capture", "Close the context menu to take the screenshot to use in the bug report."), "Trebuchet24", ScrW() / 2, ScrH() / 2 + 40, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+end)
+
+local screenCapture = nil
+local screenFileID = nil
 hook.Add("PostRender", "gmInte:BugReport:Screenshot", function()
   if !ScreenshotRequested then return end
+  if contextMenuOpen then return end
   ScreenshotRequested = false
   local captureData = {
     format = "jpeg",
@@ -53,29 +74,12 @@ hook.Add("PostRender", "gmInte:BugReport:Screenshot", function()
     quality = 95,
   }
 
-  local screenCapture = render.Capture(captureData)
-  if screenCapture then file.Write("gmod_integration/report_bug_screenshot.jpeg", screenCapture) end
+  screenCapture = render.Capture(captureData)
+  if !file.Exists("gmod_integration/report_bug", "DATA") then file.CreateDir("gmod_integration/report_bug") end
+  if screenCapture then file.Write("gmod_integration/report_bug/" .. screenFileID .. ".jpeg", screenCapture) end
 end)
 
-function gmInte.openReportBug()
-  // notification.AddLegacy(gmInte.getTranslation("report_bug.info", "Please wait few seconds to take a screenshot"), NOTIFY_GENERIC, 5)
-  // ScreenshotRequested = true
-  // // wait the screenshot to be taken
-  // local try = 0
-  // local screenFailed = false
-  // timer.Create("gmInte:BugReport:Screenshot", 0.5, 0, function()
-  //   if !file.Exists("gmod_integration/report_bug_screenshot.jpeg", "DATA") then
-  //     try = try + 1
-  //     if try >= 3 then
-  //       notification.AddLegacy(gmInte.getTranslation("report_bug.error.failed_screenshot", "Failed to take screenshot, retry later"), NOTIFY_ERROR, 5)
-  //       timer.Remove("gmInte:BugReport:Screenshot")
-  //       screenFailed = true
-  //     end
-  //     return
-  //   end
-  //   timer.Remove("gmInte:BugReport:Screenshot")
-  //   gmInte.openReportBugFrame()
-  // end)
+local function openReportBug()
   local frame = vgui.Create("DFrame")
   frame:SetSize(500, (700 / 1080) * ScrH())
   frame:Center()
@@ -108,10 +112,12 @@ function gmInte.openReportBug()
     label:SetText(field.title)
     label:SetFont("DermaDefaultBold")
     if field.type == "image" then
+      if !screenCapture then continue end
+      if !file.Exists("gmod_integration/report_bug/" .. screenFileID .. ".jpeg", "DATA") then continue end
       local image = vgui.Create("DImage", dPanel)
       image:Dock(TOP)
       image:DockMargin(5, 5, 5, 5)
-      image:SetImage("data/gmod_integration/report_bug_screenshot.jpeg")
+      image:SetImage("data/gmod_integration/report_bug/" .. screenFileID .. ".jpeg")
       image:SetSize(frame:GetWide() - 10, (frame:GetWide() - 10) * (9 / 16))
     elseif field.type == "text" then
       local text = vgui.Create("DTextEntry", dPanel)
@@ -185,6 +191,19 @@ function gmInte.openReportBug()
       frame:Close()
     end, function() notification.AddLegacy(gmInte.getTranslation("report_bug.error.failed", "Failed to send bug report retry later"), NOTIFY_ERROR, 5) end)
   end
+end
+
+function gmInte.openReportBug()
+  if ScreenshotRequested then return end
+  local timerName = "gmInte:BugReport:Screenshot:Open"
+  ScreenshotRequested = true
+  screenCapture = nil
+  screenFileID = gmInte.config.id .. "-" .. util.CRC(LocalPlayer():SteamID64() .. "-" .. tostring(os.time())) .. "-" .. tostring(os.time())
+  timer.Create(timerName, 0.2, 0, function()
+    if contextMenuOpen then return end
+    timer.Remove(timerName)
+    timer.Simple(0.5, openReportBug)
+  end)
 end
 
 concommand.Add("gmi_report_bug", gmInte.openReportBug)
