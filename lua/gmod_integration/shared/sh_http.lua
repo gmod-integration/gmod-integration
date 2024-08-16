@@ -7,9 +7,13 @@ local function getAPIURL(endpoint)
     return method .. "://" .. gmInte.config.apiFQDN .. "/" .. apiVersion .. endpoint
 end
 
-local function showableBody(endpoint)
-    if string.sub(endpoint, 1, 8) == "/streams" || string.sub(endpoint, 1, 12) == "/screenshots" then return false end
-    return true
+local function showableBody(endpoint, body)
+    if endpoint == "/clients/:steamID64/servers/:serverID/screenshots" then
+        body.screenshot = "[IMAGE DATA]"
+    elseif endpoint == "/clients/:steamID64/servers/:serverID/bugs" then
+        body.screenshot.screenshot = "[IMAGE DATA]"
+    end
+    return util.TableToJSON(body || {})
 end
 
 function gmInte.http.requestAPI(params)
@@ -39,7 +43,7 @@ function gmInte.http.requestAPI(params)
     gmInte.log("HTTP FQDN: " .. gmInte.config.apiFQDN, true)
     gmInte.log("HTTP Request ID: " .. localRequestID, true)
     gmInte.log("HTTP Request: " .. method .. " " .. url, true)
-    gmInte.log("HTTP Body: " .. (showableBody(params.endpoint) && body || "HIDDEN"), true)
+    gmInte.log("HTTP Body: " .. showableBody(params.endpoint, params.body), true)
     HTTP({
         ["url"] = url,
         ["method"] = method,
