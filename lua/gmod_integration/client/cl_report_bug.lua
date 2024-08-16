@@ -1,6 +1,6 @@
 local Fields = {
   {
-    ["title"] = gmInte.getTranslation("report_bug.title", "Report a bug"),
+    ["title"] = gmInte.getTranslation("report_bug.screenshot", "Screenshot"),
     ["type"] = "image",
   },
   {
@@ -82,10 +82,23 @@ function gmInte.openReportBug()
   frame:SetTitle(gmInte.getFrameName(gmInte.getTranslation("report_bug.title", "Report Bug")))
   frame:MakePopup()
   gmInte.applyPaint(frame)
-  // bug report = screenshot, description, steps to reproduce, expected result, actual result
   local dPanel = vgui.Create("DScrollPanel", frame)
   dPanel:Dock(FILL)
   gmInte.applyPaint(dPanel)
+  local label = vgui.Create("DLabel", dPanel)
+  label:Dock(TOP)
+  label:DockMargin(5, 5, 5, 5)
+  label:SetText(gmInte.getTranslation("report_bug.description", "Description"))
+  label:SetFont("DermaDefaultBold")
+  local messagePanel = vgui.Create("DPanel", dPanel)
+  messagePanel:Dock(TOP)
+  messagePanel:SetTall(70)
+  messagePanel:DockMargin(5, 0, 5, 5)
+  messagePanel:SetBackgroundColor(Color(0, 0, 0, 0))
+  local messageLabel = vgui.Create("DLabel", messagePanel)
+  messageLabel:Dock(FILL)
+  messageLabel:SetText(gmInte.getTranslation("gmod_integration.report_bug.description.full", "Hey, your about to report a bug to the owners of this server.\nPlease provide as much information as possible to help us fix the issue.\nThank you for helping us improve the server.\n\nIf you have a issue with Gmod Integration, please use our discord server."))
+  messageLabel:SetWrap(true)
   local elements = {}
   for _ = 1, #Fields do
     local field = Fields[_]
@@ -93,6 +106,7 @@ function gmInte.openReportBug()
     label:Dock(TOP)
     label:DockMargin(5, 5, 5, 5)
     label:SetText(field.title)
+    label:SetFont("DermaDefaultBold")
     if field.type == "image" then
       local image = vgui.Create("DImage", dPanel)
       image:Dock(TOP)
