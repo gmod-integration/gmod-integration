@@ -23,7 +23,7 @@ hook.Add("PostRender", "gmInteScreenshot", function()
       return
     else
       FailAttempts = 0
-      chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(102, 63, 63), "Failed to take screenshot, your system may not support this feature.")
+      gmInte.chatAddText(Color(255, 255, 255), gmInte.getTranslation("chat.error.screenshot_failed", "Failed to take screenshot, your system may not support this feature."))
       return
     end
   end
@@ -36,10 +36,7 @@ hook.Add("PostRender", "gmInteScreenshot", function()
     ["screenshot"] = base64Capture,
     ["captureData"] = captureData,
     ["size"] = size .. "KB"
-  }, function(code, body)
-    gmInte.log("Screenshot sent to Discord", true)
-    chat.AddText(Color(255, 130, 92), "[Gmod Integration] ", Color(255, 255, 255), "Screenshot sent to Discord.")
-  end, function(code, body) gmInte.log("Screenshot failed to send to Discord, error code: " .. code, true) end)
+  }, function(code, body) gmInte.chatAddText(Color(255, 130, 92), gmInte.getTranslation("chat.screenshot.sent", "Screenshot sent to Discord.")) end, function(code, body) gmInte.log("Screenshot failed to send to Discord, error code: " .. code, true) end)
 end)
 
 function gmInte.takeScreenShot()

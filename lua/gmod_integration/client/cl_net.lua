@@ -25,7 +25,7 @@ local netReceive = {
         gmInte.version = data.other.version
         if !data.other.aprovedCredentials then RunConsoleCommand("gmod_integration_admin") end
     end,
-    [6] = function(data) gmInte.chatAddText(data) end,
+    [6] = function(data) gmInte.chatAddTextFromTable(data) end,
     [7] = function() gmInte.openVerifPopup() end,
     [8] = function(data) gmInte.config.token = data.token end
 }

@@ -1,46 +1,49 @@
 local Fields = {
   {
-    ["title"] = language.GetPhrase("gmod_integration.report_bug.title", "Report a bug"),
+    ["title"] = gmInte.getTranslation("report_bug.title", "Report a bug"),
     ["type"] = "image",
   },
   {
-    ["title"] = language.GetPhrase("gmod_integration.report_bug.description", "Report a bug to the developers of this game."),
+    ["title"] = gmInte.getTranslation("report_bug.description", "Report a bug to the developers of this game."),
     ["type"] = "text",
-    ["dsc"] = language.GetPhrase("gmod_integration.report_bug.description.dsc", "Please provide as much information as possible to help us fix the issue."),
+    ["dsc"] = gmInte.getTranslation("report_bug.description.dsc", "Please provide as much information as possible to help us fix the issue."),
     ["tall"] = 80,
   },
   {
-    ["title"] = language.GetPhrase("gmod_integration.report_bug.importance_level", "Importance Level"),
+    ["title"] = gmInte.getTranslation("report_bug.importance_level", "Importance Level"),
     ["type"] = "dropdown",
     ["options"] = {
-      ["critical"] = language.GetPhrase("gmod_integration.report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."),
-      ["high"] = language.GetPhrase("gmod_integration.report_bug.importance_level.high", "High - Critical functionality is unusable."),
-      ["medium"] = language.GetPhrase("gmod_integration.report_bug.importance_level.medium", "Medium - Important functionality is unusable."),
-      ["low"] = language.GetPhrase("gmod_integration.report_bug.importance_level.low", "Low - Cosmetic issue."),
-      ["trivial"] = language.GetPhrase("gmod_integration.report_bug.importance_level.trivial", "Trivial - Very minor issue."),
+      ["critical"] = gmInte.getTranslation("report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."),
+      ["high"] = gmInte.getTranslation("report_bug.importance_level.high", "High - Critical functionality is unusable."),
+      ["medium"] = gmInte.getTranslation("report_bug.importance_level.medium", "Medium - Important functionality is unusable."),
+      ["low"] = gmInte.getTranslation("report_bug.importance_level.low", "Low - Cosmetic issue."),
+      ["trivial"] = gmInte.getTranslation("report_bug.importance_level.trivial", "Trivial - Very minor issue."),
     },
   },
   {
-    ["title"] = language.GetPhrase("gmod_integration.report_bug.steps_to_reproduce", "Steps to Reproduce"),
+    ["title"] = gmInte.getTranslation("report_bug.steps_to_reproduce", "Steps to Reproduce"),
     ["type"] = "text",
-    ["dsc"] = language.GetPhrase("gmod_integration.report_bug.steps_to_reproduce.dsc", "Please provide a step-by-step guide on how to reproduce the bug."),
+    ["dsc"] = gmInte.getTranslation("report_bug.steps_to_reproduce.dsc", "Please provide a step-by-step guide on how to reproduce the bug."),
     ["tall"] = 80,
   },
   {
-    ["title"] = language.GetPhrase("gmod_integration.report_bug.expected_result", "Expected result"),
+    ["title"] = gmInte.getTranslation("report_bug.expected_result", "Expected result"),
     ["type"] = "text",
-    ["dsc"] = language.GetPhrase("gmod_integration.report_bug.expected_result.dsc", "What did you expect to happen?"),
+    ["dsc"] = gmInte.getTranslation("report_bug.expected_result.dsc", "What did you expect to happen?"),
     ["tall"] = 50,
   },
   {
-    ["title"] = language.GetPhrase("gmod_integration.report_bug.actual_result", "Actual result"),
+    ["title"] = gmInte.getTranslation("report_bug.actual_result", "Actual result"),
     ["type"] = "text",
-    ["dsc"] = language.GetPhrase("gmod_integration.report_bug.actual_result.dsc", "What actually happened?"),
+    ["dsc"] = gmInte.getTranslation("report_bug.actual_result.dsc", "What actually happened?"),
     ["tall"] = 50,
   },
 }
 
-function gmInte.openReportBug()
+local ScreenshotRequested = false
+hook.Add("PostRender", "gmInte:BugReport:Screenshot", function()
+  if !ScreenshotRequested then return end
+  ScreenshotRequested = false
   local captureData = {
     format = "jpeg",
     x = 0,
@@ -52,10 +55,31 @@ function gmInte.openReportBug()
 
   local screenCapture = render.Capture(captureData)
   if screenCapture then file.Write("gmod_integration/report_bug_screenshot.jpeg", screenCapture) end
+end)
+
+function gmInte.openReportBug()
+  // notification.AddLegacy(gmInte.getTranslation("report_bug.info", "Please wait few seconds to take a screenshot"), NOTIFY_GENERIC, 5)
+  // ScreenshotRequested = true
+  // // wait the screenshot to be taken
+  // local try = 0
+  // local screenFailed = false
+  // timer.Create("gmInte:BugReport:Screenshot", 0.5, 0, function()
+  //   if !file.Exists("gmod_integration/report_bug_screenshot.jpeg", "DATA") then
+  //     try = try + 1
+  //     if try >= 3 then
+  //       notification.AddLegacy(gmInte.getTranslation("report_bug.error.failed_screenshot", "Failed to take screenshot, retry later"), NOTIFY_ERROR, 5)
+  //       timer.Remove("gmInte:BugReport:Screenshot")
+  //       screenFailed = true
+  //     end
+  //     return
+  //   end
+  //   timer.Remove("gmInte:BugReport:Screenshot")
+  //   gmInte.openReportBugFrame()
+  // end)
   local frame = vgui.Create("DFrame")
   frame:SetSize(500, (700 / 1080) * ScrH())
   frame:Center()
-  frame:SetTitle(gmInte.getFrameName(language.GetPhrase("gmod_integration.report_bug.title", "Report Bug")))
+  frame:SetTitle(gmInte.getFrameName(gmInte.getTranslation("report_bug.title", "Report Bug")))
   frame:MakePopup()
   gmInte.applyPaint(frame)
   // bug report = screenshot, description, steps to reproduce, expected result, actual result
@@ -65,7 +89,6 @@ function gmInte.openReportBug()
   local elements = {}
   for _ = 1, #Fields do
     local field = Fields[_]
-    if field.type == "image" && !screenCapture then continue end
     local label = vgui.Create("DLabel", dPanel)
     label:Dock(TOP)
     label:DockMargin(5, 5, 5, 5)
@@ -89,7 +112,7 @@ function gmInte.openReportBug()
       local dropdown = vgui.Create("DComboBox", dPanel)
       dropdown:Dock(TOP)
       dropdown:DockMargin(5, 5, 5, 5)
-      dropdown:SetValue(language.GetPhrase("gmod_integration.report_bug.importance_level.dsc", "How important is this bug?"))
+      dropdown:SetValue(gmInte.getTranslation("report_bug.importance_level.dsc", "How important is this bug?"))
       for key, value in pairs(field.options) do
         dropdown:AddChoice(value, key)
       end
@@ -119,7 +142,7 @@ function gmInte.openReportBug()
     if !elements[4]:GetText() || elements[4]:GetText() == "" then readyForSend = false end
     if !elements[5]:GetText() || elements[5]:GetText() == "" then readyForSend = false end
     if !readyForSend then
-      notification.AddLegacy(language.GetPhrase("gmod_integration.report_bug.error.missing_fields", "All fields are required"), NOTIFY_ERROR, 5)
+      notification.AddLegacy(gmInte.getTranslation("report_bug.error.missing_fields", "All fields are required"), NOTIFY_ERROR, 5)
       return
     end
 
@@ -144,9 +167,9 @@ function gmInte.openReportBug()
       ["expected"] = elements[4]:GetText(),
       ["actual"] = elements[5]:GetText(),
     }, function()
-      notification.AddLegacy(language.GetPhrase("gmod_integration.report_bug.success", "Bug report sent successfully"), NOTIFY_GENERIC, 5)
+      notification.AddLegacy(gmInte.getTranslation("report_bug.success", "Bug report sent successfully"), NOTIFY_GENERIC, 5)
       frame:Close()
-    end, function() notification.AddLegacy(language.GetPhrase("gmod_integration.report_bug.error.failed", "Failed to send bug report retry later"), NOTIFY_ERROR, 5) end)
+    end, function() notification.AddLegacy(gmInte.getTranslation("report_bug.error.failed", "Failed to send bug report retry later"), NOTIFY_ERROR, 5) end)
   end
 end
 
