@@ -61,11 +61,12 @@ end)
 
 local screenCapture = nil
 local screenFileID = nil
+local captureData = nil
 hook.Add("PostRender", "gmInte:BugReport:Screenshot", function()
   if !ScreenshotRequested then return end
   if contextMenuOpen then return end
   ScreenshotRequested = false
-  local captureData = {
+  captureData = {
     format = "jpeg",
     x = 0,
     y = 0,
