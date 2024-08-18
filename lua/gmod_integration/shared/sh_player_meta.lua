@@ -38,8 +38,11 @@ local function getCustomCompatability(ply)
         values.xp = ply:GetXP()
     end
 
-    // Pointshop
-    if Pointshop2 then values.points = ply:PS2_GetPoints() end
+    // Pointshop 2
+    if Pointshop2 && ply.PS2_Wallet then
+        values.ps2Points = ply.PS2_Wallet.points
+        values.ps2PremiumPoints = ply.PS2_Wallet.premiumPoints
+    end
     return values
 end
 
