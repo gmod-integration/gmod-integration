@@ -107,6 +107,7 @@ local function flushLogs()
     end
 end
 
+hook.Add("ShutDown", "gmInte:Server:ShutDown:FlushLogs", flushLogs)
 timer.Create("gmInte:http:flushLogs", 3, 0, flushLogs)
 function gmInte.http.postLog(endpoint, data)
     table.insert(nextLogPacket, {
