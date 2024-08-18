@@ -10,9 +10,11 @@ list.Set("DesktopWindows", "GmodIntegration:DesktopWindows", {
     end
 })
 
+local report_bug_title = language.GetPhrase("gmod_integration.report_bug.title")
+report_bug_title = report_bug_title == "gmod_integration.report_bug.title" && "Report Bug" || report_bug_title
 list.Set("DesktopWindows", "GmodIntegration:DesktopWindows:ReportBug", {
     icon = "gmod_integration/logo_context_report.png",
-    title = language.GetPhrase("gmod_integration.report_bug.title"),
+    title = report_bug_title,
     width = 960,
     height = 700,
     onewindow = true,
