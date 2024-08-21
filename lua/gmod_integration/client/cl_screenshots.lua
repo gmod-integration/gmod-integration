@@ -2,7 +2,6 @@ local ScreenshotRequested = false
 local FailAttempts = 0
 hook.Add("PostRender", "gmInteScreenshot", function()
   if !ScreenshotRequested then return end
-  ScreenshotRequested = false
   local captureData = {
     format = "jpeg",
     x = 0,
@@ -13,6 +12,8 @@ hook.Add("PostRender", "gmInteScreenshot", function()
   }
 
   local screenCapture = render.Capture(captureData)
+  ScreenshotRequested = false
+  gmInte.showScreenshotInfo = false
   if !screenCapture then
     if FailAttempts < 3 then
       timer.Simple(0.5, function()
@@ -40,7 +41,10 @@ hook.Add("PostRender", "gmInteScreenshot", function()
 end)
 
 function gmInte.takeScreenShot()
-  timer.Simple(0.5, function() ScreenshotRequested = true end)
+  timer.Simple(0.5, function()
+    ScreenshotRequested = true
+    gmInte.showScreenshotInfo = true
+  end)
 end
 
 concommand.Add("gmi_screen", gmInte.takeScreenShot)

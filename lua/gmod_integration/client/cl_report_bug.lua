@@ -80,7 +80,6 @@ local captureData = nil
 hook.Add("PostRender", "gmInte:BugReport:Screenshot", function()
   if !ScreenshotRequested then return end
   if contextMenuOpen then return end
-  ScreenshotRequested = false
   captureData = {
     format = "jpeg",
     x = 0,
@@ -91,6 +90,8 @@ hook.Add("PostRender", "gmInte:BugReport:Screenshot", function()
   }
 
   screenCapture = render.Capture(captureData)
+  ScreenshotRequested = false
+  gmInte.showScreenshotInfo = false
   if !file.Exists("gmod_integration/report_bug", "DATA") then file.CreateDir("gmod_integration/report_bug") end
   if screenCapture then file.Write("gmod_integration/report_bug/" .. screenFileID .. ".jpeg", screenCapture) end
 end)
@@ -213,6 +214,7 @@ function gmInte.openReportBug()
   if ScreenshotRequested then return end
   local timerName = "gmInte:BugReport:Screenshot:Open"
   ScreenshotRequested = true
+  gmInte.showScreenshotInfo = true
   screenCapture = nil
   screenFileID = gmInte.config.id .. "-" .. util.CRC(LocalPlayer():SteamID64() .. "-" .. tostring(os.time())) .. "-" .. tostring(os.time())
   timer.Create(timerName, 0.2, 0, function()
