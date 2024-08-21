@@ -13,11 +13,26 @@ local Fields = {
     ["title"] = gmInte.getTranslation("report_bug.importance_level", "Importance Level"),
     ["type"] = "dropdown",
     ["options"] = {
-      ["critical"] = gmInte.getTranslation("report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."),
-      ["high"] = gmInte.getTranslation("report_bug.importance_level.high", "High - Critical functionality is unusable."),
-      ["medium"] = gmInte.getTranslation("report_bug.importance_level.medium", "Medium - Important functionality is unusable."),
-      ["low"] = gmInte.getTranslation("report_bug.importance_level.low", "Low - Cosmetic issue."),
-      ["trivial"] = gmInte.getTranslation("report_bug.importance_level.trivial", "Trivial - Very minor issue."),
+      {
+        ["level"] = "critical",
+        ["text"] = gmInte.getTranslation("report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."),
+      },
+      {
+        ["level"] = "high",
+        ["text"] = gmInte.getTranslation("report_bug.importance_level.high", "High - Critical functionality is unusable."),
+      },
+      {
+        ["level"] = "medium",
+        ["text"] = gmInte.getTranslation("report_bug.importance_level.medium", "Medium - Important functionality is unusable."),
+      },
+      {
+        ["level"] = "low",
+        ["text"] = gmInte.getTranslation("report_bug.importance_level.low", "Low - Cosmetic issue."),
+      },
+      {
+        ["level"] = "trivial",
+        ["text"] = gmInte.getTranslation("report_bug.importance_level.trivial", "Trivial - Very minor issue."),
+      }
     },
   },
   {
@@ -132,13 +147,13 @@ local function openReportBug()
     elseif field.type == "dropdown" then
       local dropdown = vgui.Create("DComboBox", dPanel)
       dropdown:Dock(TOP)
+      dropdown:SetSortItems(false)
       dropdown:DockMargin(5, 5, 5, 5)
       dropdown:SetValue(gmInte.getTranslation("report_bug.importance_level.dsc", "How important is this bug?"))
-      for key, value in pairs(field.options) do
-        dropdown:AddChoice(value, key)
+      for key, value in ipairs(field.options) do
+        dropdown:AddChoice(value.text, value.level)
       end
 
-      dropdown:SetSortItems(false)
       gmInte.applyPaint(dropdown)
       table.insert(elements, dropdown)
     end
