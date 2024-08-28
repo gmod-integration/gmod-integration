@@ -38,6 +38,8 @@ function gmInte.wsPlayerUpdateGroup(data)
     if SAM then SAM:PlayerSetRank(data.steamID64, data.group) end
     // xAdmin
     if xAdmin then xAdmin.SetRank(data.steamID64, data.group) end
+    // sAdmin
+    if sAdmin then RunConsoleCommand("sa", "setrankid", data.steamID, data.group) end
     // maestro
     if maestro then maestro.userrank(data.steamID64, data.group) end
     // D3A
