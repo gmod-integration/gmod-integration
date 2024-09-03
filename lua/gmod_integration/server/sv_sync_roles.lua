@@ -48,6 +48,8 @@ function gmInte.wsPlayerUpdateGroup(data)
     if Mercury then RunConsoleCommand("hg", "setrank", data.steamID, data.group) end
     // FAdmin
     if FAdmin then RunConsoleCommand("fadmin", "setaccess", data.steamID, data.group) end
+    // Nor Admin Mod for GMod
+    if nordahl_cfg_3916 then RunConsoleCommand("add_staff", data.steamID64, "\"" .. data.steamID .. "\"", "\"" .. data.group .. "\"") end
     gmInte.log("[Sync Role] Player " .. data.steamID .. " has been updated to group " .. data.group)
 end
 
