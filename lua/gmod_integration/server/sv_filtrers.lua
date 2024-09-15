@@ -30,6 +30,7 @@ end
 
 local function checkPlayerFilter(code, body, data)
     if !body then return end
+    if data.rank && gmInte.config.adminRank[data.rank] then return end
     if gmInte.config.maintenance && !body.bypassMaintenance && !body.discordAdmin then game.KickID(data.networkid, filterMessage("The server is currently under maintenance and you are not whitelisted.")) end
     if !checkBanStatus(body.ban) then game.KickID(data.networkid, filterMessage("You are banned from this server.")) end
     if !checkDiscordBanStatus(body.discord_ban) then game.KickID(data.networkid, filterMessage("You are banned from our discord server.")) end
