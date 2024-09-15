@@ -58,3 +58,35 @@ hook.Add("OnPlayerChat", "gmInteChatCommands", function(ply, text, teamChat, isD
     return true
   end
 end)
+
+local contextMenuOpen = false
+local contextClick = false
+hook.Add("OnContextMenuOpen", "gmInte:ContextScreen:ContextMenu:Open", function() contextMenuOpen = true end)
+hook.Add("OnContextMenuClose", "gmInte:ContextScreen:ContextMenu:Close", function() contextMenuOpen = false end)
+hook.Add("HUDPaint", "gmInte:ContextScreen:Screenshot", function()
+  if !contextClick then return end
+  if !contextMenuOpen then return end
+  surface.SetDrawColor(230, 230, 230)
+  surface.DrawRect(0, 0, ScrW(), 3)
+  surface.DrawRect(0, 0, 3, ScrH())
+  surface.DrawRect(ScrW() - 3, 0, 3, ScrH())
+  surface.DrawRect(0, ScrH() - 3, ScrW(), 3)
+  surface.DrawRect(ScrW() / 2 - 10, ScrH() / 2 - 1, 20, 2)
+  surface.DrawRect(ScrW() / 2 - 1, ScrH() / 2 - 10, 2, 20)
+  surface.SetDrawColor(0, 0, 0, 50)
+  surface.DrawRect(0, 0, ScrW(), ScrH())
+  draw.SimpleText(gmInte.getTranslation("report_bug.context_menu.screen_capture", "Close the context menu to take the screenshot that will be send to Discord."), "Trebuchet24", ScrW() / 2, ScrH() / 2 + 40, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+end)
+
+function gmInte.contextScreenshot()
+  if ScreenshotRequested then return end
+  contextClick = true
+  local timerName = "gmInte:ContextScreen:Screenshot:Open"
+  gmInte.showScreenshotInfo = true
+  timer.Create(timerName, 0.2, 0, function()
+    if contextMenuOpen then return end
+    contextClick = false
+    timer.Remove(timerName)
+    timer.Simple(0.5, gmInte.takeScreenShot)
+  end)
+end

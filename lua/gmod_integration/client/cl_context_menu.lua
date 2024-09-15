@@ -23,3 +23,15 @@ list.Set("DesktopWindows", "GmodIntegration:DesktopWindows:ReportBug", {
         gmInte.openReportBug()
     end
 })
+
+list.Set("DesktopWindows", "GmodIntegration:DesktopWindows:SendScreen", {
+    icon = "gmod_integration/logo_context_screen.png",
+    title = "Dsc Screen",
+    width = 960,
+    height = 700,
+    onewindow = true,
+    init = function(icon, window)
+        window:Close()
+        gmInte.contextScreenshot()
+    end
+})
