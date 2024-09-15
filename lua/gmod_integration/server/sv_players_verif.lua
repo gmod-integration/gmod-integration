@@ -6,7 +6,7 @@ function gmInte.verifyPlayer(ply)
         if ply:gmIntIsVerified() then
             gmInte.SendNet("chatColorMessage", {
                 [1] = {
-                    ["text"] = "You have been verified",
+                    ["text"] = gmInte.getTranslation("verification.success", "You have been verified"),
                     ["color"] = Color(255, 255, 255)
                 }
             }, ply)
@@ -15,7 +15,7 @@ function gmInte.verifyPlayer(ply)
         else
             gmInte.SendNet("chatColorMessage", {
                 [1] = {
-                    ["text"] = "Failed to verify you",
+                    ["text"] = gmInte.getTranslation("verification.fail", "Failed to verify you"),
                     ["color"] = Color(255, 0, 0)
                 }
             }, ply)
@@ -27,7 +27,7 @@ function gmInte.verifyPlayer(ply)
         ply:Freeze(true)
         gmInte.SendNet("chatColorMessage", {
             [1] = {
-                ["text"] = "This server requires you to link your Discord account to play",
+                ["text"] = gmInte.getTranslation("verification.link_require", "This server requires you to link your Discord account to play"),
                 ["color"] = Color(255, 0, 0)
             }
         }, ply)

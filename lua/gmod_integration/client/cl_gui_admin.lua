@@ -4,128 +4,6 @@ local function saveConfig(setting, value)
     })
 end
 
-local configCat = {"Authentication", "Main", "Trust & Safety", "Advanced",}
-local possibleConfig = {
-    {
-        ["id"] = "id",
-        ["label"] = "Server ID",
-        ["description"] = "Server ID found on the webpanel.",
-        ["type"] = "textEntry",
-        ["value"] = function(setting, value) return value end,
-        ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-        ["onEditDelay"] = 0.5,
-        ["category"] = "Authentication"
-    },
-    {
-        ["id"] = "token",
-        ["label"] = "Server Token",
-        ["description"] = "Server Token found on the webpanel.",
-        ["type"] = "textEntry",
-        ["secret"] = true,
-        ["value"] = function(setting, value) return value end,
-        ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-        ["onEditDelay"] = 0.5,
-        ["category"] = "Authentication"
-    },
-    {
-        ["id"] = "maintenance",
-        ["label"] = "Maintenance",
-        ["description"] = "Activate or deactivate maintenance mode.",
-        ["type"] = "checkbox",
-        ["value"] = function(setting, value) return value end,
-        ["onEdit"] = function(setting, value) saveConfig(setting, value == "Enabled" && true || false) end,
-        ["category"] = "Main"
-    },
-    {
-        ["id"] = "filterOnBan",
-        ["label"] = "Block Discord Ban Player",
-        ["description"] = "Block players banned on the discord server.",
-        ["type"] = "checkbox",
-        ["value"] = function(setting, value) return value end,
-        ["onEdit"] = function(setting, value) saveConfig(setting, value == "Enabled" && true || false) end,
-        ["category"] = "Trust & Safety"
-    },
-    {
-        ["id"] = "forcePlayerLink",
-        ["label"] = "Force Player Verif",
-        ["description"] = "Sync chat between the server and the discord server.",
-        ["type"] = "checkbox",
-        ["value"] = function(setting, value) return value end,
-        ["onEdit"] = function(setting, value) saveConfig(setting, value == "Enabled" && true || false) end,
-        ["category"] = "Main"
-    },
-    {
-        ["id"] = "supportLink",
-        ["label"] = "Support Link",
-        ["description"] = "Server ID found on the webpanel.",
-        ["type"] = "textEntry",
-        ["value"] = function(setting, value) return value end,
-        ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-        ["onEditDelay"] = 0.5,
-        ["category"] = "Trust & Safety"
-    },
-    {
-        ["id"] = "debug",
-        ["label"] = "Debug",
-        ["description"] = "Activate or deactivate debug mode.",
-        ["type"] = "checkbox",
-        ["value"] = function(setting, value) return value end,
-        ["position"] = 1,
-        ["onEdit"] = function(setting, value) saveConfig(setting, value == "Enabled" && true || false) end,
-        ["category"] = "Advanced"
-    },
-    {
-        ["id"] = "websocketFQDN",
-        ["label"] = "Websocket FQDN",
-        ["description"] = "Websocket FQDN that will be used for the Websocket connection.",
-        ["type"] = "textEntry",
-        ["value"] = function(setting, value) return value end,
-        ["resetIfEmpty"] = true,
-        ["defaultValue"] = "ws.gmod-integration.com",
-        ["onEdit"] = function(setting, value)
-            if !value || value == "" then return end
-            saveConfig(setting, value)
-        end,
-        ["onEditDelay"] = 0.5,
-        ["category"] = "Advanced"
-    },
-    {
-        ["id"] = "apiFQDN",
-        ["label"] = "API FQDN",
-        ["description"] = "API FQDN that will be used for the API connection.",
-        ["type"] = "textEntry",
-        ["resetIfEmpty"] = true,
-        ["defaultValue"] = "api.gmod-integration.com",
-        ["value"] = function(setting, value) return value end,
-        ["onEdit"] = function(setting, value)
-            if !value || value == "" then return end
-            saveConfig(setting, value)
-        end,
-        ["onEditDelay"] = 0.5,
-        ["category"] = "Advanced"
-    },
-}
-
-local buttonsInfo = {
-    {
-        ["label"] = "Open Webpanel",
-        ["func"] = function() gui.OpenURL("https://gmod-integration.com/dashboard/guilds") end,
-    },
-    {
-        ["label"] = "Test Connection",
-        ["func"] = function() gmInte.SendNet("testConnection") end,
-    },
-    {
-        ["label"] = "Buy Premium",
-        ["func"] = function() gui.OpenURL("https://gmod-integration.com/premium") end,
-    },
-    {
-        ["label"] = "Install Websocket",
-        ["condition"] = function(data) return !data.websocket end,
-        ["func"] = function() gui.OpenURL("https://github.com/FredyH/GWSockets/releases") end,
-    },
-}
-
 local colorTable = {
     ["text"] = Color(255, 255, 255, 255),
     ["background"] = Color(0, 0, 0, 200),
@@ -139,7 +17,7 @@ function gmInte.needRestart()
     local frame = vgui.Create("DFrame")
     frame:SetSize(400, 120)
     frame:Center()
-    frame:SetTitle(gmInte.getFrameName("Restart Required"))
+    frame:SetTitle(gmInte.getFrameName(gmInte.getTranslation("admin.restart_required", "Restart Required")))
     frame:SetDraggable(true)
     frame:ShowCloseButton(true)
     frame:MakePopup()
@@ -151,7 +29,7 @@ function gmInte.needRestart()
     messagePanel:SetBackgroundColor(Color(0, 0, 0, 0))
     local messageLabel = vgui.Create("DLabel", messagePanel)
     messageLabel:Dock(FILL)
-    messageLabel:SetText("Some changes require a restart to be applied.\nRestart now ?")
+    messageLabel:SetText(gmInte.getTranslation("admin.restart_required_description", "Some changes require a restart to be applied.\nRestart now ?"))
     messageLabel:SetContentAlignment(5)
     messageLabel:SetWrap(true)
     local buttonGrid = vgui.Create("DGrid", frame)
@@ -161,7 +39,7 @@ function gmInte.needRestart()
     buttonGrid:SetColWide(frame:GetWide() / 2 - 5)
     buttonGrid:SetRowHeight(35)
     local button = vgui.Create("DButton")
-    button:SetText("Restart")
+    button:SetText(gmInte.getTranslation("admin.restart", "Restart"))
     button.DoClick = function()
         frame:Close()
         gmInte.SendNet("restartMap")
@@ -171,7 +49,7 @@ function gmInte.needRestart()
     gmInte.applyPaint(button)
     buttonGrid:AddItem(button)
     local button = vgui.Create("DButton")
-    button:SetText("Maybe Later")
+    button:SetText(gmInte.getTranslation("admin.maybe_later", "Maybe Later"))
     button.DoClick = function() frame:Close() end
     button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
     gmInte.applyPaint(button)
@@ -179,13 +57,154 @@ function gmInte.needRestart()
 end
 
 function gmInte.openConfigMenu(data)
+    local configCat = {gmInte.getTranslation("admin.authentication", "Authentication"), gmInte.getTranslation("admin.main", "Main"), gmInte.getTranslation("admin.trust_safety", "Trust & Safety"), gmInte.getTranslation("admin.advanced", "Advanced")}
+    local possibleConfig = {
+        {
+            ["id"] = "id",
+            ["label"] = gmInte.getTranslation("admin.server_id", "Server ID"),
+            ["description"] = gmInte.getTranslation("admin.server_id_description", "Server ID found on the webpanel."),
+            ["type"] = "textEntry",
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+            ["onEditDelay"] = 0.5,
+            ["category"] = gmInte.getTranslation("admin.authentication", "Authentication")
+        },
+        {
+            ["id"] = "token",
+            ["label"] = gmInte.getTranslation("admin.server_token", "Server Token"),
+            ["description"] = gmInte.getTranslation("admin.server_token_description", "Server Token found on the webpanel."),
+            ["type"] = "textEntry",
+            ["secret"] = true,
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+            ["onEditDelay"] = 0.5,
+            ["category"] = gmInte.getTranslation("admin.authentication", "Authentication")
+        },
+        {
+            ["id"] = "maintenance",
+            ["label"] = gmInte.getTranslation("admin.maintenance", "Maintenance"),
+            ["description"] = gmInte.getTranslation("admin.maintenance_description", "Activate or deactivate maintenance mode."),
+            ["type"] = "checkbox",
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, gmInte.getTranslation("admin.enabled", "Enabled") && true || false) end,
+            ["category"] = gmInte.getTranslation("admin.main", "Main")
+        },
+        {
+            ["id"] = "language",
+            ["label"] = gmInte.getTranslation("admin.language", "Language"),
+            ["description"] = gmInte.getTranslation("admin.language_description", "Language used in the interface."),
+            ["type"] = "combo",
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+            ["reloadOnEdit"] = true,
+            ["category"] = gmInte.getTranslation("admin.main", "Main"),
+            ["values"] = {
+                ["en"] = "English",
+                ["fr"] = "Français",
+                ["de"] = "Deutsch",
+                ["es"] = "Español",
+                ["it"] = "Italiano",
+                ["ru"] = "Русский",
+                ["tr"] = "Türkçe",
+            }
+        },
+        {
+            ["id"] = "filterOnBan",
+            ["label"] = gmInte.getTranslation("admin.filter_on_ban", "Block Discord Ban Player"),
+            ["description"] = gmInte.getTranslation("admin.filter_on_ban_description", "Block players banned on the discord server."),
+            ["type"] = "checkbox",
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, gmInte.getTranslation("admin.enabled", "Enabled") && true || false) end,
+            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        },
+        {
+            ["id"] = "forcePlayerLink",
+            ["label"] = gmInte.getTranslation("admin.force_player_link", "Force Player Verif"),
+            ["description"] = gmInte.getTranslation("admin.force_player_link_description", "Force player verification."),
+            ["type"] = "checkbox",
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, gmInte.getTranslation("admin.enabled", "Enabled") && true || false) end,
+            ["category"] = gmInte.getTranslation("admin.main", "Main")
+        },
+        {
+            ["id"] = "supportLink",
+            ["label"] = gmInte.getTranslation("admin.support_link", "Support Link"),
+            ["description"] = gmInte.getTranslation("admin.support_link_description", "Support Link found on the webpanel."),
+            ["type"] = "textEntry",
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+            ["onEditDelay"] = 0.5,
+            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        },
+        {
+            ["id"] = "debug",
+            ["label"] = gmInte.getTranslation("admin.debug", "Debug"),
+            ["description"] = gmInte.getTranslation("admin.debug_description", "Activate or deactivate debug mode."),
+            ["type"] = "checkbox",
+            ["value"] = function(setting, value) return value end,
+            ["position"] = 1,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value == gmInte.getTranslation("admin.enabled", "Enabled") && true || false) end,
+            ["category"] = gmInte.getTranslation("admin.advanced", "Advanced")
+        },
+        {
+            ["id"] = "websocketFQDN",
+            ["label"] = gmInte.getTranslation("admin.websocket_fqdn", "Websocket FQDN"),
+            ["description"] = gmInte.getTranslation("admin.websocket_fqdn_description", "Websocket FQDN that will be used for the Websocket connection."),
+            ["type"] = "textEntry",
+            ["value"] = function(setting, value) return value end,
+            ["resetIfEmpty"] = true,
+            ["defaultValue"] = "ws.gmod-integration.com",
+            ["onEdit"] = function(setting, value)
+                if !value || value == "" then return end
+                saveConfig(setting, value)
+            end,
+            ["onEditDelay"] = 0.5,
+            ["category"] = gmInte.getTranslation("admin.advanced", "Advanced")
+        },
+        {
+            ["id"] = "apiFQDN",
+            ["label"] = gmInte.getTranslation("admin.api_fqdn", "API FQDN"),
+            ["description"] = gmInte.getTranslation("admin.api_fqdn_description", "API FQDN that will be used for the API connection."),
+            ["type"] = "textEntry",
+            ["resetIfEmpty"] = true,
+            ["defaultValue"] = "api.gmod-integration.com",
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value)
+                if !value || value == "" then return end
+                saveConfig(setting, value)
+            end,
+            ["onEditDelay"] = 0.5,
+            ["category"] = gmInte.getTranslation("admin.advanced", "Advanced")
+        },
+    }
+
+    local buttonsInfo = {
+        {
+            ["label"] = gmInte.getTranslation("admin.link.open_webpanel", "Open Webpanel"),
+            ["func"] = function() gui.OpenURL("https://gmod-integration.com/dashboard/guilds") end,
+        },
+        {
+            ["label"] = gmInte.getTranslation("admin.link.test_connection", "Test Connection"),
+            ["func"] = function() gmInte.SendNet("testConnection") end,
+        },
+        {
+            ["label"] = gmInte.getTranslation("admin.link.buy_premium", "Buy Premium"),
+            ["func"] = function() gui.OpenURL("https://gmod-integration.com/premium") end,
+        },
+        {
+            ["label"] = gmInte.getTranslation("admin.link.install_websocket", "Install Websocket"),
+            ["condition"] = function(data) return !data.websocket end,
+            ["func"] = function() gui.OpenURL("https://github.com/FredyH/GWSockets/releases") end,
+        },
+    }
+
     local needRestart = false
     if gmInte.openAdminPanel then return end
     gmInte.openAdminPanel = true
     local frame = vgui.Create("DFrame")
     frame:SetSize(400, (600 / 1080) * ScrH())
     frame:Center()
-    frame:SetTitle(gmInte.getFrameName("Server Config"))
+    frame:SetTitle(gmInte.getFrameName(gmInte.getTranslation("admin.server_config", "Server Config")))
     frame:SetDraggable(true)
     frame:ShowCloseButton(true)
     frame:MakePopup()
@@ -199,14 +218,14 @@ function gmInte.openConfigMenu(data)
     messagePanel:SetBackgroundColor(Color(0, 0, 0, 0))
     local messageLabel = vgui.Create("DLabel", messagePanel)
     messageLabel:Dock(FILL)
-    messageLabel:SetText("Here you can configure your server settings.\nServer ID and Token are available on the webpanel in the server settings.\nThe documentation is available at https://docs.gmod-integration.com/\nIf you need help, please contact us on our discord server.")
+    messageLabel:SetText(gmInte.getTranslation("admin.server_id_description", "Here you can configure your server settings.\nServer ID and Token are available on the webpanel in the server settings.\nThe documentation is available at {1}\nIf you need help, please contact us on our discord server.", "https://docs.gmod-integration.com"))
     messageLabel:SetWrap(true)
     for k, catName in ipairs(configCat) do
         local collapsibleCategory = vgui.Create("DCollapsibleCategory", scrollPanel)
         collapsibleCategory:Dock(TOP)
         collapsibleCategory:DockMargin(10, 0, 10, 10)
         collapsibleCategory:SetLabel(catName)
-        collapsibleCategory:SetExpanded(catName != "Advanced")
+        collapsibleCategory:SetExpanded(catName != gmInte.getTranslation("admin.advanced", "Advanced"))
         gmInte.applyPaint(collapsibleCategory)
         local configList = vgui.Create("DPanelList", collapsibleCategory)
         configList:Dock(FILL)
@@ -236,13 +255,13 @@ function gmInte.openConfigMenu(data)
                 input = vgui.Create("DTextEntry", panel)
                 local value = actualConfig.value(actualConfig.id, data[actualConfig.id] || "")
                 if actualConfig.secret then
-                    input:SetText("*** Click to show ***")
+                    input:SetText(gmInte.getTranslation("admin.click_to_show", "*** Click to show ***"))
                 else
                     input:SetText(value)
                 end
 
                 input.OnGetFocus = function(self) if actualConfig.secret then self:SetText(value) end end
-                input.OnLoseFocus = function(self) if actualConfig.secret then self:SetText("*** Click to show ***") end end
+                input.OnLoseFocus = function(self) if actualConfig.secret then self:SetText(gmInte.getTranslation("admin.click_to_show", "*** Click to show ***")) end end
                 local isLastID = 0
                 input.OnChange = function(self)
                     if actualConfig.resetIfEmpty && self:GetValue() == "" && actualConfig.defaultValue then
@@ -259,18 +278,36 @@ function gmInte.openConfigMenu(data)
                 if actualConfig.condition && !actualConfig.condition(data) then input:SetEnabled(false) end
                 input:AddChoice("Enabled")
                 input:AddChoice("Disabled")
-                input:SetText(actualConfig.value(actualConfig.id, data[actualConfig.id]) && "Enabled" || "Disabled")
+                input:SetText(actualConfig.value(actualConfig.id, data[actualConfig.id]) && gmInte.getTranslation("admin.enabled", "Enabled") || gmInte.getTranslation("admin.disabled", "Disabled"))
                 input.OnSelect = function(self, index, value)
                     if actualConfig.restart then needRestart = true end
                     actualConfig.onEdit(actualConfig.id, value)
+                end
+            elseif actualConfig.type == "combo" then
+                input = vgui.Create("DComboBox", panel)
+                if actualConfig.condition && !actualConfig.condition(data) then input:SetEnabled(false) end
+                local posibilities = {}
+                for k, v in pairs(actualConfig.values) do
+                    table.insert(posibilities, k)
+                    input:AddChoice(v, k)
+                end
+
+                input:SetText(actualConfig.values[data[actualConfig.id]] || actualConfig.values[actualConfig.defaultValue])
+                input.OnSelect = function(self, index, value)
+                    if actualConfig.restart then needRestart = true end
+                    actualConfig.onEdit(actualConfig.id, posibilities[index])
+                    if actualConfig.reloadOnEdit then
+                        frame:Close()
+                        RunConsoleCommand("gmi_admin")
+                    end
                 end
             end
 
             input:Dock(FILL)
             input:SetSize(150, 25)
             if actualConfig.description then
-                if actualConfig.websocket && !data.websocket then actualConfig.description = actualConfig.description .. "\n\nThis feature require a websocket connection to work properly." end
-                if actualConfig.disable then actualConfig.description = actualConfig.description .. "\n\nThis feature will be available soon." end
+                if actualConfig.websocket && !data.websocket then actualConfig.description = actualConfig.description .. gmInte.getTranslation("admin.websocket_required", "\n\nThis feature require a websocket connection to work properly.") end
+                if actualConfig.disable then actualConfig.description = actualConfig.description .. gmInte.getTranslation("admin.feature_soon", "\n\nThis feature will be available soon.") end
                 input:SetTooltip(actualConfig.description)
             end
 

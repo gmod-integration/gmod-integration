@@ -1,15 +1,3 @@
-function gmInte.getTranslation(key, default, ...)
-    key = "gmod_integration." .. key
-    local translation = language.GetPhrase(key)
-    if translation == key then translation = default end
-    if ... then
-        for i = 1, select("#", ...) do
-            translation = string.Replace(translation, "{" .. i .. "}", select(i, ...))
-        end
-    end
-    return translation
-end
-
 function gmInte.chatAddText(...)
     local args = {...}
     table.insert(args, 1, Color(255, 130, 92))

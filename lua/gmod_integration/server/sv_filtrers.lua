@@ -1,17 +1,14 @@
 local function filterMessage(reason)
-    // format: multiline
-    local Message = {
-        "\n----------------------------------------\n",
-        "You cannot join this server",
-        "",
-        "Reason: " .. (reason && reason || "none"),
-        "Help URL: " .. (gmInte.config.supportLink && gmInte.config.supportLink || "none"),
-        "",
-        "Have a nice day",
-        "\n----------------------------------------\n",
-        "Service provided by Gmod Integration",
-    }
-
+    local Message = {}
+    Message[1] = "----------------------------------------"
+    Message[2] = gmInte.getTranslation("filter.ds.1", "You cannot join this server")
+    Message[3] = ""
+    Message[4] = gmInte.getTranslation("filter.ds.2", "Reason: {1}", reason && reason || gmInte.getTranslation("filter.none", "none"))
+    Message[5] = gmInte.getTranslation("filter.ds.3", "Help URL: {1}", gmInte.config.supportLink && gmInte.config.supportLink || gmInte.getTranslation("filter.none", "none"))
+    Message[6] = ""
+    Message[7] = gmInte.getTranslation("filter.ds.4", "Have a nice day")
+    Message[8] = "----------------------------------------"
+    Message[9] = gmInte.getTranslation("filter.ds.5", "Service provided by Gmod Integration")
     for k, v in ipairs(Message) do
         Message[k] = "\n" .. v
     end
@@ -31,9 +28,9 @@ end
 local function checkPlayerFilter(code, body, data)
     if !body then return end
     if data.rank && gmInte.config.adminRank[data.rank] then return end
-    if gmInte.config.maintenance && !body.bypassMaintenance && !body.discordAdmin then game.KickID(data.networkid, filterMessage("The server is currently under maintenance and you are not whitelisted.")) end
-    if !checkBanStatus(body.ban) then game.KickID(data.networkid, filterMessage("You are banned from this server.")) end
-    if !checkDiscordBanStatus(body.discord_ban) then game.KickID(data.networkid, filterMessage("You are banned from our discord server.")) end
+    if gmInte.config.maintenance && !body.bypassMaintenance && !body.discordAdmin then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.maintenance", "The server is currently under maintenance and you are not whitelisted."))) end
+    if !checkBanStatus(body.ban) then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.ban", "You are banned from this server."))) end
+    if !checkDiscordBanStatus(body.discord_ban) then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.discord_ban", "You are banned from our discord server."))) end
 end
 
 local cachePlayerFilter = {}
@@ -54,7 +51,7 @@ local function playerFilter(data)
         }
 
         checkPlayerFilter(code, body, data)
-    end, function(code, body) if gmInte.config.maintenance then game.KickID(data.networkid, filterMessage("The server is currently under maintenance and we cannot verify your account.\nVerification URL: https://verif.gmod-integration.com")) end end)
+    end, function(code, body) if gmInte.config.maintenance then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.maintenance", "The server is currently under maintenance and you are not whitelisted."))) end end)
 end
 
 gameevent.Listen("player_connect")

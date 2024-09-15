@@ -23,6 +23,7 @@ local netReceive = {
     [5] = function(data)
         gmInte.config = table.Merge(gmInte.config, data.config)
         gmInte.version = data.other.version
+        gmInte.loadTranslations()
         if !data.other.aprovedCredentials then RunConsoleCommand("gmod_integration_admin") end
     end,
     [6] = function(data) gmInte.chatAddTextFromTable(data) end,

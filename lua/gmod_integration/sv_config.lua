@@ -32,6 +32,7 @@ gmInte.config.debug = false // If true, the addon will show debug informations i
 gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
 gmInte.config.supportLink = "" // The link of your support (shown when a player do not have the requiments to join the server)
 gmInte.config.maintenance = false // If true, the addon will only allow the players with the "gmod-integration.maintenance" permission to join the server
-gmInte.config.adminRank = {
+gmInte.config.language = "en" // The language of the addon (en, fr, de, es, it, tr, ru)
+gmInte.config.adminRank = { // How can edit the configuration of the addon / bypass the maintenance mode
     ["superadmin"] = true,
 }
