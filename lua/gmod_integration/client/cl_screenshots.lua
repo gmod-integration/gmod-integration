@@ -75,7 +75,7 @@ hook.Add("HUDPaint", "gmInte:ContextScreen:Screenshot", function()
   surface.DrawRect(ScrW() / 2 - 1, ScrH() / 2 - 10, 2, 20)
   surface.SetDrawColor(0, 0, 0, 50)
   surface.DrawRect(0, 0, ScrW(), ScrH())
-  draw.SimpleText(gmInte.getTranslation("report_bug.context_menu.screen_capture", "Close the context menu to take the screenshot that will be send to Discord."), "Trebuchet24", ScrW() / 2, ScrH() / 2 + 40, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+  draw.SimpleText(gmInte.getTranslation("context_menu.screen_capture", "Close the context menu to take the screenshot that will be send to Discord."), "Trebuchet24", ScrW() / 2, ScrH() / 2 + 40, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 end)
 
 function gmInte.contextScreenshot()
