@@ -1,6 +1,6 @@
 function gmInte.verifyPlayer(ply)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
-    gmInte.http.get("/user?steamID64=" .. ply:SteamID64(), function(code, data)
+    gmInte.http.get("/users?steamID64=" .. ply:SteamID64(), function(code, data)
         if data && data.discordID then ply.gmIntVerified = true end
         if !gmInte.config.forcePlayerLink || !ply.gmIntIsReady then return end
         if ply:gmIntIsVerified() then
@@ -15,7 +15,7 @@ function gmInte.verifyPlayer(ply)
         else
             gmInte.SendNet("chatColorMessage", {
                 [1] = {
-                    ["text"] = "You are not verified",
+                    ["text"] = "Failed to verify you",
                     ["color"] = Color(255, 0, 0)
                 }
             }, ply)
@@ -23,11 +23,22 @@ function gmInte.verifyPlayer(ply)
             ply:Freeze(true)
             gmInte.SendNet("openVerifPopup", nil, ply)
         end
+    end, function(code, data)
+        ply:Freeze(true)
+        gmInte.SendNet("chatColorMessage", {
+            [1] = {
+                ["text"] = "This server requires you to link your Discord account to play",
+                ["color"] = Color(255, 0, 0)
+            }
+        }, ply)
+
+        gmInte.SendNet("openVerifPopup", nil, ply)
     end)
 end
 
 hook.Add("gmInte:PlayerReady", "gmInte:Verif:PlayerReady", function(ply)
     ply.gmIntIsReady = true
     if !gmInte.config.forcePlayerLink then return end
+    ply:Freeze(true)
     gmInte.verifyPlayer(ply)
 end)
