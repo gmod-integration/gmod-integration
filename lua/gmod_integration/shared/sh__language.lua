@@ -2,7 +2,7 @@ local default = include("gmod_integration/shared/languages/sh_en.lua")
 local translationTable = default
 function gmInte.getTranslation(key, defaultTranslation, ...)
   local translation = translationTable[key]
-  if !translation then return defaultTranslation end
+  if !translation then translation = defaultTranslation end
   if ... then
     for i = 1, select("#", ...) do
       translation = string.Replace(translation, "{" .. i .. "}", select(i, ...))

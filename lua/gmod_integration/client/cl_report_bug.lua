@@ -118,7 +118,7 @@ local function openReportBug()
   messagePanel:SetBackgroundColor(Color(0, 0, 0, 0))
   local messageLabel = vgui.Create("DLabel", messagePanel)
   messageLabel:Dock(FILL)
-  messageLabel:SetText(gmInte.getTranslation("gmod_integration.report_bug.description.full", "Hey, your about to report a bug to the owners of this server.\nPlease provide as much information as possible to help us fix the issue.\nThank you for helping us improve the server.\n\nIf you have a issue with Gmod Integration, please use our discord server."))
+  messageLabel:SetText(gmInte.getTranslation("report_bug.description.full", "Hey, your about to report a bug to the owners of this server.\nPlease provide as much information as possible to help us fix the issue.\nThank you for helping us improve the server.\n\nIf you have a issue with Gmod Integration, please use our discord server."))
   messageLabel:SetWrap(true)
   local elements = {}
   for _ = 1, #Fields do
