@@ -1,14 +1,14 @@
 local function filterMessage(reason)
     local Message = {}
-    Message[1] = "----------------------------------------"
-    Message[2] = gmInte.getTranslation("filter.ds.1", "You cannot join this server")
-    Message[3] = ""
-    Message[4] = gmInte.getTranslation("filter.ds.2", "Reason: {1}", reason && reason || gmInte.getTranslation("filter.none", "none"))
-    Message[5] = gmInte.getTranslation("filter.ds.3", "Help URL: {1}", gmInte.config.supportLink && gmInte.config.supportLink || gmInte.getTranslation("filter.none", "none"))
-    Message[6] = ""
-    Message[7] = gmInte.getTranslation("filter.ds.4", "Have a nice day")
-    Message[8] = "----------------------------------------"
-    Message[9] = gmInte.getTranslation("filter.ds.5", "Service provided by Gmod Integration")
+    table.insert(Message, "----------------------------------------")
+    table.insert(Message, gmInte.getTranslation("filter.ds.1", "You cannot join this server"))
+    table.insert(Message, "")
+    table.insert(Message, gmInte.getTranslation("filter.ds.2", "Reason: {1}", reason && reason || gmInte.getTranslation("filter.none", "none")))
+    if gmInte.config.supportLink && gmInte.config.supportLink != "" then table.insert(Message, gmInte.getTranslation("filter.ds.3", "Help URL: {1}", gmInte.config.supportLink)) end
+    table.insert(Message, "")
+    table.insert(Message, gmInte.getTranslation("filter.ds.4", "Have a nice day"))
+    table.insert(Message, "----------------------------------------")
+    table.insert(Message, gmInte.getTranslation("filter.ds.5", "Service provided by Gmod Integration"))
     for k, v in ipairs(Message) do
         Message[k] = "\n" .. v
     end
