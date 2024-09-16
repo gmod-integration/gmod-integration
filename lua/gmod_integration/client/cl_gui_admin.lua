@@ -86,7 +86,7 @@ function gmInte.openConfigMenu(data)
             ["description"] = gmInte.getTranslation("admin.maintenance_description", "Activate or deactivate maintenance mode."),
             ["type"] = "checkbox",
             ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, gmInte.getTranslation("admin.enabled", "Enabled") && true || false) end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
             ["category"] = gmInte.getTranslation("admin.main", "Main")
         },
         {
@@ -114,7 +114,7 @@ function gmInte.openConfigMenu(data)
             ["description"] = gmInte.getTranslation("admin.filter_on_ban_description", "Block players banned on the discord server."),
             ["type"] = "checkbox",
             ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, gmInte.getTranslation("admin.enabled", "Enabled") && true || false) end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
             ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
         },
         {
@@ -123,7 +123,7 @@ function gmInte.openConfigMenu(data)
             ["description"] = gmInte.getTranslation("admin.force_player_link_description", "Force player verification."),
             ["type"] = "checkbox",
             ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, gmInte.getTranslation("admin.enabled", "Enabled") && true || false) end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
             ["category"] = gmInte.getTranslation("admin.main", "Main")
         },
         {
@@ -143,7 +143,7 @@ function gmInte.openConfigMenu(data)
             ["type"] = "checkbox",
             ["value"] = function(setting, value) return value end,
             ["position"] = 1,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value == gmInte.getTranslation("admin.enabled", "Enabled") && true || false) end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
             ["category"] = gmInte.getTranslation("admin.advanced", "Advanced")
         },
         {
@@ -281,7 +281,7 @@ function gmInte.openConfigMenu(data)
                 input:SetText(actualConfig.value(actualConfig.id, data[actualConfig.id]) && gmInte.getTranslation("admin.enabled", "Enabled") || gmInte.getTranslation("admin.disabled", "Disabled"))
                 input.OnSelect = function(self, index, value)
                     if actualConfig.restart then needRestart = true end
-                    actualConfig.onEdit(actualConfig.id, value)
+                    actualConfig.onEdit(actualConfig.id, value == gmInte.getTranslation("admin.enabled", "Enabled") && true || false)
                 end
             elseif actualConfig.type == "combo" then
                 input = vgui.Create("DComboBox", panel)
