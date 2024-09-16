@@ -20,6 +20,7 @@ local function getWebSocketURL()
     return method .. "://" .. gmInte.config.websocketFQDN
 end
 
+local nbOfTry = 0
 function gmInte.setupWebSocket()
     local socket = GWSockets.createWebSocket(getWebSocketURL())
     socket:setHeader("id", gmInte.config.id)
@@ -47,12 +48,23 @@ function gmInte.setupWebSocket()
         gmInte.logError("WebSocket Error: " .. txt, true)
     end
 
+    function reconnect()
+        gmInte.log("WebSocket is not connected, trying to reconnect", true)
+        timer.Remove("gmInte:WebSocket:CheckConnection")
+        gmInte.setupWebSocket()
+    end
+
     timer.Create("gmInte:WebSocket:CheckConnection", 4, 0, function()
         if !socket:isConnected() then
-            gmInte.log("WebSocket is not connected, trying to reconnect", true)
-            timer.Remove("gmInte:WebSocket:CheckConnection")
-            gmInte.setupWebSocket()
+            nbOfTry = nbOfTry + 1
+            if nbOfTry > 10 && nbOfTry % 40 != 0 then return end
+            reconnect()
         end
+    end)
+
+    hook.Add("GmodIntegration:Websocket:Restart", "gmInte:WebSocket:Restart", function()
+        socket:close()
+        reconnect()
     end)
 end
 
