@@ -4,8 +4,7 @@ function gmInte.saveSetting(setting, value)
         return
     end
 
-    print("Setting: " .. setting .. " Value: " .. value)
-    if setting == "language" && !file.Exists("gmod_integration/shared/languages/sh_" .. lang .. ".lua", "LUA") then
+    if setting == "language" && !file.Exists("gmod_integration/shared/languages/sh_" .. value .. ".lua", "LUA") then
         gmInte.log("Unknown Language")
         return
     end
@@ -16,10 +15,9 @@ function gmInte.saveSetting(setting, value)
     // Number
     if tonumber(value) != nil then value = tonumber(value) end
     gmInte.config[setting] = value
-    print(gmInte.config[setting])
     file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
     gmInte.log("Setting Saved")
-    if setting == "websocketFQDN" || setting == "id" || setting == "token" then gmInte.resetWebSocket() end
+    if setting == "websocketFQDN" || setting == "id" || setting == "token" then hook.Run("GmodIntegration:Websocket:Restart") end
     if setting == "language" then gmInte.loadTranslations() end
     // send to all players the new public config
     for _, ply in ipairs(player.GetAll()) do
