@@ -4,7 +4,8 @@ function gmInte.saveSetting(setting, value)
         return
     end
 
-    if setting == "language" && !file.Exists("gmod_integration/shared/languages/sh_" .. lang .. ".json", "LUA") then
+    print("Setting: " .. setting .. " Value: " .. value)
+    if setting == "language" && !file.Exists("gmod_integration/shared/languages/sh_" .. lang .. ".lua", "LUA") then
         gmInte.log("Unknown Language")
         return
     end
@@ -15,6 +16,7 @@ function gmInte.saveSetting(setting, value)
     // Number
     if tonumber(value) != nil then value = tonumber(value) end
     gmInte.config[setting] = value
+    print(gmInte.config[setting])
     file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
     gmInte.log("Setting Saved")
     if setting == "websocketFQDN" || setting == "id" || setting == "token" then gmInte.resetWebSocket() end

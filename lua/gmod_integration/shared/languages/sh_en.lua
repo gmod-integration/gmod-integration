@@ -25,7 +25,7 @@ return {
 	["admin.enabled"] = "Enabled",
 	["admin.disabled"] = "Disabled",
 	["admin.click_to_show"] = "*** Click to show ***",
-	["admin.server_id_description"] = "Here you can configure your server settings.\nServer ID and Token are available on the webpanel in the server settings.\nThe documentation is available at {1}\nIf you need help, please contact us on our discord server.",
+	["admin.server_id_description2"] = "Here you can configure your server settings.\nServer ID and Token are available on the webpanel in the server settings.\nThe documentation is available at {1}\nIf you need help, please contact us on our discord server.",
 	["admin.server_config"] = "Server Config",
 	["admin.server_token"] = "Server Token",
 	["admin.server_token_description"] = "Server Token foundforce_player_link on the webpanel.",

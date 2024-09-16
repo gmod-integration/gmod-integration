@@ -25,7 +25,7 @@ return {
   ["admin.enabled"] = "Habilitado",
   ["admin.disabled"] = "Deshabilitado",
   ["admin.click_to_show"] = "*** Haz clic para mostrar ***",
-  ["admin.server_id_description"] = "Aquí puedes configurar los ajustes de tu servidor.\nEl ID del servidor y el Token están disponibles en el panel web en los ajustes del servidor.\nLa documentación está disponible en {1}\nSi necesitas ayuda, por favor contáctanos en nuestro servidor de Discord.",
+  ["admin.server_id_description2"] = "Aquí puedes configurar los ajustes de tu servidor.\nEl ID del servidor y el Token están disponibles en el panel web en los ajustes del servidor.\nLa documentación está disponible en {1}\nSi necesitas ayuda, por favor contáctanos en nuestro servidor de Discord.",
   ["admin.server_config"] = "Configuración del Servidor",
   ["admin.server_token"] = "Token del Servidor",
   ["admin.server_token_description"] = "Token del servidor encontrado en el panel web.",
