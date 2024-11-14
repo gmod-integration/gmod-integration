@@ -1,60 +1,3 @@
-local Fields = {
-  {
-    ["title"] = gmInte.getTranslation("report_bug.screenshot", "Screenshot"),
-    ["type"] = "image",
-  },
-  {
-    ["title"] = gmInte.getTranslation("report_bug.description", "Report a bug to the developers of this game."),
-    ["type"] = "text",
-    ["dsc"] = gmInte.getTranslation("report_bug.description.dsc", "Please provide as much information as possible to help us fix the issue."),
-    ["tall"] = 80,
-  },
-  {
-    ["title"] = gmInte.getTranslation("report_bug.importance_level", "Importance Level"),
-    ["type"] = "dropdown",
-    ["options"] = {
-      {
-        ["level"] = "critical",
-        ["text"] = gmInte.getTranslation("report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."),
-      },
-      {
-        ["level"] = "high",
-        ["text"] = gmInte.getTranslation("report_bug.importance_level.high", "High - Critical functionality is unusable."),
-      },
-      {
-        ["level"] = "medium",
-        ["text"] = gmInte.getTranslation("report_bug.importance_level.medium", "Medium - Important functionality is unusable."),
-      },
-      {
-        ["level"] = "low",
-        ["text"] = gmInte.getTranslation("report_bug.importance_level.low", "Low - Cosmetic issue."),
-      },
-      {
-        ["level"] = "trivial",
-        ["text"] = gmInte.getTranslation("report_bug.importance_level.trivial", "Trivial - Very minor issue."),
-      }
-    },
-  },
-  {
-    ["title"] = gmInte.getTranslation("report_bug.steps_to_reproduce", "Steps to Reproduce"),
-    ["type"] = "text",
-    ["dsc"] = gmInte.getTranslation("report_bug.steps_to_reproduce.dsc", "Please provide a step-by-step guide on how to reproduce the bug."),
-    ["tall"] = 80,
-  },
-  {
-    ["title"] = gmInte.getTranslation("report_bug.expected_result", "Expected result"),
-    ["type"] = "text",
-    ["dsc"] = gmInte.getTranslation("report_bug.expected_result.dsc", "What did you expect to happen?"),
-    ["tall"] = 50,
-  },
-  {
-    ["title"] = gmInte.getTranslation("report_bug.actual_result", "Actual result"),
-    ["type"] = "text",
-    ["dsc"] = gmInte.getTranslation("report_bug.actual_result.dsc", "What actually happened?"),
-    ["tall"] = 50,
-  },
-}
-
 local ScreenshotRequested = false
 local contextMenuOpen = false
 hook.Add("OnContextMenuOpen", "gmInte:BugReport:ContextMenu:Open", function() contextMenuOpen = true end)
@@ -97,6 +40,63 @@ hook.Add("PostRender", "gmInte:BugReport:Screenshot", function()
 end)
 
 local function openReportBug()
+  local Fields = {
+    {
+      ["title"] = gmInte.getTranslation("report_bug.screenshot", "Screenshot"),
+      ["type"] = "image",
+    },
+    {
+      ["title"] = gmInte.getTranslation("report_bug.description", "Report a bug to the developers of this game."),
+      ["type"] = "text",
+      ["dsc"] = gmInte.getTranslation("report_bug.description.dsc", "Please provide as much information as possible to help us fix the issue."),
+      ["tall"] = 80,
+    },
+    {
+      ["title"] = gmInte.getTranslation("report_bug.importance_level", "Importance Level"),
+      ["type"] = "dropdown",
+      ["options"] = {
+        {
+          ["level"] = "critical",
+          ["text"] = gmInte.getTranslation("report_bug.importance_level.critical", "Critical - Crash or made the game unplayable."),
+        },
+        {
+          ["level"] = "high",
+          ["text"] = gmInte.getTranslation("report_bug.importance_level.high", "High - Critical functionality is unusable."),
+        },
+        {
+          ["level"] = "medium",
+          ["text"] = gmInte.getTranslation("report_bug.importance_level.medium", "Medium - Important functionality is unusable."),
+        },
+        {
+          ["level"] = "low",
+          ["text"] = gmInte.getTranslation("report_bug.importance_level.low", "Low - Cosmetic issue."),
+        },
+        {
+          ["level"] = "trivial",
+          ["text"] = gmInte.getTranslation("report_bug.importance_level.trivial", "Trivial - Very minor issue."),
+        }
+      },
+    },
+    {
+      ["title"] = gmInte.getTranslation("report_bug.steps_to_reproduce", "Steps to Reproduce"),
+      ["type"] = "text",
+      ["dsc"] = gmInte.getTranslation("report_bug.steps_to_reproduce.dsc", "Please provide a step-by-step guide on how to reproduce the bug."),
+      ["tall"] = 80,
+    },
+    {
+      ["title"] = gmInte.getTranslation("report_bug.expected_result", "Expected result"),
+      ["type"] = "text",
+      ["dsc"] = gmInte.getTranslation("report_bug.expected_result.dsc", "What did you expect to happen?"),
+      ["tall"] = 50,
+    },
+    {
+      ["title"] = gmInte.getTranslation("report_bug.actual_result", "Actual result"),
+      ["type"] = "text",
+      ["dsc"] = gmInte.getTranslation("report_bug.actual_result.dsc", "What actually happened?"),
+      ["tall"] = 50,
+    },
+  }
+
   local frame = vgui.Create("DFrame")
   frame:SetSize(500, (700 / 1080) * ScrH())
   frame:Center()
