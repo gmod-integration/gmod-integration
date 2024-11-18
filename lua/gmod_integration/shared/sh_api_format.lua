@@ -5,6 +5,7 @@ function gmInte.getPlayerFormat(ply)
         ["steamID64"] = ply:SteamID64(),
         ["userGroup"] = ply:GetUserGroup(),
         ["team"] = gmInte.getTeamFormat(ply:Team()),
+        ["branch"] = ply:gmInteGetBranch(),
         ["name"] = ply:Nick(),
         ["kills"] = ply:Frags(),
         ["deaths"] = ply:Deaths(),

@@ -122,9 +122,10 @@ function gmInte.openConfigMenu(data)
             ["label"] = gmInte.getTranslation("admin.force_player_link", "Force Player Verif"),
             ["description"] = gmInte.getTranslation("admin.force_player_link_description", "Force player verification."),
             ["type"] = "checkbox",
+            ["reloadOnEdit"] = true,
             ["value"] = function(setting, value) return value end,
             ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["category"] = gmInte.getTranslation("admin.main", "Main")
+            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
         },
         {
             ["id"] = "supportLink",
@@ -135,6 +136,42 @@ function gmInte.openConfigMenu(data)
             ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
             ["onEditDelay"] = 0.5,
             ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        },
+        {
+            ["id"] = "verifyOnJoin",
+            ["label"] = gmInte.getTranslation("admin.verify_on_join", "Verify on Join"),
+            ["description"] = gmInte.getTranslation("admin.verify_on_join_description", "Verify the player when they join the server or on player ready."),
+            ["type"] = "checkbox",
+            ["condition"] = function(data) return data.forcePlayerLink end,
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        },
+        {
+            ["id"] = "verifyOnReadyKickTime",
+            ["label"] = gmInte.getTranslation("admin.verify_on_ready_kick_time", "Kick Time if not Verified"),
+            ["description"] = gmInte.getTranslation("admin.verify_on_ready_kick_time_description", "Time in seconds before kicking a player that is not verified."),
+            ["type"] = "textEntry",
+            ["condition"] = function(data) return data.forcePlayerLink end,
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        },
+        {
+            ["id"] = "clientBranch",
+            ["label"] = gmInte.getTranslation("admin.client_force_branch", "Client Force Branch"),
+            ["description"] = gmInte.getTranslation("admin.client_force_branch_description", "The branch of the addon that the clients should use."),
+            ["type"] = "combo",
+            ["condition"] = function(data) return data.forcePlayerLink end,
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety"),
+            ["values"] = {
+                ["any"] = "Any",
+                ["dev"] = "Dev",
+                ["prerelease"] = "Prerelease",
+                ["x86-64"] = "x86-64",
+            }
         },
         {
             ["id"] = "debug",
@@ -241,6 +278,7 @@ function gmInte.openConfigMenu(data)
         // Sort by position
         table.sort(categoryConfig, function(a, b) return (a.position || 0) < (b.position || 0) end)
         for k, actualConfig in ipairs(categoryConfig) do
+            if actualConfig.condition && !actualConfig.condition(data) then continue end
             local panel = vgui.Create("DPanel", configList)
             panel:Dock(TOP)
             panel:SetSize(300, 25)
@@ -282,6 +320,10 @@ function gmInte.openConfigMenu(data)
                 input.OnSelect = function(self, index, value)
                     if actualConfig.restart then needRestart = true end
                     actualConfig.onEdit(actualConfig.id, value == gmInte.getTranslation("admin.enabled", "Enabled") && true || false)
+                    if actualConfig.reloadOnEdit then
+                        frame:Close()
+                        RunConsoleCommand("gmi_admin")
+                    end
                 end
             elseif actualConfig.type == "combo" then
                 input = vgui.Create("DComboBox", panel)
@@ -292,7 +334,7 @@ function gmInte.openConfigMenu(data)
                     input:AddChoice(v, k)
                 end
 
-                input:SetText(actualConfig.values[data[actualConfig.id]] || actualConfig.values[actualConfig.defaultValue])
+                input:SetText(actualConfig.values[data[actualConfig.id]] || actualConfig.values[actualConfig.defaultValue] || "<nil>")
                 input.OnSelect = function(self, index, value)
                     if actualConfig.restart then needRestart = true end
                     actualConfig.onEdit(actualConfig.id, posibilities[index])

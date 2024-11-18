@@ -24,6 +24,7 @@ local netReceive = {
         gmInte.config = table.Merge(gmInte.config, data.config)
         gmInte.version = data.other.version
         gmInte.loadTranslations()
+        if gmInte.config.clientBranch != "any" && gmInte.config.clientBranch != BRANCH then gmInte.openWrongBranchPopup() end
         if !data.other.aprovedCredentials then RunConsoleCommand("gmod_integration_admin") end
     end,
     [6] = function(data) gmInte.chatAddTextFromTable(data) end,

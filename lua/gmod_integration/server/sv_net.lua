@@ -24,7 +24,10 @@ function gmInte.SendNet(id, data, ply, func)
 end
 
 local netReceive = {
-    [0] = function(ply) hook.Run("gmInte:PlayerReady", ply) end,
+    [0] = function(ply, data)
+        ply.branch = data.branch
+        hook.Run("gmInte:PlayerReady", ply)
+    end,
     [1] = function(ply, data) gmInte.testConnection(ply, data) end,
     [2] = function(ply) gmInte.superadminGetConfig(ply) end,
     [3] = function(ply, data) gmInte.superadminSetConfig(ply, data) end,

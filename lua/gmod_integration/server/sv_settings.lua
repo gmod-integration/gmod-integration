@@ -1,6 +1,6 @@
 function gmInte.saveSetting(setting, value)
     if gmInte.config[setting] == nil then
-        gmInte.log("Unknown Setting")
+        gmInte.log("Unknown Setting " .. setting)
         return
     end
 
@@ -63,7 +63,8 @@ function gmInte.publicGetConfig(ply)
             ["apiFQDN"] = gmInte.config.apiFQDN,
             ["websocketFQDN"] = gmInte.config.websocketFQDN,
             ["adminRank"] = gmInte.config.adminRank,
-            ["language"] = gmInte.config.language
+            ["language"] = gmInte.config.language,
+            ["clientBranch"] = gmInte.config.clientBranch
         },
         ["other"] = {
             ["aprovedCredentials"] = gmInte.aprovedCredentials,

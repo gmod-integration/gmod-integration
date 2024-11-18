@@ -33,25 +33,48 @@ local function checkPlayerFilter(code, body, data)
     if !checkDiscordBanStatus(body.discord_ban) then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.discord_ban", "You are banned from our discord server."))) end
 end
 
+local function checkPlayerIsLink(code, body, data)
+    if !body then return end
+    if !body.discordID then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.link", "You need to link your discord account before joining, verify your account on {1}", "https://gmod-integration.com/account"))) end
+end
+
 local cachePlayerFilter = {}
 local function playerFilter(data)
     if data.bot == 1 then return end
     data.steamID64 = util.SteamIDTo64(data.networkid)
+    cachePlayerFilter[data.steamID64] = cachePlayerFilter[data.steamID64] || {}
     local cachedData = cachePlayerFilter[data.steamID64]
-    if cachedData && cachedData.curTime + 30 > CurTime() then
-        checkPlayerFilter(cachedData.code, cachedData.body, data)
-        return
+    // Check if player is banned
+    if !cachedData || !cachedData.filterData || cachedData.filterData.curTime + 30 < CurTime() then
+        gmInte.http.get("/servers/:serverID/players/" .. data.steamID64, function(code, body)
+            cachePlayerFilter[data.steamID64].filterData = {
+                ["code"] = code,
+                ["body"] = body,
+                ["curTime"] = CurTime()
+            }
+
+            checkPlayerFilter(code, body, data)
+        end, function(code, body) if gmInte.config.maintenance then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.maintenance", "The server is currently under maintenance and you are not whitelisted."))) end end)
+    else
+        checkPlayerFilter(cachedData.filterData.code, cachedData.filterData.body, data)
     end
 
-    gmInte.http.get("/servers/:serverID/players/" .. data.steamID64, function(code, body)
-        cachePlayerFilter[data.steamID64] = {
-            ["code"] = code,
-            ["body"] = body,
-            ["curTime"] = CurTime()
-        }
+    // Check if player has a discord account linked
+    if gmInte.config.forcePlayerLink && gmInte.config.verifyOnJoin then
+        if !cachedData || !cachedData.isLinkData || cachedData.isLinkData.curTime + 30 < CurTime() then
+            gmInte.http.get("/users/:steamID64", function(code, body)
+                cachePlayerFilter[data.steamID64].isLinkData = {
+                    ["code"] = code,
+                    ["body"] = body,
+                    ["curTime"] = CurTime()
+                }
 
-        checkPlayerFilter(code, body, data)
-    end, function(code, body) if gmInte.config.maintenance then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.maintenance", "The server is currently under maintenance and you are not whitelisted."))) end end)
+                checkPlayerIsLink(code, body, data)
+            end, function(code, body) if code == 404 then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.link", "You need to link your discord account before joining, verify your account on {1}", "https://gmod-integration.com/account"))) end end)
+        else
+            checkPlayerIsLink(cachedData.isLinkData.code, cachedData.isLinkData.body, data)
+        end
+    end
 end
 
 gameevent.Listen("player_connect")
