@@ -34,6 +34,8 @@ local function checkPlayerFilter(code, body, data)
 end
 
 local function checkPlayerIsLink(code, body, data)
+    print(body)
+    PrintTable(body)
     if !body then return end
     if !body.discordID then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.link", "You need to link your discord account before joining, verify your account on {1}", "https://gmod-integration.com/account"))) end
 end
@@ -62,7 +64,7 @@ local function playerFilter(data)
     // Check if player has a discord account linked
     if gmInte.config.forcePlayerLink && gmInte.config.verifyOnJoin then
         if !cachedData || !cachedData.isLinkData || cachedData.isLinkData.curTime + 30 < CurTime() then
-            gmInte.http.get("/users/:steamID64", function(code, body)
+            gmInte.http.get("/users?steamID64=" .. data.steamID64, function(code, body)
                 cachePlayerFilter[data.steamID64].isLinkData = {
                     ["code"] = code,
                     ["body"] = body,
