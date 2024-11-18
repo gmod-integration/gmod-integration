@@ -7,6 +7,10 @@ function ply:gmIntIsVerified()
     return self.gmIntVerified || false
 end
 
+function ply:gmInteGetBranch()
+    return CLIENT && BRANCH || self.branch || "unknown"
+end
+
 function ply:gmIntSetCustomValue(key, value)
     self.gmIntCustomValues = self.gmIntCustomValues || {}
     self.gmIntCustomValues[key] = value
