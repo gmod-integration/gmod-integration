@@ -75,7 +75,7 @@ function ply:gmIntGetFPS()
 end
 
 gmInte.restoreFileCache = gmInte.restoreFileCache || {}
-function ply:getAjustTime()
+function ply:getAdjustedTime()
     if SERVER then
         if table.IsEmpty(gmInte.restoreFileCache) then
             if file.Exists("gm_integration/player_before_map_change.json", "DATA") then
@@ -99,6 +99,24 @@ function ply:getAjustTime()
     if (gmInte.restoreFileCache.sysTime + 60 * 5) < (os.time() - self:gmIntGetConnectTime()) then return 0 end
     if !gmInte.restoreFileCache.playersList || !gmInte.restoreFileCache.playersList[self:SteamID()] then return 0 end
     return gmInte.restoreFileCache.playersList[self:SteamID()].connectTime || 0
+end
+
+if SERVER then
+    gameevent.Listen("player_connect")
+    hook.Add("player_connect", "gmInte:Player:Connect:RemoveRestore", function(data)
+        if table.IsEmpty(gmInte.restoreFileCache) then
+            if file.Exists("gm_integration/player_before_map_change.json", "DATA") then
+                gmInte.restoreFileCache = util.JSONToTable(file.Read("gm_integration/player_before_map_change.json", "DATA"))
+            else
+                return
+            end
+        end
+
+        if gmInte.restoreFileCache.playersList && gmInte.restoreFileCache.playersList[data.networkid] then
+            gmInte.restoreFileCache.playersList[data.networkid] = nil
+            file.Write("gm_integration/player_before_map_change.json", util.TableToJSON(gmInte.restoreFileCache, true))
+        end
+    end)
 end
 
 hook.Add("ShutDown", "gmInte:Server:ShutDown:SavePlayer", function()
