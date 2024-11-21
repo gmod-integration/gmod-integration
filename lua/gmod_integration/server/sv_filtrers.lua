@@ -34,8 +34,6 @@ local function checkPlayerFilter(code, body, data)
 end
 
 local function checkPlayerIsLink(code, body, data)
-    print(body)
-    PrintTable(body)
     if !body then return end
     if !body.discordID then game.KickID(data.networkid, filterMessage(gmInte.getTranslation("filter.link", "You need to link your discord account before joining, verify your account on {1}", "https://gmod-integration.com/account"))) end
 end
