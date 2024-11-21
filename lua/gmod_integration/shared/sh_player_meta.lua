@@ -74,32 +74,6 @@ function ply:gmIntGetFPS()
     return self.gmIntFPS || 0
 end
 
-// Backup players before map change
-hook.Add("ShutDown", "gmInte:Server:ShutDown:SavePlayer", function()
-    // save in data/gm_integration/player_before_map_change.json
-    local dataToSave = {
-        ["version"] = "1.0",
-        ["serverID"] = gmInte.config.id,
-        ["playersList"] = {},
-        ["sysTime"] = os.time()
-    }
-
-    if SERVER then
-        for _, ply in ipairs(player.GetAll()) do
-            dataToSave.playersList[ply:SteamID()] = gmInte.getPlayerFormat(ply)
-        end
-
-        if !file.Exists("gm_integration", "DATA") then file.CreateDir("gm_integration") end
-        file.Write("gm_integration/player_before_map_change.json", util.TableToJSON(dataToSave, true))
-    else
-        dataToSave.playersList[LocalPlayer():SteamID()] = gmInte.getPlayerFormat(LocalPlayer())
-        local oldData = {}
-        if file.Exists("gmod_integration/player_before_map_change.json", "DATA") then oldData = util.JSONToTable(file.Read("gmod_integration/player_before_map_change.json", "DATA")) end
-        oldData[gmInte.config.id] = dataToSave
-        file.Write("gmod_integration/player_before_map_change.json", util.TableToJSON(oldData, true))
-    end
-end)
-
 gmInte.restoreFileCache = gmInte.restoreFileCache || {}
 function ply:getAjustTime()
     if SERVER then
@@ -126,3 +100,27 @@ function ply:getAjustTime()
     if !gmInte.restoreFileCache.playersList || !gmInte.restoreFileCache.playersList[self:SteamID()] then return 0 end
     return gmInte.restoreFileCache.playersList[self:SteamID()].connectTime || 0
 end
+
+hook.Add("ShutDown", "gmInte:Server:ShutDown:SavePlayer", function()
+    local dataToSave = {
+        ["version"] = "1.0",
+        ["serverID"] = gmInte.config.id,
+        ["playersList"] = {},
+        ["sysTime"] = os.time()
+    }
+
+    if SERVER then
+        for _, ply in ipairs(player.GetAll()) do
+            dataToSave.playersList[ply:SteamID()] = gmInte.getPlayerFormat(ply)
+        end
+
+        if !file.Exists("gm_integration", "DATA") then file.CreateDir("gm_integration") end
+        file.Write("gm_integration/player_before_map_change.json", util.TableToJSON(dataToSave, true))
+    else
+        dataToSave.playersList[LocalPlayer():SteamID()] = gmInte.getPlayerFormat(LocalPlayer())
+        local oldData = {}
+        if file.Exists("gmod_integration/player_before_map_change.json", "DATA") then oldData = util.JSONToTable(file.Read("gmod_integration/player_before_map_change.json", "DATA")) end
+        oldData[gmInte.config.id] = dataToSave
+        file.Write("gmod_integration/player_before_map_change.json", util.TableToJSON(oldData, true))
+    end
+end)
