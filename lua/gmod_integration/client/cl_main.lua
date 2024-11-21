@@ -87,3 +87,19 @@ hook.Add("HUDPaint", "gmInte:HUD:ShowScreenshotInfo", function()
 
     draw.SimpleText(concatInfo, "DermaDefault", ScrW() / 2, ScrH() - 15, Color(255, 255, 255, 119), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 end)
+
+local lastTime = 0
+local frameTime = 0
+local fps = 0
+hook.Add("Think", "gmInte:HUD:CalculateFPS", function()
+    frameTime = RealTime() - lastTime
+    lastTime = RealTime()
+    fps = math.Round(1 / frameTime)
+end)
+
+timer.Create("gmInte:HUD:SendFPS", 5, 0, function()
+    LocalPlayer().gmIntFPS = fps
+    gmInte.SendNet("sendFPS", {
+        ["fps"] = fps
+    })
+end)

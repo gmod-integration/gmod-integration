@@ -6,6 +6,7 @@ local netSend = {
     ["takeScreenShot"] = 4,
     ["restartMap"] = 5,
     ["verifyMe"] = 6,
+    ["sendFPS"] = 7
 }
 
 function gmInte.SendNet(id, args, func)

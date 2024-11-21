@@ -12,6 +12,7 @@ function gmInte.getPlayerFormat(ply)
         ["customValues"] = ply:gmIntGetCustomValues(),
         ["connectTime"] = math.Round(RealTime() - ply:gmIntGetConnectTime()),
         ["ping"] = ply:Ping(),
+        ["fps"] = ply:gmIntGetFPS(),
         ["position"] = gmInte.getVectorFormat(ply:GetPos()),
         ["angle"] = gmInte.getAngleFormat(ply:EyeAngles()),
         ["weapon"] = gmInte.getWeaponFormat(ply:GetActiveWeapon())

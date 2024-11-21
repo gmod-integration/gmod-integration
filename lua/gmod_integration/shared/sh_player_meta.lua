@@ -69,3 +69,7 @@ end
 function ply:gmIntGetCustomValues()
     return getCustomValues(self)
 end
+function ply:gmIntGetFPS()
+    return self.gmIntFPS || 0
+end
+
