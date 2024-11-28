@@ -99,4 +99,7 @@ return {
   ["verification.kick"] = "Vous avez été expulsé pour ne pas avoir vérifié, vérifiez votre compte sur {1}",
   ["verification.kick_in_branch"] = "Si vous ne changez pas de branche dans {1} secondes, vous serez expulsé",
   ["verification.kick_branch"] = "Vous avez été expulsé pour ne pas avoir changé votre branche en {1}",
+  ["verification.family_sharing"] = "Ce serveur n'autorise pas le partage familial",
+  ["verification.verifyFamilySharing"] = "Bloquer le partage familial",
+  ["verification.verifyFamilySharing_description"] = "Bloquer les joueurs utilisant le partage familial."
 }

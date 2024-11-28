@@ -99,4 +99,7 @@ return {
     ["verification.kick"] = "Zostałeś wyrzucony za brak weryfikacji, zweryfikuj swoje konto na {1}",
     ["verification.kick_in_branch"] = "Jeśli nie zmienisz swojej gałęzi w ciągu {1} sekund, zostaniesz wyrzucony",
     ["verification.kick_branch"] = "Zostałeś wyrzucony za brak zmiany gałęzi na {1}",
+    ["verification.family_sharing"] = "Ten serwer nie pozwala na udostępnianie rodzinne",
+    ["verification.verisfyFamilySharing"] = "Blokuj Udostępnianie Rodzinne",
+    ["verification.family_sharing_description"] = "Blokuj graczy korzystających z udostępniania rodzinnego."
 }

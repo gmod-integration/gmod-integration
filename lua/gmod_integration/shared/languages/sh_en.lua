@@ -99,4 +99,7 @@ return {
 	["verification.kick"] = "You have been kicked for not verifying, verify your account on {1}",
 	["verification.kick_in_branch"] = "If you don't change your branch in {1} seconds you will be kicked",
 	["verification.kick_branch"] = "You have been kicked for not changing your branch to {1}",
+	["verification.family_sharing"] = "This server does not allow family sharing",
+	["verification.verifyFamilySharing"] = "Block Family Sharing",
+	["verification.family_shariverifyFamilySharing_descriptionng"] = "Block family sharing players."
 }

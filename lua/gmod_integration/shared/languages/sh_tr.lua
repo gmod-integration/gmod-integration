@@ -99,4 +99,7 @@ return {
   ["verification.kick"] = "Doğrulamadığınız için atıldınız, hesabınızı {1} üzerinde doğrulayın",
   ["verification.kick_in_branch"] = "{1} saniye içinde dalınızı değiştirmezseniz atılacaksınız",
   ["verification.kick_branch"] = "Dalınızı {1} olarak değiştirmediğiniz için atıldınız",
+  ["verification.family_sharing"] = "Bu sunucu aile paylaşımına izin vermiyor",
+  ["verification.verifyFamilySharing"] = "Aile Paylaşımını Engelle",
+  ["verification.family_sharing_description"] = "Aile paylaşımı yapan oyuncuları engelle."
 }

@@ -76,6 +76,7 @@ end
 
 gmInte.restoreFileCache = gmInte.restoreFileCache || {}
 function ply:getAdjustedTime()
+    if gmInte.restoreFileCache.sysTime == nil || gmInte.restoreFileCache.playersList == nil then return 0 end
     if SERVER then
         if table.IsEmpty(gmInte.restoreFileCache) then
             if file.Exists("gm_integration/player_before_map_change.json", "DATA") then
@@ -96,8 +97,9 @@ function ply:getAdjustedTime()
         end
     end
 
+    if !gmInte.restoreFileCache.sysTime || !gmInte.restoreFileCache.playersList then return 0 end
     if (gmInte.restoreFileCache.sysTime + 60 * 5) < (os.time() - self:gmIntGetConnectTime()) then return 0 end
-    if !gmInte.restoreFileCache.playersList || !gmInte.restoreFileCache.playersList[self:SteamID()] then return 0 end
+    if !gmInte.restoreFileCache.playersList[self:SteamID()] then return 0 end
     return gmInte.restoreFileCache.playersList[self:SteamID()].connectTime || 0
 end
 

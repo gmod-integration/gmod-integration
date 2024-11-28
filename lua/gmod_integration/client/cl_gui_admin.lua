@@ -99,11 +99,12 @@ function gmInte.openConfigMenu(data)
             ["reloadOnEdit"] = true,
             ["category"] = gmInte.getTranslation("admin.main", "Main"),
             ["values"] = {
-                ["en"] = "English",
-                ["fr"] = "Français",
                 ["de"] = "Deutsch",
+                ["en"] = "English",
                 ["es"] = "Español",
+                ["fr"] = "Français",
                 ["it"] = "Italiano",
+                ["pl"] = "Polski",
                 ["ru"] = "Русский",
                 ["tr"] = "Türkçe",
             }
@@ -138,6 +139,15 @@ function gmInte.openConfigMenu(data)
             ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
         },
         {
+            ["id"] = "verifyFamilySharing",
+            ["label"] = gmInte.getTranslation("admin.verifyFamilySharing", "Block Family Sharing"),
+            ["description"] = gmInte.getTranslation("admin.verifyFamilySharing_description", "Block family sharing players."),
+            ["type"] = "checkbox",
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        },
+        {
             ["id"] = "verifyOnJoin",
             ["label"] = gmInte.getTranslation("admin.verify_on_join", "Verify on Join"),
             ["description"] = gmInte.getTranslation("admin.verify_on_join_description", "Verify the player when they join the server or on player ready."),
@@ -162,7 +172,6 @@ function gmInte.openConfigMenu(data)
             ["label"] = gmInte.getTranslation("admin.client_force_branch", "Client Force Branch"),
             ["description"] = gmInte.getTranslation("admin.client_force_branch_description", "The branch of the addon that the clients should use."),
             ["type"] = "combo",
-            ["condition"] = function(data) return data.forcePlayerLink end,
             ["value"] = function(setting, value) return value end,
             ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
             ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety"),

@@ -99,4 +99,7 @@ return {
   ["verification.kick"] = "Вы были кикнуты за отсутствие верификации, верифицируйте свою учетную запись на {1}",
   ["verification.kick_in_branch"] = "Если вы не смените ветку в течение {1} секунд, вас кикнут",
   ["verification.kick_branch"] = "Вы были кикнуты за несмену ветки на {1}",
+  ["verification.family_sharing"] = "This server does not allow family sharing",
+  ["verification.verifyFamilySharing"] = "Блокировать семейный доступ",
+  ["verification.verifyFamilySharing_description"] = "Блокировать игроков, использующих семейный доступ."
 }

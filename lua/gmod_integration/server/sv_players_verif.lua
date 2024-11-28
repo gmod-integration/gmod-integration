@@ -50,10 +50,18 @@ function gmInte.verifyPlayerBranch(ply)
     gmInte.plyInVerifBranchQueue[ply:SteamID64()] = ply
 end
 
+function gmInte.blockFamilySharing(ply)
+    if !gmInte.config.verifyFamilySharing then return end
+    if !ply:IsValid() || !ply:IsPlayer(ply) || ply:IsBot() || !ply:IsFullyAuthenticated() then return end
+    if ply:OwnerSteamID64() == ply:SteamID64() then return end
+    ply:Kick(gmInte.getTranslation("verification.family_sharing", "This server does not allow family sharing"))
+end
+
 hook.Add("gmInte:PlayerReady", "gmInte:Verif:PlayerReady", function(ply)
     ply.gmIntIsReady = true
     gmInte.verifyPlayer(ply)
     gmInte.verifyPlayerBranch(ply)
+    gmInte.blockFamilySharing(ply)
 end)
 
 // Routine to check the verification of players and kick them if they don't verify

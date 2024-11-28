@@ -32,6 +32,7 @@ gmInte.config.debug = false // If true, the addon will show debug informations i
 gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
 gmInte.config.verifyOnJoin = false // If true, the addon will verify the players when they join the server or on player ready
 gmInte.config.verifyOnReadyKickTime = 600 // The time in seconds before kicking a player that is not verified (0 to disable)
+gmInte.config.verifyFamilySharing = false // If true, the addon will verify the family sharing of the players
 gmInte.config.clientBranch = "any" // The branch of the addon that the clients should use (none, dev, prerelease, x86-64)
 // Other
 gmInte.config.supportLink = "" // The link of your support (shown when a player do not have the requiments to join the server)

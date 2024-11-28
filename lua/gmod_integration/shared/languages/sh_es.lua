@@ -99,4 +99,7 @@ return {
   ["verification.kick"] = "Has sido expulsado por no verificar, verifica tu cuenta en {1}",
   ["verification.kick_in_branch"] = "Si no cambias tu rama en {1} segundos serás expulsado",
   ["verification.kick_branch"] = "Has sido expulsado por no cambiar tu rama a {1}",
+  ["verification.family_sharing"] = "Este servidor no permite el uso compartido familiar",
+  ["verification.verifyFamilySharing"] = "Bloquear Uso Compartido Familiar",
+  ["verification.family_sharing_description"] = "Bloquear jugadores que usan el uso compartido familiar."
 }

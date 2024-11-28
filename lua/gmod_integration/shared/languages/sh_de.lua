@@ -99,4 +99,7 @@ return {
   ["verification.kick"] = "Du wurdest gekickt, weil du dich nicht verifiziert hast. Verifiziere dein Konto auf {1}",
   ["verification.kick_in_branch"] = "Wenn du deinen Branch nicht innerhalb von {1} Sekunden änderst, wirst du gekickt",
   ["verification.kick_branch"] = "Du wurdest gekickt, weil du deinen Branch nicht auf {1} geändert hast",
+  ["verification.family_sharing"] = "Dieser Server erlaubt kein Family Sharing",
+  ["verification.verifyFamilySharing"] = "Family Sharing blockieren",
+  ["verification.verifyFamilySharing_description"] = "Blockiere Spieler, die Family Sharing verwenden."
 }
