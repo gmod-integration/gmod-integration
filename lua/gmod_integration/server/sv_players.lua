@@ -21,6 +21,14 @@ function gmInte.playerDisconnected(ply)
     })
 end
 
+function gmInte.playerChangedTeam(ply, oldTeam, newTeam)
+    if !ply:IsValid() || !ply:IsPlayer(ply) then return end
+    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/team", {
+        ["oldTeam"] = gmInte.getTeamFormat(oldTeam),
+        ["newTeam"] = gmInte.getTeamFormat(newTeam)
+    })
+end
+
 function gmInte.playerSpawn(ply)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
     gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/spawn", {
@@ -103,6 +111,7 @@ hook.Add("PlayerInitialSpawn", "gmInte:Player:InitialSpawn", function(ply) gmInt
 hook.Add("PlayerGiveSWEP", "gmInte:Player:SWEPs", function(ply, class, swep) gmInte.postLogPlayerGive(ply, class, swep) end)
 hook.Add("PlayerDeath", "gmInte:Player:Death", function(ply, inflictor, attacker) gmInte.playerDeath(ply, inflictor, attacker) end)
 hook.Add("PlayerHurt", "gmInte:Player:Hurt", function(ply, attacker, healthRemaining, damageTaken) gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken) end)
+hook.Add("PlayerChangedTeam", "gmInte:Player:ChangedTeam", function(ply, oldTeam, newTeam) gmInte.playerChangedTeam(ply, oldTeam, newTeam) end)
 hook.Add("PlayerSpawnedProp", "gmInte:Player:SpawnedProp", function(ply, model, ent) gmInte.postLogPlayerSpawnedSomething("prop", ply, ent, model) end)
 hook.Add("PlayerSpawnedSENT", "gmInte:Player:SpawnedSENT", function(ply, ent) gmInte.postLogPlayerSpawnedSomething("sent", ply, ent) end)
 hook.Add("PlayerSpawnedNPC", "gmInte:Player:SpawnedNPC", function(ply, ent) gmInte.postLogPlayerSpawnedSomething("npc", ply, ent) end)
