@@ -76,7 +76,7 @@ end
 
 gmInte.restoreFileCache = gmInte.restoreFileCache || {}
 function ply:getAdjustedTime()
-    if gmInte.restoreFileCache.sysTime == nil || gmInte.restoreFileCache.playersList == nil then return 0 end
+    if gmInte.restoreFileCache == nil || gmInte.restoreFileCache.sysTime == nil || gmInte.restoreFileCache.playersList == nil then return 0 end
     if SERVER then
         if table.IsEmpty(gmInte.restoreFileCache) then
             if file.Exists("gm_integration/player_before_map_change.json", "DATA") then
