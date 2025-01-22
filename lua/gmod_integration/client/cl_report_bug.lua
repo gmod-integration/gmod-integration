@@ -203,10 +203,17 @@ local function openReportBug()
       ["steps"] = elements[3]:GetText(),
       ["expected"] = elements[4]:GetText(),
       ["actual"] = elements[5]:GetText(),
-    }, function()
+    }, function(code, body)
       notification.AddLegacy(gmInte.getTranslation("report_bug.success", "Bug report sent successfully"), NOTIFY_GENERIC, 5)
       frame:Close()
-    end, function() notification.AddLegacy(gmInte.getTranslation("report_bug.error.failed", "Failed to send bug report retry later"), NOTIFY_ERROR, 5) end)
+    end, function(code, body)
+      if code == 429 then
+        gmInte.chatAddText(Color(255, 255, 255), gmInte.getTranslation("chat.error.rate_limit", "This interaction is being rate limited, please try again later."))
+        return
+      end
+
+      notification.AddLegacy(gmInte.getTranslation("report_bug.error.failed", "Failed to send bug report retry later"), NOTIFY_ERROR, 5)
+    end)
   end
 end
 

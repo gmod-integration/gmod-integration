@@ -1,4 +1,5 @@
 return {
+	["chat.error.rate_limit"] = "This interaction is being rate limited, please try again later.",
 	["verification.title"] = "Verification Required",
 	["verification.open_page"] = "Open Verification Page",
 	["verification.description"] = "Hey,\nIt looks like you haven't linked your Steam account to Discord yet. This is required to play on this server. Please click the button below to link your account.\n\nAfter you've done that, click the refresh button.",

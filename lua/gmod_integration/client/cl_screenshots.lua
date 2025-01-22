@@ -37,7 +37,14 @@ hook.Add("PostRender", "gmInteScreenshot", function()
     ["screenshot"] = base64Capture,
     ["captureData"] = captureData,
     ["size"] = size .. "KB"
-  }, function(code, body) gmInte.chatAddText(Color(255, 130, 92), gmInte.getTranslation("chat.screenshot.sent", "Screenshot sent to Discord.")) end, function(code, body) gmInte.log("Screenshot failed to send to Discord, error code: " .. code, true) end)
+  }, function(code, body) gmInte.chatAddText(Color(255, 130, 92), gmInte.getTranslation("chat.screenshot.sent", "Screenshot sent to Discord.")) end, function(code, body)
+    if code == 429 then
+      gmInte.chatAddText(Color(255, 255, 255), gmInte.getTranslation("chat.error.rate_limit", "This interaction is being rate limited, please try again later."))
+      return
+    end
+
+    gmInte.log("Screenshot failed to send to Discord, error code: " .. code, true)
+  end)
 end)
 
 function gmInte.takeScreenShot()
