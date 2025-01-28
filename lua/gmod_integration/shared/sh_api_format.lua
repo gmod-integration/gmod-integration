@@ -11,6 +11,7 @@ function gmInte.getPlayerFormat(ply)
         ["deaths"] = ply:Deaths(),
         ["customValues"] = ply:gmIntGetCustomValues(),
         ["connectTime"] = math.Round(math.Round(RealTime() - ply:gmIntGetConnectTime())),
+        ["timeLastTeamChange"] = math.Round(RealTime() - ply:gmIntGetTimeLastTeamChange()),
         ["adjustedTime"] = math.Round(ply:getAdjustedTime()),
         ["ping"] = ply:Ping(),
         ["fps"] = ply:gmIntGetFPS(),
