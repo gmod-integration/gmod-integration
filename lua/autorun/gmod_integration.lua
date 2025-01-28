@@ -1,6 +1,6 @@
 if game.SinglePlayer() then return print("Gmod Integration is not supported in Singleplayer!") end
 gmInte = gmInte || {}
-gmInte.version = "0.4.7"
+gmInte.version = "0.4.8"
 gmInte.config = {}
 gmInte.materials = {}
 local function loadServerConfig()
