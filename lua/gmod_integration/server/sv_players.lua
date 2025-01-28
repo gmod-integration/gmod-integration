@@ -24,6 +24,7 @@ end
 function gmInte.playerChangedTeam(ply, oldTeam, newTeam)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
     gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/team", {
+        ["player"] = gmInte.getPlayerFormat(ply),
         ["oldTeam"] = gmInte.getTeamFormat(oldTeam),
         ["newTeam"] = gmInte.getTeamFormat(newTeam)
     })
