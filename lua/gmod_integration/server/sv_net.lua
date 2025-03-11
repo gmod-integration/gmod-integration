@@ -25,6 +25,7 @@ end
 
 local netReceive = {
     [0] = function(ply, data)
+        if ply.gmIntIsReady then return end
         ply.branch = data.branch
         hook.Run("gmInte:PlayerReady", ply)
     end,
