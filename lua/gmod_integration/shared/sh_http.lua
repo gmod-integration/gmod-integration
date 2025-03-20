@@ -108,6 +108,7 @@ local function flushLogs()
 end
 
 hook.Add("ShutDown", "gmInte:Server:ShutDown:FlushLogs", flushLogs)
+hook.Add("GMI:SaveBeforeCrash", "gmInte:Server:BeforeCrash:SavePlayers", flushLogs)
 timer.Create("gmInte:http:flushLogs", 3, 0, flushLogs)
 function gmInte.http.postLog(endpoint, data)
     table.insert(nextLogPacket, {

@@ -129,7 +129,7 @@ if SERVER then
     end)
 end
 
-hook.Add("ShutDown", "gmInte:Server:ShutDown:SavePlayer", function()
+local function saveTimeToLocal()
     local dataToSave = {
         ["version"] = "1.0",
         ["serverID"] = gmInte.config.id,
@@ -151,4 +151,7 @@ hook.Add("ShutDown", "gmInte:Server:ShutDown:SavePlayer", function()
         oldData[gmInte.config.id] = dataToSave
         file.Write("gmod_integration/player_before_map_change.json", util.TableToJSON(oldData, true))
     end
-end)
+end
+
+hook.Add("ShutDown", "gmInte:Server:ShutDown:SavePlayer", saveTimeToLocal)
+hook.Add("GMI:SaveBeforeCrash", "gmInte:Server:BeforeCrash:SavePlayers", saveTimeToLocal)

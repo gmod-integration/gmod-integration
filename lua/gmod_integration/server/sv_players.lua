@@ -97,14 +97,16 @@ function gmInte.postLogPlayerGive(ply, class, swep)
     })
 end
 
-hook.Add("gmInte:PlayerReady", "gmInte:Player:Ready", function(ply) gmInte.playerReady(ply) end)
-hook.Add("ShutDown", "gmInte:Server:Shutdown:SavePlayers", function()
+local function savePlyDisconnect()
     for _, ply in ipairs(player.GetAll()) do
         gmInte.playerDisconnected(ply)
     end
-end)
+end
 
 gameevent.Listen("player_connect")
+hook.Add("ShutDown", "gmInte:Server:Shutdown:SavePlayers", savePlyDisconnect)
+hook.Add("GMI:SaveBeforeCrash", "gmInte:Server:BeforeCrash:SavePlayers", savePlyDisconnect)
+hook.Add("gmInte:PlayerReady", "gmInte:Player:Ready", function(ply) gmInte.playerReady(ply) end)
 hook.Add("player_connect", "gmInte:Player:Connect", function(data) gmInte.playerConnect(data) end)
 hook.Add("PlayerDisconnected", "gmInte:Player:Disconnect", function(ply) gmInte.playerDisconnected(ply) end)
 hook.Add("PlayerSpawn", "gmInte:Player:Spawn", function(ply) gmInte.playerSpawn(ply) end)
