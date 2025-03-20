@@ -11,6 +11,10 @@ function ply:gmIntGetTimeLastTeamChange()
     return self.gmIntTimeLastTeamChange || RealTime()
 end
 
+function ply:gmInteResetTimeLastTeamChange()
+    self.gmIntTimeLastTeamChange = RealTime()
+end
+
 function ply:gmInteGetBranch()
     return CLIENT && BRANCH || self.branch || "unknown"
 end
@@ -148,6 +152,3 @@ hook.Add("ShutDown", "gmInte:Server:ShutDown:SavePlayer", function()
         file.Write("gmod_integration/player_before_map_change.json", util.TableToJSON(oldData, true))
     end
 end)
-
-// on team change reset the time
-hook.Add("PlayerChangedTeam", "gmInte:Player:ChangedTeam:ResetTime", function(ply) ply.gmIntTimeLastTeamChange = RealTime() end)
