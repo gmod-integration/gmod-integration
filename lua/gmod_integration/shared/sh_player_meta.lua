@@ -55,6 +55,8 @@ local function getCustomCompatability(ply)
         values.ps2Points = ply.PS2_Wallet.points
         values.ps2PremiumPoints = ply.PS2_Wallet.premiumPoints
     end
+
+    if CH_ATM && SERVER then values.bank = CH_ATM.GetMoneyBankAccount(ply) end
     return values
 end
 
