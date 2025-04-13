@@ -1,6 +1,7 @@
 local conFuncs = {
-    ["version"] = function() gmInte.log("Version: " .. gmInte.version) end,
-    ["setting"] = function(args) gmInte.saveSetting(args[2], args[3]) end,
+    ["version"] = function() print("Version: " .. gmInte.version) end,
+    ["set-setting"] = function(args) gmInte.saveSetting(args[2], args[3]) end,
+    ["show-settings"] = function() PrintTable(gmInte.config) end,
     ["try"] = function() gmInte.tryConfig() end,
     ["refresh"] = function() gmInte.refreshSettings() end,
     ["get-server-id"] = function() print(gmInte.config.id || "none") end,
@@ -12,7 +13,14 @@ local function cmdExecuted(ply, cmd, args)
     if conFuncs[args[1]] then
         conFuncs[args[1]](args)
     else
-        gmInte.log("Unknown Command Argument")
+        print("Unknown Command, available commands are:")
+        print("version")
+        print("set-setting <setting> <value>")
+        print("show-settings")
+        print("try")
+        print("refresh")
+        print("get-server-id")
+        print("export-warns")
     end
 end
 
