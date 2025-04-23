@@ -395,6 +395,23 @@ function gmInte.openConfigMenu(data)
     end
 end
 
+function gmInte.openAdminConfig()
+    if !LocalPlayer():gmIntIsAdmin() then
+        gmInte.chatAddText(Color(228, 81, 81), gmInte.getTranslation("chat.missing_permissions", "You do not have permission to do this action."))
+        return
+    end
+
+    gmInte.SendNet("getConfig")
+end
+
+function gmInte.showTestConnection(data)
+    if data && data.id then
+        gmInte.chatAddText(Color(89, 194, 89), gmInte.getTranslation("chat.authentication_success", "Successfully Authenticated"), Color(255, 255, 255), gmInte.getTranslation("chat.server_link", ", server linked as {1}.", data.name))
+    else
+        gmInte.chatAddText(Color(228, 81, 81), gmInte.getTranslation("chat.authentication_failed", "Failed to Authenticate"), Color(255, 255, 255), gmInte.getTranslation("chat.server_fail", ", check your ID and Token."))
+    end
+end
+
 concommand.Add("gmod_integration_admin", function() gmInte.SendNet("getConfig") end)
 concommand.Add("gmi_admin", function() gmInte.SendNet("getConfig") end)
 hook.Add("OnPlayerChat", "gmInte:OnPlayerChat:AdminCmd", function(ply, strText, bTeamOnly, bPlayerIsDead)
