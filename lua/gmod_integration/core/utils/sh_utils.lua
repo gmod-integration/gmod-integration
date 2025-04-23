@@ -33,3 +33,21 @@ function gmInte.isPrivateIP(ip)
     if parts[1] == "127" then return true end
     return false
 end
+
+// Generate Random String
+function gmInte.generateRandomString(length)
+    local charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    local result = ""
+    math.randomseed(os.time() + #charset * math.random(1, 100))
+    for i = 1, length do
+        local randomIndex = math.random(1, #charset)
+        result = result .. string.sub(charset, randomIndex, randomIndex)
+    end
+    return result
+end
+
+// Generate Random UUIDV4
+function gmInte.generateUUIDV4()
+    local uuid = string.format("%s-%s-%s-%s-%s", gmInte.generateRandomString(8), gmInte.generateRandomString(4), "4" .. gmInte.generateRandomString(3), gmInte.generateRandomString(4), gmInte.generateRandomString(12))
+    return uuid
+end
