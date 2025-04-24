@@ -1,40 +1,34 @@
-local netSend = {
-    ["ready"] = 0,
-    ["testConnection"] = 1,
-    ["getConfig"] = 2,
-    ["saveConfig"] = 3,
-    ["takeScreenShot"] = 4,
-    ["restartMap"] = 5,
-    ["verifyMe"] = 6,
-    ["sendFPS"] = 7
-}
-
 function gmInte.SendNet(id, args, func)
     net.Start("gmIntegration")
-    net.WriteUInt(netSend[id], 8)
+    net.WriteString(id)
     net.WriteString(util.TableToJSON(args || {}))
     if func then func() end
     net.SendToServer()
 end
 
 local netReceive = {
-    [1] = function(data) gmInte.discordSyncChatPly(data) end,
-    [2] = function(data) gmInte.openConfigMenu(data) end,
-    [3] = function(data) gmInte.showTestConnection(data) end,
-    [5] = function(data)
+    ["wsRelayDiscordChat"] = function(data) gmInte.discordSyncChatPly(data) end,
+    ["adminConfig"] = function(data) gmInte.openConfigMenu(data) end,
+    ["testApiConnection"] = function(data) gmInte.showTestConnection(data) end,
+    ["publicConfig"] = function(data)
         gmInte.config = table.Merge(gmInte.config, data.config)
         gmInte.version = data.other.version
         gmInte.loadTranslations()
         if gmInte.config.clientBranch != "any" && gmInte.config.clientBranch != BRANCH then gmInte.openWrongBranchPopup() end
         if !data.other.aprovedCredentials then RunConsoleCommand("gmod_integration_admin") end
     end,
-    [6] = function(data) gmInte.chatAddTextFromTable(data) end,
-    [7] = function() gmInte.openVerifPopup() end,
-    [8] = function(data) gmInte.config.token = data.token end
+    ["chatColorMessage"] = function(data) gmInte.chatAddTextFromTable(data) end,
+    ["openVerifPopup"] = function() gmInte.openVerifPopup() end,
+    ["savePlayerToken"] = function(data) gmInte.config.token = data.token end
 }
 
 net.Receive("gmIntegration", function()
-    local id = net.ReadUInt(8)
+    local id = net.ReadString()
     local args = util.JSONToTable(net.ReadString())
-    if netReceive[id] then netReceive[id](args) end
+    if !netReceive[id] then return end
+    netReceive[id](args)
+    if gmInte.config.debug then
+        gmInte.log("[net] Received net message: " .. id)
+        gmInte.log("[net] Data: " .. util.TableToJSON(args))
+    end
 end)
