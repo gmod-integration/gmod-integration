@@ -84,6 +84,12 @@ function ply:gmIntGetFPS()
     return self.gmIntFPS || 0
 end
 
+function ply:gmInteSetFPS(fps)
+    fps = tonumber(fps || 0)
+    fps = math.Clamp(fps, 0, 1000)
+    self.gmIntFPS = fps
+end
+
 gmInte.restoreFileCache = gmInte.restoreFileCache || {}
 function ply:getAdjustedTime()
     if gmInte.restoreFileCache == nil || gmInte.restoreFileCache.sysTime == nil || gmInte.restoreFileCache.playersList == nil then return 0 end
