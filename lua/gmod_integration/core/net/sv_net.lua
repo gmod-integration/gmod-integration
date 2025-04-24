@@ -26,7 +26,7 @@ local netReceive = {
         RunConsoleCommand("changelevel", game.GetMap())
     end,
     ["verifyMe"] = function(ply) gmInte.verifyPlayer(ply) end,
-    ["sendFPS"] = function(ply, data) ply:gmInteSetFPS(fps) end,
+    ["sendFPS"] = function(ply, data) ply:gmInteSetFPS(data.fps) end,
 }
 
 net.Receive("gmIntegration", function(len, ply)
