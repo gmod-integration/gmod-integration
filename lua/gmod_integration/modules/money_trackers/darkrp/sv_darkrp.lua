@@ -28,8 +28,6 @@ function gmInte.postDarkRPPickedUpCheque(plyWriter, plyTarget, price, sucess, en
   })
 end
 
-if DarkRP then
-  hook.Add("playerDroppedMoney", "gmInte:Player:DarkRPDroppedMoney", function(ply, amount, entity) gmInte.postDarkRPDroppedMoney(ply, amount, entity) end)
-  hook.Add("playerPickedUpMoney", "gmInte:Player:DarkRPPickedUpMoney", function(ply, price, entity) gmInte.postDarkRPPickedUpMoney(ply, price, entity) end)
-  hook.Add("playerDroppedCheque", "gmInte:Player:DarkRPPickedUpCheque", function(plyWriter, plyTarget, price, sucess, entity) gmInte.postDarkRPPickedUpCheque(plyWriter, plyTarget, price, sucess, entity) end)
-end
+hook.Add("playerDroppedMoney", "gmInte:Player:DarkRPDroppedMoney", function(ply, amount, entity) gmInte.postDarkRPDroppedMoney(ply, amount, entity) end)
+hook.Add("playerPickedUpMoney", "gmInte:Player:DarkRPPickedUpMoney", function(ply, price, entity) gmInte.postDarkRPPickedUpMoney(ply, price, entity) end)
+hook.Add("playerDroppedCheque", "gmInte:Player:DarkRPPickedUpCheque", function(plyWriter, plyTarget, price, sucess, entity) gmInte.postDarkRPPickedUpCheque(plyWriter, plyTarget, price, sucess, entity) end)
