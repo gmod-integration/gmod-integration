@@ -1,5 +1,6 @@
 local ScreenshotRequested = false
 local FailAttempts = 0
+local ScreenshotTitle = ""
 hook.Add("PostRender", "gmInteScreenshot", function()
   if !ScreenshotRequested then return end
   local captureData = {
@@ -35,6 +36,7 @@ hook.Add("PostRender", "gmInteScreenshot", function()
   gmInte.http.post("/clients/:steamID64/servers/:serverID/screenshots", {
     ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
     ["screenshot"] = base64Capture,
+    ["title"] = ScreenshotTitle,
     ["captureData"] = captureData,
     ["size"] = size .. "KB"
   }, function(code, body) gmInte.chatAddText(Color(255, 130, 92), gmInte.getTranslation("chat.screenshot.sent", "Screenshot sent to Discord.")) end, function(code, body)
@@ -54,16 +56,26 @@ function gmInte.takeScreenShot()
   end)
 end
 
-concommand.Add("gmi_screen", gmInte.takeScreenShot)
-concommand.Add("gmod_integration_screen", gmInte.takeScreenShot)
+local function extractTitleFromCmd(ply, cmd, args)
+  if !args[1] then
+    ScreenshotTitle = ""
+  else
+    ScreenshotTitle = table.concat(args, " ")
+  end
+
+  gmInte.takeScreenShot()
+end
+
+concommand.Add("gmi_screen", extractTitleFromCmd)
+concommand.Add("gmod_integration_screen", extractTitleFromCmd)
 hook.Add("OnPlayerChat", "gmInteChatCommands", function(ply, text, teamChat, isDead)
   if ply != LocalPlayer() then return end
-  text = string.lower(text)
-  text = string.sub(text, 2)
-  if text == "screen" then
-    gmInte.takeScreenShot()
-    return true
-  end
+  if string.len(text) < 7 then return end
+  local cmdPrefix = string.sub(text, 1, 1)
+  local args = string.Explode(" ", string.sub(text, 2))
+  if args[1] != "screen" && args[1] != "screenshot" then return end
+  ScreenshotTitle = table.concat(args, " ", 2)
+  gmInte.takeScreenShot()
 end)
 
 local contextMenuOpen = false
