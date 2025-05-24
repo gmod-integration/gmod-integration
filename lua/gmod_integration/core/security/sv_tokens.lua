@@ -37,5 +37,5 @@ function gmInte.sendPlayerToken(ply)
     end)
 end
 
-hook.Add("gmInte:PlayerReady", "gmInte:Verif:PlayerReady", function(ply) gmInte.sendPlayerToken(ply) end)
+hook.Add("gmInte:PlayerReady", "gmInte:PlayerReady:SendToken", function(ply) gmInte.sendPlayerToken(ply) end)
 hook.Add("Initialize", "gmInte:Server:Initialize:GetPublicToken", function() timer.Simple(1, function() gmInte.getPublicServerToken(function(publicToken) gmInte.log("Server Public Token Received: " .. publicToken) end) end) end)
