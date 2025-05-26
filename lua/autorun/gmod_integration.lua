@@ -2,7 +2,6 @@ if game.SinglePlayer() then return print("Gmod Integration is not supported in S
 gmInte = gmInte || {}
 gmInte.version = "0.5.0"
 gmInte.config = {}
-gmInte.materials = {}
 local function loadConfig()
     RunConsoleCommand("sv_hibernate_think", "1")
     if !file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA") then
