@@ -101,5 +101,8 @@ return {
   ["verification.kick_branch"] = "Has sido expulsado por no cambiar tu rama a {1}",
   ["verification.family_sharing"] = "Este servidor no permite el uso compartido familiar",
   ["verification.verifyFamilySharing"] = "Bloquear Uso Compartido Familiar",
-  ["verification.family_sharing_description"] = "Bloquear jugadores que usan el uso compartido familiar."
+  ["verification.family_sharing_description"] = "Bloquear jugadores que usan el uso compartido familiar.",
+  ["admin.config_disabled_description"] = "La configuración ha sido deshabilitada porque el archivo sv_config.lua predeterminado ha sido editado.\nPor favor, restaura el archivo sv_config.lua predeterminado para habilitar la configuración nuevamente.",
+  ["admin.config_disabled"] = "Configuración Deshabilitada",
+  ["chat.error.rate_limit"] = "Esta interacción está limitada por velocidad, por favor inténtalo más tarde."
 }

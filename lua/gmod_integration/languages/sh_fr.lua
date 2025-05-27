@@ -101,5 +101,8 @@ return {
   ["verification.kick_branch"] = "Vous avez été expulsé pour ne pas avoir changé votre branche en {1}",
   ["verification.family_sharing"] = "Ce serveur n'autorise pas le partage familial",
   ["verification.verifyFamilySharing"] = "Bloquer le partage familial",
-  ["verification.verifyFamilySharing_description"] = "Bloquer les joueurs utilisant le partage familial."
+  ["verification.verifyFamilySharing_description"] = "Bloquer les joueurs utilisant le partage familial.",
+  ["admin.config_disabled_description"] = "La configuration a été désactivée car le fichier sv_config.lua par défaut a été modifié.\nVeuillez restaurer le fichier sv_config.lua par défaut pour réactiver la configuration.",
+  ["admin.config_disabled"] = "Configuration Désactivée",
+  ["chat.error.rate_limit"] = "Cette interaction est limitée par la vitesse, veuillez réessayer plus tard."
 }

@@ -101,5 +101,8 @@ return {
   ["verification.kick_branch"] = "Вы были кикнуты за несмену ветки на {1}",
   ["verification.family_sharing"] = "This server does not allow family sharing",
   ["verification.verifyFamilySharing"] = "Блокировать семейный доступ",
-  ["verification.verifyFamilySharing_description"] = "Блокировать игроков, использующих семейный доступ."
+  ["verification.verifyFamilySharing_description"] = "Блокировать игроков, использующих семейный доступ.",
+  ["admin.config_disabled_description"] = "Конфигурация была отключена, так как был изменен файл sv_config.lua.\nПожалуйста, восстановите исходный sv_config.lua, чтобы снова включить конфигурацию.",
+  ["admin.config_disabled"] = "Конфигурация Отключена",
+  ["chat.error.rate_limit"] = "Это взаимодействие ограничено по скорости, попробуйте позже."
 }

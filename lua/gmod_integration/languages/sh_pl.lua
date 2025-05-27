@@ -101,5 +101,8 @@ return {
     ["verification.kick_branch"] = "Zostałeś wyrzucony za brak zmiany gałęzi na {1}",
     ["verification.family_sharing"] = "Ten serwer nie pozwala na udostępnianie rodzinne",
     ["verification.verisfyFamilySharing"] = "Blokuj Udostępnianie Rodzinne",
-    ["verification.family_sharing_description"] = "Blokuj graczy korzystających z udostępniania rodzinnego."
+    ["verification.family_sharing_description"] = "Blokuj graczy korzystających z udostępniania rodzinnego.",
+    ["admin.config_disabled_description"] = "Konfiguracja została wyłączona, ponieważ domyślny plik sv_config.lua został zmieniony.\nPrzywróć domyślny plik sv_config.lua, aby ponownie włączyć konfigurację.",
+    ["admin.config_disabled"] = "Konfiguracja Wyłączona",
+    ["chat.error.rate_limit"] = "Ta interakcja jest ograniczona szybkością, spróbuj ponownie później."
 }

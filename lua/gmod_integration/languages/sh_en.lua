@@ -102,5 +102,7 @@ return {
 	["verification.kick_branch"] = "You have been kicked for not changing your branch to {1}",
 	["verification.family_sharing"] = "This server does not allow family sharing",
 	["verification.verifyFamilySharing"] = "Block Family Sharing",
-	["verification.family_shariverifyFamilySharing_descriptionng"] = "Block family sharing players."
+	["verification.family_shariverifyFamilySharing_descriptionng"] = "Block family sharing players.",
+	["admin.config_disabled_description"] = "The config has been disabled because the default sv_config.lua has been edited.\nPlease restore the default sv_config.lua to enable the config again.",
+	["admin.config_disabled"] = "Config Disabled"
 }

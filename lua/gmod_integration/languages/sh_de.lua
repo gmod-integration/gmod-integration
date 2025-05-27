@@ -101,5 +101,8 @@ return {
   ["verification.kick_branch"] = "Du wurdest gekickt, weil du deinen Branch nicht auf {1} geändert hast",
   ["verification.family_sharing"] = "Dieser Server erlaubt kein Family Sharing",
   ["verification.verifyFamilySharing"] = "Family Sharing blockieren",
-  ["verification.verifyFamilySharing_description"] = "Blockiere Spieler, die Family Sharing verwenden."
+  ["verification.verifyFamilySharing_description"] = "Blockiere Spieler, die Family Sharing verwenden.",
+  ["admin.config_disabled_description"] = "Die Konfiguration wurde deaktiviert, da die Standarddatei sv_config.lua bearbeitet wurde.\nBitte stelle die Standarddatei sv_config.lua wieder her, um die Konfiguration erneut zu aktivieren.",
+  ["admin.config_disabled"] = "Konfiguration Deaktiviert",
+  ["chat.error.rate_limit"] = "Diese Interaktion wird durch Geschwindigkeitsbegrenzung eingeschränkt, bitte versuchen Sie es später erneut."
 }
