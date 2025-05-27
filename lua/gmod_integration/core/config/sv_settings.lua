@@ -42,12 +42,6 @@ function gmInte.testConnection(ply)
     gmInte.http.get("/servers/:serverID", function(code, body) if ply then gmInte.SendNet("testApiConnection", body, ply) end end, function(code, body) if ply then gmInte.SendNet("testApiConnection", body, ply) end end)
 end
 
-function gmInte.refreshSettings()
-    gmInte.config = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
-    gmInte.log("Settings Refreshed")
-    gmInte.tryConfig()
-end
-
 function gmInte.superadminGetConfig(ply)
     if !ply:IsValid() || !ply:IsPlayer(ply) || !ply:gmIntIsAdmin() then return end
     gmInte.config.websocket = GWSockets && true || false
