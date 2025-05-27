@@ -1,6 +1,6 @@
 local function getTimeStamp()
     if !gmInte.config.debug then return "" end
-    return os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S")
+    return " | " .. os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S")
 end
 
 function gmInte.log(msg, debug)
