@@ -222,6 +222,21 @@ function gmInte.openConfigMenu(data)
             ["onEditDelay"] = 0.5,
             ["category"] = gmInte.getTranslation("admin.advanced", "Advanced")
         },
+        {
+            ["id"] = "logTimestamp",
+            ["label"] = gmInte.getTranslation("admin.internal_log_format", "Internal Log Format"),
+            ["description"] = gmInte.getTranslation("admin.internal_log_format_description", "The timestamp format of the logs."),
+            ["type"] = "textEntry",
+            ["resetIfEmpty"] = true,
+            ["defaultValue"] = "%Y-%m-%d %H:%M:%S",
+            ["value"] = function(setting, value) return value end,
+            ["onEdit"] = function(setting, value)
+                if !value || value == "" then return end
+                saveConfig(setting, value)
+            end,
+            ["onEditDelay"] = 0.5,
+            ["category"] = gmInte.getTranslation("admin.advanced", "Advanced")
+        },
     }
 
     local buttonsInfo = {

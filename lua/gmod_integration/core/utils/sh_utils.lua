@@ -1,29 +1,29 @@
 local function getTimeStamp()
     if !gmInte.config.debug then return "" end
-    return os.date("[%Y-%m-%d %H:%M:%S]")
+    return os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S")
 end
 
 function gmInte.log(msg, debug)
     if debug && !gmInte.config.debug then return end
-    print(getTimeStamp() .. " [Gmod Integration] " .. msg)
+    print(getTimeStamp() .. " | Gmod Integration | " .. msg)
 end
 
 // Log Error
 function gmInte.logError(msg, debug)
     if debug && !gmInte.config.debug then return end
-    print(getTimeStamp() .. " [Gmod Integration] [ERROR] " .. msg)
+    print(getTimeStamp() .. " | Gmod Integration | ERROR | " .. msg)
 end
 
 // Log Warning
 function gmInte.logWarning(msg, debug)
     if debug && !gmInte.config.debug then return end
-    print(getTimeStamp() .. " [Gmod Integration] [WARNING] " .. msg)
+    print(getTimeStamp() .. " | Gmod Integration | WARNING | " .. msg)
 end
 
 // Log Hint
 function gmInte.logHint(msg, debug)
     if debug && !gmInte.config.debug then return end
-    print(getTimeStamp() .. " [Gmod Integration] [HINT] " .. msg)
+    print(getTimeStamp() .. " | Gmod Integration | HINT | " .. msg)
 end
 
 // Is Private IP

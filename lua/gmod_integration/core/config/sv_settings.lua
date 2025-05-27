@@ -58,7 +58,8 @@ function gmInte.publicGetConfig(ply)
             ["websocketFQDN"] = gmInte.config.websocketFQDN,
             ["adminRank"] = gmInte.config.adminRank,
             ["language"] = gmInte.config.language,
-            ["clientBranch"] = gmInte.config.clientBranch
+            ["clientBranch"] = gmInte.config.clientBranch,
+            ["logTimestamp"] = gmInte.config.logTimestamp
         },
         ["other"] = {
             ["aprovedCredentials"] = gmInte.aprovedCredentials,
