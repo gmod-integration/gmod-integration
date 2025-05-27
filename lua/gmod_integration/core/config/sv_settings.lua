@@ -44,6 +44,11 @@ end
 
 function gmInte.superadminGetConfig(ply)
     if !ply:IsValid() || !ply:IsPlayer(ply) || !ply:gmIntIsAdmin() then return end
+    if !gmInte.useDataConfig then
+        gmInte.SendNet("notEditableConfig", {}, ply)
+        return
+    end
+
     gmInte.config.websocket = GWSockets && true || false
     gmInte.SendNet("adminConfig", gmInte.config, ply)
 end

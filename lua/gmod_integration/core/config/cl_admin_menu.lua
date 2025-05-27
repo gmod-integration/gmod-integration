@@ -13,6 +13,43 @@ local colorTable = {
     ["buttonTextHover"] = Color(255, 255, 255, 255),
 }
 
+// function to open a msg info say in game config has been disabled because default sv_config.lua has been edited
+function gmInte.openDisabledConfig()
+    local frame = vgui.Create("DFrame")
+    frame:SetSize(400, 120)
+    frame:Center()
+    frame:SetTitle(gmInte.getFrameName(gmInte.getTranslation("admin.config_disabled", "Config Disabled")))
+    frame:SetDraggable(true)
+    frame:ShowCloseButton(true)
+    frame:MakePopup()
+    gmInte.applyPaint(frame)
+    local messagePanel = vgui.Create("DPanel", frame)
+    messagePanel:Dock(TOP)
+    messagePanel:SetSize(300, 40)
+    messagePanel:DockMargin(10, 0, 10, 10)
+    messagePanel:SetBackgroundColor(Color(0, 0, 0, 0))
+    local messageLabel = vgui.Create("DLabel", messagePanel)
+    messageLabel:Dock(FILL)
+    messageLabel:SetText(gmInte.getTranslation("admin.config_disabled_description", "The config has been disabled because the default sv_config.lua has been edited.\nPlease restore the default sv_config.lua to enable the config again."))
+    messageLabel:SetContentAlignment(5)
+    messageLabel:SetWrap(true)
+    local buttonGrid = vgui.Create("DGrid", frame)
+    buttonGrid:Dock(BOTTOM)
+    buttonGrid:DockMargin(5, 10, 5, 5)
+    buttonGrid:SetCols(1)
+    buttonGrid:SetColWide(frame:GetWide() - 10)
+    buttonGrid:SetRowHeight(35)
+    local button = vgui.Create("DButton")
+    button:SetText(gmInte.getTranslation("admin.ok", "OK"))
+    button.DoClick = function() frame:Close() end
+    button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
+    gmInte.applyPaint(button)
+    buttonGrid:AddItem(button)
+    frame.OnClose = function() gmInte.openAdminPanel = false end
+    frame.OnRemove = function() gmInte.openAdminPanel = false end
+    frame.OnKeyCodePressed = function(self, key) if key == KEY_ESCAPE then self:Close() end end
+end
+
 function gmInte.needRestart()
     local frame = vgui.Create("DFrame")
     frame:SetSize(400, 120)

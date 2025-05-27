@@ -19,7 +19,8 @@ local netReceive = {
     end,
     ["chatColorMessage"] = function(data) gmInte.chatAddTextFromTable(data) end,
     ["openVerifPopup"] = function() gmInte.openVerifPopup() end,
-    ["savePlayerToken"] = function(data) gmInte.config.token = data.token end
+    ["savePlayerToken"] = function(data) gmInte.config.token = data.token end,
+    ["notEditableConfig"] = function() gmInte.openDisabledConfig() end,
 }
 
 net.Receive("gmIntegration", function()
