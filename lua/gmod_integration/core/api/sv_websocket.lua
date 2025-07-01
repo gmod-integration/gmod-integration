@@ -20,44 +20,76 @@ local function getWebSocketURL()
     return method .. "://" .. gmInte.config.websocketFQDN
 end
 
-local nbOfTry = 0
 function gmInte.setupWebSocket()
-    local socket = GWSockets.createWebSocket(getWebSocketURL())
-    socket:setHeader("id", gmInte.config.id)
-    socket:setHeader("token", gmInte.config.token)
-    socket:open()
-    function socket:onConnected()
+    local callbacks_ = {}
+    gmInte.websocket = GWSockets.createWebSocket(getWebSocketURL())
+    gmInte.websocket:setHeader("id", gmInte.config.id)
+    gmInte.websocket:setHeader("token", gmInte.config.token)
+    gmInte.websocket:open()
+    function gmInte.websocket:onConnected()
         gmInte.log("WebSocket Connected", true)
     end
 
-    function socket:onMessage(txt)
+    function gmInte.websocket:onMessage(txt)
         gmInte.log("WebSocket Message: " .. txt, true)
         local data = util.JSONToTable(txt)
         if gmInte[data.method] then
             gmInte[data.method](data)
+        elseif data.id && callbacks_[data.id] then
+            local callback = callbacks_[data.id]
+            callbacks_[data.id] = nil
+            if data.error then
+                gmInte.logError("WebSocket Error: " .. data.error, true)
+                callback(false, data.error)
+            else
+                callback(true, data.data)
+            end
         else
             gmInte.logError("WebSocket Message: " .. txt .. " is not a valid method !", true)
         end
     end
 
-    function socket:onDisconnected()
+    function gmInte.websocket:onDisconnected()
         gmInte.log("WebSocket Disconnected", true)
     end
 
-    function socket:onError(txt)
+    function gmInte.websocket:onError(txt)
         gmInte.logError("WebSocket Error: " .. txt, true)
     end
 
-    timer.Create("gmInte:WebSocket:CheckConnection", 4, 0, function()
-        if !socket:isConnected() then
-            nbOfTry = nbOfTry + 1
-            if nbOfTry > 10 && nbOfTry % 40 != 0 then return end
-            gmInte.log("WebSocket is not connected, trying to reconnect", true)
-            timer.Remove("gmInte:WebSocket:CheckConnection")
-            gmInte.setupWebSocket()
+    function gmInte.websocket:send(method, data, callback, hidePrint)
+        if !self:isConnected() then
+            if !hidePrint then
+                gmInte.logError("WebSocket is not connected, cannot send data", true)
+            end
+            return
         end
-    end)
+
+        local id = tostring(SysTime()) .. "-" .. gmInte.generateRandomString(8)
+
+        local packet = {
+            method = method,
+            data = data,
+            id = id
+        }
+
+        if callback then
+            callbacks_[id] = callback
+        end
+        
+        if !hidePrint then
+            gmInte.log("WebSocket Send: " .. util.TableToJSON(packet), true)
+        end
+        self:write(util.TableToJSON(packet))
+    end
 end
+
+timer.Create("gmInte:WebSocket:CheckConnection", 4, 0, function()
+    if (!gmInte.websocket || !gmInte.websocket:isConnected()) && gmInte.aprovedCredentials then
+        gmInte.log("WebSocket is not connected, trying to connect", true)
+        gmInte.setupWebSocket()
+    end
+end)
 
 hook.Add("GmodIntegration:Websocket:Restart", "gmInte:WebSocket:Restart", function() gmInte.setupWebSocket() end)
 hook.Add("InitPostEntity", "gmInte:ServerReady:WebSocket", function() timer.Simple(1, function() gmInte.setupWebSocket() end) end)
