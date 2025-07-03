@@ -25,9 +25,9 @@ function gmInte.loadTranslations()
   end
 
   if !gmInte.log then
-    print(" | Translations | Loaded " .. lang .. " translations")
+    print(" | Translations | Loaded Translations: " .. lang)
   else
-    gmInte.log("Loaded " .. lang .. " translations")
+    gmInte.log("Loaded Translations: " .. lang)
   end
 end
 
