@@ -123,7 +123,7 @@ else
     print(" ")
 end
 
-local execFolder = debug.getinfo(1, "S").source:match("/(.+)/(.+)/(.+)/")
+local execFolder = debug.getinfo(1, "S").source:match("/(.+)/(.+)/(.+)/") || "gmod_integration"
 loadFile(execFolder, "sv_config.lua")
 loadFolder(execFolder .. "/languages")
 loadFolder(execFolder .. "/core/utils")
