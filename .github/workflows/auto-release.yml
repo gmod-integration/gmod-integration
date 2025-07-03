@@ -164,7 +164,7 @@ jobs:
               uses: softprops/action-gh-release@v1
               with:
                   tag_name: ${{ steps.calc_version.outputs.new_tag }}
-                  name: Release ${{ steps.calc_version.outputs.new_tag }}
+                  name: ${{ steps.calc_version.outputs.new_tag }}
                   body: ${{ steps.changelog.outputs.changelog }}
                   files: |
                       gmod-integration-${{ steps.calc_version.outputs.new_version }}.zip
