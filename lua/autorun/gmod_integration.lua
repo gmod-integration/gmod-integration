@@ -2,7 +2,7 @@ if game.SinglePlayer() then return print("Gmod Integration is not supported in S
 local alreadyLoadGMI = gmInte
 local isLatest = debug.getinfo(1, "S").source == "@addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua"
 local function simpleLog(msg, debug)
-    print(" | " .. os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)
+    print(" | " .. os.date((gmInte && gmInte.config.logTimestamp) || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)
 end
 
 if !alreadyLoadGMI then
