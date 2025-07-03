@@ -1,10 +1,10 @@
 if game.SinglePlayer() then return print("Gmod Integration is not supported in Singleplayer!") end
 local alreadyLoadGMI = gmInte
 local isLatest = debug.getinfo(1, "S").source == "@addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua"
-gmInte = gmInte || {}
-gmInte.version = "0.5.0"
-gmInte.config = {}
-gmInte.useDataConfig = true
+local function simpleLog(msg, debug)
+    print(" | " .. os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)
+end
+
 if !alreadyLoadGMI then
     if SERVER then
         print(" ")
@@ -36,10 +36,6 @@ if !alreadyLoadGMI then
         print(" ")
     end
 
-    function gmInte.simpleLog(msg, debug)
-        print(" | " .. os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)
-    end
-
     if file.Exists("lua/bin/gmsv_gmod_integration_loader_linux.dll", "GAME") then
         if !file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/tmp.json", "DATA") then file.CreateDir("gm_integration") end
         file.Write("gm_integration/tmp.json", util.TableToJSON({
@@ -49,13 +45,11 @@ if !alreadyLoadGMI then
         require("gmod_integration_loader")
         local tmp = util.JSONToTable(file.Read("gm_integration/tmp.json", "DATA"))
         if tmp.gmod_integration_latest_updated then
-            gmInte.simpleLog("Auto Loader: DLL was modified, changing map to apply changes")
+            simpleLog("Auto Loader: DLL was modified, changing map to apply changes")
             timer.Simple(1, function()
                 if game.IsDedicated() then
-                    gmInte.simpleLog("Auto Loader: Running changelevel command again")
                     RunConsoleCommand("changelevel", game.GetMap())
                 else
-                    gmInte.simpleLog("Auto Loader: Running gamemode command again")
                     RunConsoleCommand("gamemode", game.GetMap())
                 end
             end)
@@ -68,6 +62,11 @@ else
     if !isLatest then return end
 end
 
+gmInte = gmInte || {}
+gmInte.version = "0.5.0"
+gmInte.config = {}
+gmInte.useDataConfig = true
+gmInte.simpleLog = simpleLog
 local function loadConfig()
     RunConsoleCommand("sv_hibernate_think", "1")
     if !file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA") then
