@@ -31,8 +31,24 @@ gmInte = gmInte || {}
 gmInte.version = "5.0.5" // This will be automatically updated by GitHub Actions
 gmInte.config = {}
 gmInte.useDataConfig = true
-function gmInte.simpleLog(msg, debug)
+function gmInte.log(msg, onlyOndebug)
+    if onlyOndebug && !gmInte.config.debug then return end
     print(" | " .. os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)
+end
+
+function gmInte.logError(msg, onlyOndebug)
+    if onlyOndebug && !gmInte.config.debug then return end
+    gmInte.log("| ERROR | " .. msg)
+end
+
+function gmInte.logWarning(msg, onlyOndebug)
+    if onlyOndebug && !gmInte.config.debug then return end
+    gmInte.log("| WARNING | " .. msg)
+end
+
+function gmInte.logHint(msg, onlyOndebug)
+    if onlyOndebug && !gmInte.config.debug then return end
+    gmInte.log("| HINT | " .. msg)
 end
 
 local function loadConfig()
@@ -43,7 +59,7 @@ local function loadConfig()
     else
         if gmInte.config.id && gmInte.config.id != "" then
             gmInte.useDataConfig = false
-            timer.Simple(1, function() gmInte.simpleLog("Using Data Config | This is not recommended, please revert change and use ig cmd !gmi to edit your config", true) end)
+            timer.Simple(1, function() gmInte.log("Using Data Config | This is not recommended, please revert change and use ig cmd !gmi to edit your config", true) end)
             return
         end
 
@@ -56,7 +72,7 @@ local function loadConfig()
             gmInte.config = oldConfig
         end
 
-        gmInte.simpleLog("Using Data Config: Data config loaded from data/gm_integration/config.json")
+        gmInte.log("Using Data Config: Data config loaded from data/gm_integration/config.json")
     end
 end
 
@@ -79,7 +95,7 @@ local function loadFile(folder, fileName)
     end
 
     if fileName == "sv_config.lua" then loadConfig() end
-    gmInte.simpleLog("File Loaded: " .. path)
+    gmInte.log("File Loaded: " .. path)
 end
 
 local function loadFolder(folder)
