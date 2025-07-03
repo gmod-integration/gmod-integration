@@ -27,6 +27,7 @@ else
     if !isLatest then return end
 end
 
+// change example
 gmInte = gmInte || {}
 gmInte.version = "5.0.2" // This will be automatically updated by GitHub Actions
 gmInte.config = {}
