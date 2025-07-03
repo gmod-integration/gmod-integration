@@ -1,6 +1,6 @@
 if game.SinglePlayer() then return print("Gmod Integration is not supported in Singleplayer!") end
 local alreadyLoadGMI = gmInte
-local isLatest = debug.getinfo(1, "S").source == "@addons/gmod_integration_latest/lua/autorun/gmod_integration_latest.lua"
+local isLatest = debug.getinfo(1, "S").source == "@addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua"
 gmInte = gmInte || {}
 gmInte.version = "0.5.0"
 gmInte.config = {}
