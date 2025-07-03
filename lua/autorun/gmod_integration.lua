@@ -1,41 +1,7 @@
 if game.SinglePlayer() then return print("Gmod Integration is not supported in Singleplayer!") end
 local alreadyLoadGMI = gmInte
 local isLatest = debug.getinfo(1, "S").source == "@addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua"
-local function simpleLog(msg, debug)
-    print(" | " .. os.date((gmInte && gmInte.config.logTimestamp) || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)
-end
-
 if !alreadyLoadGMI then
-    if SERVER then
-        print(" ")
-        print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
-        print(" -                                                                   - ")
-        print(" -                      Gmod Integration v" .. gmInte.version .. "                      - ")
-        print(" -                                                                   - ")
-        print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
-        print(" -                                                                   - ")
-        print(" -                Thanks for using Gmod Integration !                - ")
-        print(" -     If you have any questions, please contact us on Discord!      - ")
-        print(" -               https://gmod-integration.com/discord                - ")
-        print(" -                                                                   - ")
-        print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
-        print(" ")
-    else
-        print(" ")
-        print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
-        print(" -                                                                                                                                     - ")
-        print(" -                                               Gmod Integration v" .. gmInte.version .. "                                               - ")
-        print(" -                                                                                                                                     - ")
-        print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
-        print(" -                                                                                                                                     - ")
-        print(" -                                      Thanks for using Gmod Integration !                                     - ")
-        print(" -                     If you have any questions, please contact us on Discord!                      - ")
-        print(" -                                       https://gmod-integration.com/discord                                   - ")
-        print(" -                                                                                                                                     - ")
-        print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
-        print(" ")
-    end
-
     if file.Exists("lua/bin/gmsv_gmod_integration_loader_linux.dll", "GAME") then
         if !file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/tmp.json", "DATA") then file.CreateDir("gm_integration") end
         file.Write("gm_integration/tmp.json", util.TableToJSON({
@@ -45,7 +11,6 @@ if !alreadyLoadGMI then
         require("gmod_integration_loader")
         local tmp = util.JSONToTable(file.Read("gm_integration/tmp.json", "DATA"))
         if tmp.gmod_integration_latest_updated then
-            simpleLog("Auto Loader: DLL was modified, changing map to apply changes")
             timer.Simple(1, function()
                 if game.IsDedicated() then
                     RunConsoleCommand("changelevel", game.GetMap())
@@ -66,7 +31,10 @@ gmInte = gmInte || {}
 gmInte.version = "0.5.0"
 gmInte.config = {}
 gmInte.useDataConfig = true
-gmInte.simpleLog = simpleLog
+function gmInte.simpleLog(msg, debug)
+    print(" | " .. os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)
+end
+
 local function loadConfig()
     RunConsoleCommand("sv_hibernate_think", "1")
     if !file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/config.json", "DATA") then
@@ -123,6 +91,36 @@ local function loadFolder(folder)
     for k, subFolder in SortedPairs(folders) do
         loadFolder(folder .. "/" .. subFolder)
     end
+end
+
+if SERVER then
+    print(" ")
+    print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+    print(" -                                                                   - ")
+    print(" -                      Gmod Integration v" .. gmInte.version .. "                      - ")
+    print(" -                                                                   - ")
+    print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+    print(" -                                                                   - ")
+    print(" -                Thanks for using Gmod Integration !                - ")
+    print(" -     If you have any questions, please contact us on Discord!      - ")
+    print(" -               https://gmod-integration.com/discord                - ")
+    print(" -                                                                   - ")
+    print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+    print(" ")
+else
+    print(" ")
+    print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+    print(" -                                                                                                                                     - ")
+    print(" -                                               Gmod Integration v" .. gmInte.version .. "                                               - ")
+    print(" -                                                                                                                                     - ")
+    print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+    print(" -                                                                                                                                     - ")
+    print(" -                                      Thanks for using Gmod Integration !                                     - ")
+    print(" -                     If you have any questions, please contact us on Discord!                      - ")
+    print(" -                                       https://gmod-integration.com/discord                                   - ")
+    print(" -                                                                                                                                     - ")
+    print(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+    print(" ")
 end
 
 local execFolder = debug.getinfo(1, "S").source:match("/(.+)/(.+)/(.+)/")
