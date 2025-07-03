@@ -28,7 +28,7 @@ else
 end
 
 gmInte = gmInte || {}
-gmInte.version = "5.0.0"
+gmInte.version = "5.0.1"
 gmInte.config = {}
 gmInte.useDataConfig = true
 function gmInte.simpleLog(msg, debug)
