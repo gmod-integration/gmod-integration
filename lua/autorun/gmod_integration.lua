@@ -48,7 +48,7 @@ local function loadConfig()
         end
 
         local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
-        if !oldConfig.version || (oldConfig.version < gmInte.version) then
+        if !oldConfig.version || (oldConfig.version != gmInte.version) then
             table.Merge(gmInte.config, oldConfig)
             gmInte.config.version = gmInte.version
             file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
