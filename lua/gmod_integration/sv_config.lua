@@ -39,6 +39,7 @@ gmInte.config.supportLink = "" // The link of your support (shown when a player 
 gmInte.config.maintenance = false // If true, the addon will only allow the players with the "gmod-integration.maintenance" permission to join the server
 gmInte.config.language = "en" // The language of the addon (en, fr, de, es, it, tr, ru)
 gmInte.config.logTimestamp = "%H:%M:%S" // The timestamp format of the logs
+gmInte.config.dllBranch = "main" // The download branch of gmod integration via dll (Use at your own risk, this is not recommended for production servers)
 gmInte.config.adminRank = {
     // How can edit the configuration of the addon / bypass the maintenance mode
     ["superadmin"] = true,
