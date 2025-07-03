@@ -28,7 +28,7 @@ else
 end
 
 gmInte = gmInte || {}
-gmInte.version = "5.0.5" // This will be automatically updated by GitHub Actions
+gmInte.version = "5.0.6" // This will be automatically updated by GitHub Actions
 gmInte.config = {}
 gmInte.useDataConfig = true
 function gmInte.log(msg, onlyOndebug)
