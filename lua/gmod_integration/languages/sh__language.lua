@@ -1,4 +1,4 @@
-local default = include("gmod_integration/languages/sh_en.lua")
+local default = include(gmInte.execFolder .. "/languages/sh_en.lua")
 local translationTable = default
 function gmInte.getTranslation(key, defaultTranslation, ...)
   local translation = translationTable[key]
@@ -16,8 +16,8 @@ function gmInte.loadTranslations()
   if lang == "en" then
     translationTable = default
   else
-    if file.Exists("gmod_integration/languages/sh_" .. lang .. ".lua", "LUA") then
-      translationTable = include("gmod_integration/languages/sh_" .. lang .. ".lua")
+    if file.Exists(gmInte.execFolder .. "/languages/sh_" .. lang .. ".lua", "LUA") then
+      translationTable = include(gmInte.execFolder .. "/languages/sh_" .. lang .. ".lua")
     else
       print("Unknown Language")
       return

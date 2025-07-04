@@ -139,12 +139,12 @@ else
     print(" ")
 end
 
-local execFolder = debug.getinfo(1, "S").source:match("/(.+)/(.+)/(.+)/") || "gmod_integration"
-loadFile(execFolder, "sv_config.lua")
-loadFolder(execFolder .. "/languages")
-loadFolder(execFolder .. "/core/utils")
-loadFolder(execFolder .. "/core/ui")
-loadFolder(execFolder .. "/core")
-loadFolder(execFolder .. "/modules")
-loadFolder(execFolder)
+gmInte.execFolder = debug.getinfo(1, "S").source:match("/(.+)/(.+)/(.+)/") || "gmod_integration"
+loadFile(gmInte.execFolder, "sv_config.lua")
+loadFolder(gmInte.execFolder .. "/languages")
+loadFolder(gmInte.execFolder .. "/core/utils")
+loadFolder(gmInte.execFolder .. "/core/ui")
+loadFolder(gmInte.execFolder .. "/core")
+loadFolder(gmInte.execFolder .. "/modules")
+loadFolder(gmInte.execFolder)
 print(" ")
