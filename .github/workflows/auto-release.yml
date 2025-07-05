@@ -292,5 +292,5 @@ jobs:
                     -e VISIBILITY \
                     -e CHANGE_NOTE \
                     -e PUBLISHED_FILE_ID \
-                    -v ${{ github.workspace }}:/data
+                    -v ${{ github.workspace }}:/data \
                     gmod-uploader
