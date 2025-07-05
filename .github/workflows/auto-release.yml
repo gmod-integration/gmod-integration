@@ -172,3 +172,24 @@ jobs:
                   prerelease: false
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Publish to GMod Store
+              if: success()
+              run: |
+                  NEW_VERSION="${{ steps.calc_version.outputs.new_version }}"
+                  CHANGELOG="${{ steps.changelog.outputs.changelog }}"
+
+                  # Prepare changelog for API (remove markdown formatting and limit length)
+                  API_CHANGELOG=$(echo "$CHANGELOG" | sed 's/## What'\''s Changed/What'\''s Changed:/g' | sed 's/\*\*Full Changelog\*\*/Full Changelog:/g' | head -c 9000)
+
+                  # Upload to GMod Store
+                  curl -X POST "https://www.gmodstore.com/api/products/${{ secrets.GMODSTORE_PRODUCT_ID }}/versions" \
+                    -H "Authorization: Bearer ${{ secrets.GMODSTORE_API_TOKEN }}" \
+                    -F "name=v$NEW_VERSION" \
+                    -F "changelog=$API_CHANGELOG" \
+                    -F "file=@gmod-integration-$NEW_VERSION.zip" \
+                    -F "releaseType=stable" \
+                    --fail-with-body || echo "Failed to publish to GMod Store - check your API token and product ID"
+              env:
+                  GMODSTORE_API_TOKEN: ${{ secrets.GMODSTORE_API_TOKEN }}
+                  GMODSTORE_PRODUCT_ID: ${{ secrets.GMODSTORE_PRODUCT_ID }}
