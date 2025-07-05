@@ -4,15 +4,7 @@ function gmInte.saveSetting(setting, value)
         return
     end
 
-    if setting == "language" && !file.Exists("gmod_integration/shared/languages/sh_" .. value .. ".lua", "LUA") then
-        gmInte.log("Unknown Language")
-        return
-    end
-
-    if setting == "id" || setting == "token" then
-        gmInte.aprovedCredentials = false
-    end
-
+    if setting == "id" || setting == "token" then gmInte.aprovedCredentials = false end
     // Boolean
     if value == "true" then value = true end
     if value == "false" then value = false end
