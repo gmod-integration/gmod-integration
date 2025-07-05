@@ -214,7 +214,7 @@ jobs:
                   API_CHANGELOG=$(echo "$CHANGELOG" | sed 's/## What'\''s Changed/What'\''s Changed:/g' | sed 's/\*\*Full Changelog\*\*/Full Changelog:/g' | head -c 9000)
 
                   # Upload to GMod Store
-                  curl -X POST "https://www.gmodstore.com/api/products/${{ secrets.GMODSTORE_PRODUCT_ID }}/versions" \
+                  curl -X POST "https://api.pivity.com/v3/products/${{ secrets.GMODSTORE_PRODUCT_ID }}/versions" \
                     -H "Authorization: Bearer ${{ secrets.GMODSTORE_API_TOKEN }}" \
                     -F "name=v$NEW_VERSION" \
                     -F "changelog=$API_CHANGELOG" \
