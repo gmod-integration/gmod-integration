@@ -3,6 +3,8 @@ name: Auto Release
 on:
     push:
         branches: [main, master]
+        tags:
+            - 'v*.*.*'
     workflow_dispatch:
         inputs:
             version_type:
