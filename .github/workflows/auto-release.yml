@@ -262,7 +262,10 @@ jobs:
 
             - name: Generate Steam Guard OTP
               id: steam_otp
-              run: echo "otp=$(python3 otp.py)" >> $GITHUB_OUTPUT
+              env:
+                  STEAM_SHARED_SECRET: ${{ secrets.STEAM_SHARED_SECRET }}
+              run: |
+                  echo "otp=$(python3 otp.py)" >> $GITHUB_OUTPUT
               working-directory: ${{ github.workspace }}/gmod-workshop-cicd
 
             # 5) Publish to Steam Workshop, with change notes from your GMod Store changelog
