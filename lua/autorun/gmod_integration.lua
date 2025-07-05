@@ -1,8 +1,13 @@
 if game.SinglePlayer() then return print("Gmod Integration is not supported in Singleplayer!") end
 local alreadyLoadGMI = gmInte
+local function dllInstalled()
+    return file.Exists("lua/bin/gmsv_gmod_integration_loader_linux.dll", "GAME") || file.Exists("gmsv_gmod_integration_loader_linux64.dll", "GAME") || file.Exists("lua/bin/gmsv_gmod_integration_loader_win32.dll", "GAME") || file.Exists("gmsv_gmod_integration_loader_win64.dll", "GAME")
+end
+
 local isLatest = debug.getinfo(1, "S").source == "@addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua"
+local isLatestExist = file.Exists("addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua", "LUA")
 if !alreadyLoadGMI then
-    if file.Exists("lua/bin/gmsv_gmod_integration_loader_linux.dll", "GAME") then
+    if dllInstalled() then
         if !file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/tmp.json", "DATA") then file.CreateDir("gm_integration") end
         file.Write("gm_integration/tmp.json", util.TableToJSON({
             gmod_integration_latest_updated = false,
@@ -24,13 +29,14 @@ if !alreadyLoadGMI then
         if !isLatest then return end
     end
 else
-    if !isLatest then return end
+    if !isLatest && isLatestExist then return end
 end
 
 gmInte = gmInte || {}
 gmInte.version = "5.0.6" // This will be automatically updated by GitHub Actions
 gmInte.config = {}
 gmInte.useDataConfig = true
+gmInte.dllInstalled = dllInstalled
 function gmInte.log(msg, onlyOndebug)
     if onlyOndebug && !gmInte.config.debug then return end
     print(" | " .. os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)
@@ -139,7 +145,7 @@ else
     print(" ")
 end
 
-gmInte.execFolder = debug.getinfo(1, "S").source:match("/(.+)/(.+)/(.+)/") || "gmod_integration"
+gmInte.execFolder = debug.getinfo(1, "S").source:match("([^/\\]+)$"):gsub("%.lua$", "") || "gmod_integration"
 loadFile(gmInte.execFolder, "sv_config.lua")
 loadFolder(gmInte.execFolder .. "/languages")
 loadFolder(gmInte.execFolder .. "/core/utils")

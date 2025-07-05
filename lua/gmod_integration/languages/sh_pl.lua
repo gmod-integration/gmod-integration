@@ -104,5 +104,6 @@ return {
     ["verification.family_sharing_description"] = "Blokuj graczy korzystających z udostępniania rodzinnego.",
     ["admin.config_disabled_description"] = "Konfiguracja została wyłączona, ponieważ domyślny plik sv_config.lua został zmieniony.\nPrzywróć domyślny plik sv_config.lua, aby ponownie włączyć konfigurację.",
     ["admin.config_disabled"] = "Konfiguracja Wyłączona",
+    ["admin.dll_install_problem"] = "Brakuje DLL Gmod Integration!\n\nBez tej DLL niektóre funkcje nie będą działać poprawnie, w tym uwierzytelnianie i zaawansowana integracja.",
     ["chat.error.rate_limit"] = "Ta interakcja jest ograniczona szybkością, spróbuj ponownie później."
 }

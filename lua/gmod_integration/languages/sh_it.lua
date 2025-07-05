@@ -104,5 +104,6 @@ return {
   ["verification.verifyFamilySharing_description"] = "Blocca i giocatori che utilizzano la condivisione familiare.",
   ["admin.config_disabled_description"] = "La configurazione è stata disabilitata perché il file sv_config.lua predefinito è stato modificato.\nRipristina il file sv_config.lua predefinito per abilitare nuovamente la configurazione.",
   ["admin.config_disabled"] = "Configurazione Disabilitata",
+  ["admin.dll_install_problem"] = "La DLL di Gmod Integration è mancante!\n\nSenza questa DLL, alcune funzionalità non funzioneranno correttamente, inclusa l'autenticazione e l'integrazione avanzata.",
   ["chat.error.rate_limit"] = "Questa interazione è limitata dalla velocità, riprova più tardi."
 }

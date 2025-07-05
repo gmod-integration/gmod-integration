@@ -104,5 +104,6 @@ return {
   ["verification.family_sharing_description"] = "Blokkeer spelers die gezinsdeling gebruiken.",
   ["admin.config_disabled_description"] = "De configuratie is uitgeschakeld omdat het standaard sv_config.lua-bestand is bewerkt.\nHerstel het standaard sv_config.lua-bestand om de configuratie opnieuw in te schakelen.",
   ["admin.config_disabled"] = "Configuratie Uitgeschakeld",
+  ["admin.dll_install_problem"] = "De Gmod Integration DLL ontbreekt!\n\nZonder deze DLL zullen sommige functies niet correct werken, inclusief authenticatie en geavanceerde integratie.",
   ["chat.error.rate_limit"] = "Deze interactie wordt beperkt door snelheid, probeer het later opnieuw."
 }

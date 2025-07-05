@@ -104,5 +104,6 @@ return {
   ["verification.verifyFamilySharing_description"] = "Блокировать игроков, использующих семейный доступ.",
   ["admin.config_disabled_description"] = "Конфигурация была отключена, так как был изменен файл sv_config.lua.\nПожалуйста, восстановите исходный sv_config.lua, чтобы снова включить конфигурацию.",
   ["admin.config_disabled"] = "Конфигурация Отключена",
+  ["admin.dll_install_problem"] = "DLL Gmod Integration отсутствует!\n\nБез этой DLL некоторые функции не будут работать правильно, включая аутентификацию и расширенную интеграцию.",
   ["chat.error.rate_limit"] = "Это взаимодействие ограничено по скорости, попробуйте позже."
 }

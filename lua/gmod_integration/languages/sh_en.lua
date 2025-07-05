@@ -104,5 +104,6 @@ return {
 	["verification.verifyFamilySharing"] = "Block Family Sharing",
 	["verification.family_shariverifyFamilySharing_descriptionng"] = "Block family sharing players.",
 	["admin.config_disabled_description"] = "The config has been disabled because the default sv_config.lua has been edited.\nPlease restore the default sv_config.lua to enable the config again.",
-	["admin.config_disabled"] = "Config Disabled"
+	["admin.config_disabled"] = "Config Disabled",
+	["admin.dll_install_problem"] = "The Gmod Integration DLL is missing!\n\nWithout this DLL, some features will not work correctly, including authentication and advanced integration."
 }
