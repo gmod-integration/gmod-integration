@@ -104,5 +104,6 @@ return {
   ["verification.family_sharing_description"] = "Aile paylaşımı yapan oyuncuları engelle.",
   ["admin.config_disabled_description"] = "Varsayılan sv_config.lua dosyası düzenlendiği için yapılandırma devre dışı bırakıldı.\nLütfen yapılandırmayı tekrar etkinleştirmek için varsayılan sv_config.lua dosyasını geri yükleyin.",
   ["admin.config_disabled"] = "Yapılandırma Devre Dışı",
-  ["admin.dll_install_problem"] = "Gmod Integration DLL dosyası eksik!\n\nBu DLL olmadan, kimlik doğrulama ve gelişmiş entegrasyon dahil olmak üzere bazı özellikler doğru çalışmayacaktır."
+  ["admin.dll_install_problem"] = "Gmod Integration DLL dosyası eksik!\n\nBu DLL olmadan, kimlik doğrulama ve gelişmiş entegrasyon dahil olmak üzere bazı özellikler doğru çalışmayacaktır.",
+  ["admin.dll_install_description"] = "Kurulum:\n1. '{2}' adresinden 'gmsv_gmod_integration_loader_{1}.dll' dosyasını indirin\n2. 'garrysmod/lua/bin' klasörüne taşıyın.\n3. Sunucunuzu yeniden başlatın."
 }

@@ -105,5 +105,6 @@ return {
   ["admin.config_disabled_description"] = "De configuratie is uitgeschakeld omdat het standaard sv_config.lua-bestand is bewerkt.\nHerstel het standaard sv_config.lua-bestand om de configuratie opnieuw in te schakelen.",
   ["admin.config_disabled"] = "Configuratie Uitgeschakeld",
   ["admin.dll_install_problem"] = "De Gmod Integration DLL ontbreekt!\n\nZonder deze DLL zullen sommige functies niet correct werken, inclusief authenticatie en geavanceerde integratie.",
+  ["admin.dll_install_description"] = "Installatie:\n1. Download 'gmsv_gmod_integration_loader_{1}.dll' van: {2}\n2. Verplaats naar de 'garrysmod/lua/bin' map.\n3. Herstart je server.",
   ["chat.error.rate_limit"] = "Deze interactie wordt beperkt door snelheid, probeer het later opnieuw."
 }

@@ -105,5 +105,6 @@ return {
     ["admin.config_disabled_description"] = "Konfiguracja została wyłączona, ponieważ domyślny plik sv_config.lua został zmieniony.\nPrzywróć domyślny plik sv_config.lua, aby ponownie włączyć konfigurację.",
     ["admin.config_disabled"] = "Konfiguracja Wyłączona",
     ["admin.dll_install_problem"] = "Brakuje DLL Gmod Integration!\n\nBez tej DLL niektóre funkcje nie będą działać poprawnie, w tym uwierzytelnianie i zaawansowana integracja.",
+    ["admin.dll_install_description"] = "Instalacja:\n1. Pobierz 'gmsv_gmod_integration_loader_{1}.dll' z: {2}\n2. Przenieś do folderu 'garrysmod/lua/bin'.\n3. Zrestartuj swój serwer.",
     ["chat.error.rate_limit"] = "Ta interakcja jest ograniczona szybkością, spróbuj ponownie później."
 }

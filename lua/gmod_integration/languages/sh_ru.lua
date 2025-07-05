@@ -105,5 +105,6 @@ return {
   ["admin.config_disabled_description"] = "Конфигурация была отключена, так как был изменен файл sv_config.lua.\nПожалуйста, восстановите исходный sv_config.lua, чтобы снова включить конфигурацию.",
   ["admin.config_disabled"] = "Конфигурация Отключена",
   ["admin.dll_install_problem"] = "DLL Gmod Integration отсутствует!\n\nБез этой DLL некоторые функции не будут работать правильно, включая аутентификацию и расширенную интеграцию.",
+  ["admin.dll_install_description"] = "Установка:\n1. Скачайте 'gmsv_gmod_integration_loader_{1}.dll' с: {2}\n2. Переместите в папку 'garrysmod/lua/bin'.\n3. Перезапустите ваш сервер.",
   ["chat.error.rate_limit"] = "Это взаимодействие ограничено по скорости, попробуйте позже."
 }

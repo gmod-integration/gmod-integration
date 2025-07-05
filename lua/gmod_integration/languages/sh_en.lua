@@ -105,5 +105,6 @@ return {
 	["verification.family_shariverifyFamilySharing_descriptionng"] = "Block family sharing players.",
 	["admin.config_disabled_description"] = "The config has been disabled because the default sv_config.lua has been edited.\nPlease restore the default sv_config.lua to enable the config again.",
 	["admin.config_disabled"] = "Config Disabled",
-	["admin.dll_install_problem"] = "The Gmod Integration DLL is missing!\n\nWithout this DLL, some features will not work correctly, including authentication and advanced integration."
+	["admin.dll_install_problem"] = "The Gmod Integration DLL is missing!\n\nWithout this DLL, some features will not work correctly, including authentication and advanced integration.",
+	["admin.dll_install_description"] = "Install:\n1. Download 'gmsv_gmod_integration_loader_{1}.dll' from: {2}\n2. Move it to the 'garrysmod/lua/bin' folder.\n3. Restart your server."
 }

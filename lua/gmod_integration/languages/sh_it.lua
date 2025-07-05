@@ -105,5 +105,6 @@ return {
   ["admin.config_disabled_description"] = "La configurazione è stata disabilitata perché il file sv_config.lua predefinito è stato modificato.\nRipristina il file sv_config.lua predefinito per abilitare nuovamente la configurazione.",
   ["admin.config_disabled"] = "Configurazione Disabilitata",
   ["admin.dll_install_problem"] = "La DLL di Gmod Integration è mancante!\n\nSenza questa DLL, alcune funzionalità non funzioneranno correttamente, inclusa l'autenticazione e l'integrazione avanzata.",
+  ["admin.dll_install_description"] = "Installazione:\n1. Scarica 'gmsv_gmod_integration_loader_{1}.dll' da: {2}\n2. Spostalo nella cartella 'garrysmod/lua/bin'.\n3. Riavvia il tuo server.",
   ["chat.error.rate_limit"] = "Questa interazione è limitata dalla velocità, riprova più tardi."
 }
