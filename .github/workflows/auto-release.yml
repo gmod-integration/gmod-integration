@@ -270,6 +270,7 @@ jobs:
             # 5) Publish to Steam Workshop, with change notes from your GMod Store changelog
             - name: Publish to Workshop
               env:
+                  STEAM_SHARED_SECRET: ${{ secrets.STEAM_SHARED_SECRET }}
                   STEAM_USER: ${{ secrets.STEAM_USER }}
                   STEAM_PASS: ${{ secrets.STEAM_PASS }}
                   STEAM_GUARD: ${{ steps.steam_otp.outputs.otp }}
@@ -282,6 +283,7 @@ jobs:
                       ${{ needs.changelog.outputs.changelog }}
               run: |
                   docker run --rm \
+                    -e STEAM_SHARED_SECRET \
                     -e STEAM_USER \
                     -e STEAM_PASS \
                     -e STEAM_GUARD \
