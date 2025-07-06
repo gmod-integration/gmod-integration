@@ -270,14 +270,19 @@ jobs:
                   STEAM_SHARED_SECRET: ${{ secrets.STEAM_SHARED_SECRET }}
                   STEAM_GUARD: ${{ steps.steam_otp.outputs.otp }}
                   PUBLISHED_FILE_ID: ${{ secrets.GMOD_INTEGRATION_PUBLISHED_FILE_ID }}
-                  CONTENT_PATH: /data
-                  PREVIEW_FILE: /data/materials/gmod_integration/logo.png
+                  CONTENT_PATH: /workshop
+                  PREVIEW_FILE: /workshop/materials/gmod_integration/logo.png
                   TITLE: Gmod Integration v${{ needs.version.outputs.new_version }}
                   DESCRIPTION: Workshop Content of gmod-integration.com – all information on the website.
                   VISIBILITY: '0'
                   CHANGE_NOTE: |
                       ${{ needs.changelog.outputs.changelog }}
               run: |
+                  mkdir -p workshop
+                  cp -r lua/ workshop/
+                  cp -r materials/ workshop/
+                  cp addon.json workshop/
+
                   docker run --rm \
                     -e STEAM_USER \
                     -e STEAM_PASS \
@@ -290,5 +295,5 @@ jobs:
                     -e VISIBILITY \
                     -e CHANGE_NOTE \
                     -e PUBLISHED_FILE_ID \
-                    -v ${{ github.workspace }}:/data:ro \
+                    -v ${{ github.workspace }}/workshop:/workshop:ro \
                     gmod-uploader
