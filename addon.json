@@ -1,0 +1,23 @@
+{
+	"title": "Gmod Integration",
+	"type": "ServerContent",
+	"tags": ["fun", "roleplay"],
+	"ignore": [
+		".git/**",
+		".github/**",
+		"README.md",
+		"*.md",
+		"*.yml",
+		"*.yaml",
+		"Dockerfile",
+		"entrypoint.sh",
+		"otp.py",
+		"github-action.yml",
+		"publish_gmod_addon.sh",
+		"test.gma",
+		"gmpublisher.gma",
+		"ws-ci/**",
+		"example_addon/**",
+		"extracted/**"
+	]
+}
