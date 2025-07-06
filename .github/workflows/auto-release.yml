@@ -233,7 +233,7 @@ jobs:
     publish_workshop:
         name: Publish to Steam Workshop
         runs-on: ubuntu-latest
-        needs: [build, version, changelog]
+        needs: [build, version, changelog, github-release]
 
         steps:
             - name: Checkout gmod-integration
