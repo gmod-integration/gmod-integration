@@ -44,17 +44,17 @@ end
 
 function gmInte.logError(msg, onlyOndebug)
     if onlyOndebug && !gmInte.config.debug then return end
-    gmInte.log("| ERROR | " .. msg)
+    gmInte.log("ERROR | " .. msg)
 end
 
 function gmInte.logWarning(msg, onlyOndebug)
     if onlyOndebug && !gmInte.config.debug then return end
-    gmInte.log("| WARNING | " .. msg)
+    gmInte.log("WARNING | " .. msg)
 end
 
 function gmInte.logHint(msg, onlyOndebug)
     if onlyOndebug && !gmInte.config.debug then return end
-    gmInte.log("| HINT | " .. msg)
+    gmInte.log("HINT | " .. msg)
 end
 
 local function loadConfig()
