@@ -5,7 +5,7 @@ local function dllInstalled()
 end
 
 local isLatest = debug.getinfo(1, "S").source == "@addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua"
-local isLatestExist = file.Exists("addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua", "LUA")
+local isLatestExist = file.Exists("_gmod_integration_latest", "LUA")
 if !alreadyLoadGMI then
     if dllInstalled() then
         if !file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/tmp.json", "DATA") then file.CreateDir("gm_integration") end
