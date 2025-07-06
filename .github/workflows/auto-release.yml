@@ -111,6 +111,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
+                  ref: ${{ needs.version.outputs.new_tag }}
 
             - name: Generate changelog
               id: changelog
@@ -141,6 +142,8 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
+              with:
+                  ref: ${{ needs.version.outputs.new_tag }}
 
             - name: Create release archive
               run: |
@@ -238,6 +241,8 @@ jobs:
         steps:
             - name: Checkout gmod-integration
               uses: actions/checkout@v4
+              with:
+                  ref: ${{ needs.version.outputs.new_tag }}
 
             - name: Clone gmod-workshop-cicd
               run: |
