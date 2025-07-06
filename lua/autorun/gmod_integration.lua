@@ -16,12 +16,10 @@ if !alreadyLoadGMI then
         require("gmod_integration_loader")
         local tmp = util.JSONToTable(file.Read("gm_integration/tmp.json", "DATA"))
         if tmp.gmod_integration_latest_updated then
+            print(" | " .. os.date("%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. "Latest version of Gmod Integration is already installed, skipping update.")
+            RunConsoleCommand("_restart")
             timer.Simple(1, function()
-                if game.IsDedicated() then
-                    RunConsoleCommand("changelevel", game.GetMap())
-                else
-                    RunConsoleCommand("gamemode", game.GetMap())
-                end
+                RunConsoleCommand("_restart")
             end)
             return
         end
