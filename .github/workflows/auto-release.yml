@@ -236,21 +236,17 @@ jobs:
         needs: [build, version, changelog]
 
         steps:
-            # 1) Checkout your addon code
             - name: Checkout gmod-integration
               uses: actions/checkout@v4
 
-            # 2) Clone the uploader repo from the new HTTPS URL
             - name: Clone gmod-workshop-cicd
               run: |
                   git clone https://github.com/linventif/gmod-workshop-cicd.git gmod-workshop-cicd
 
-            # 3) Build the uploader image from that repo
             - name: Build gmod-uploader image
               run: |
                   docker build -t gmod-uploader ./gmod-workshop-cicd
 
-            # 4) Generate Steam Guard OTP
             - name: Set up Python
               uses: actions/setup-python@v4
               with:
@@ -267,31 +263,32 @@ jobs:
                   echo "otp=$(python3 otp.py)" >> $GITHUB_OUTPUT
               working-directory: ${{ github.workspace }}/gmod-workshop-cicd
 
-            # 5) Publish to Steam Workshop, with change notes from your GMod Store changelog
             - name: Publish to Workshop
               env:
-                  STEAM_SHARED_SECRET: ${{ secrets.STEAM_SHARED_SECRET }}
                   STEAM_USER: ${{ secrets.STEAM_USER }}
                   STEAM_PASS: ${{ secrets.STEAM_PASS }}
+                  STEAM_SHARED_SECRET: ${{ secrets.STEAM_SHARED_SECRET }}
                   STEAM_GUARD: ${{ steps.steam_otp.outputs.otp }}
                   PUBLISHED_FILE_ID: ${{ secrets.GMOD_INTEGRATION_PUBLISHED_FILE_ID }}
                   CONTENT_PATH: /data
+                  PREVIEW_FILE: /data/materials/gmod_integration/logo.png
                   TITLE: Gmod Integration v${{ needs.version.outputs.new_version }}
-                  DESCRIPTION: 'Workshop Content of gmod-integration.com – all information on the website.'
+                  DESCRIPTION: Workshop Content of gmod-integration.com – all information on the website.
                   VISIBILITY: '0'
                   CHANGE_NOTE: |
                       ${{ needs.changelog.outputs.changelog }}
               run: |
                   docker run --rm \
-                    -e STEAM_SHARED_SECRET \
                     -e STEAM_USER \
                     -e STEAM_PASS \
+                    -e STEAM_SHARED_SECRET \
                     -e STEAM_GUARD \
                     -e CONTENT_PATH \
+                    -e PREVIEW_FILE \
                     -e TITLE \
                     -e DESCRIPTION \
                     -e VISIBILITY \
                     -e CHANGE_NOTE \
                     -e PUBLISHED_FILE_ID \
-                    -v ${{ github.workspace }}:/data \
+                    -v ${{ github.workspace }}:/data:ro \
                     gmod-uploader
