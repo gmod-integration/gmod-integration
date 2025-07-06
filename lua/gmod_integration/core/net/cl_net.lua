@@ -14,6 +14,7 @@ local netReceive = {
         gmInte.config = table.Merge(gmInte.config, data.config)
         gmInte.version = data.other.version
         gmInte.serverOS = data.other.serverOS
+        gmInte.dllExists = data.other.dllExists
         if !gmInte.dllExists then gmInte.openDllInstall() end
         gmInte.loadTranslations()
         if gmInte.config.clientBranch != "any" && gmInte.config.clientBranch != BRANCH then gmInte.openWrongBranchPopup() end
