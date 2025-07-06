@@ -240,13 +240,10 @@ jobs:
             - name: Checkout gmod-integration
               uses: actions/checkout@v4
 
-            # 2) Checkout the “uploader” repo into a sub-folder
-            - name: Checkout gmod-workshop-cicd
-              uses: actions/checkout@v4
-              with:
-                  repository: linventif/gmod-workshop-cicd
-                  path: gmod-workshop-cicd
-                  token: ${{ secrets.GITHUB_TOKEN }}
+            # 2) Clone the uploader repo from the new HTTPS URL
+            - name: Clone gmod-workshop-cicd
+              run: |
+                  git clone https://github.com/linventif/gmod-workshop-cicd.git gmod-workshop-cicd
 
             # 3) Build the uploader image from that repo
             - name: Build gmod-uploader image
