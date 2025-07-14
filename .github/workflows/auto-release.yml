@@ -29,6 +29,7 @@ jobs:
             new_version: ${{ steps.calc_version.outputs.new_version }}
             new_tag: ${{ steps.calc_version.outputs.new_tag }}
             latest_tag: ${{ steps.get_tag.outputs.latest_tag }}
+            version_type: ${{ steps.calc_version.outputs.version_type }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -192,7 +193,7 @@ jobs:
         name: Publish to GMod Store
         runs-on: ubuntu-latest
         needs: [version, changelog, build, github-release]
-        if: success() && needs.version.outputs.version_type != 'patch'
+        if: needs.version.outputs.version_type != 'patch'
         steps:
             - name: Download artifact
               uses: actions/download-artifact@v4
@@ -292,7 +293,7 @@ jobs:
     aide-serveurs:
         name: Publish to aide-serveur.fr
         runs-on: ubuntu-latest
-        needs: github-release
+        needs: [version, changelog, github-release]
         steps:
             - name: Checkout helper CLI
               run: git clone https://github.com/linventif/aide-serveur-cicd.git aide-serveur-cicd
@@ -307,9 +308,9 @@ jobs:
             - name: Publish update via aide-serveur-cicd
               working-directory: aide-serveur-cicd
               env:
-                  EMAIL: ${{ secrets.AIDE_EMAIL }}
-                  PASSWORD: ${{ secrets.AIDE_PASSWORD }}
-                  RESOURCE: ${{ secrets.AIDE_RESOURCE }}
-                  UPDATE_VERSION: ${{ needs.version.outputs.new_version }}
-                  UPDATE_MSG: 'Release v${{ needs.version.outputs.new_version }}'
+                  EMAIL: ${{ secrets.AIDE_SERVEUR_EMAIL }}
+                  PASSWORD: ${{ secrets.AIDE_SERVEUR_PASSWORD }}
+                  RESOURCE: ${{ secrets.AIDE_SERVEUR_RESOURCE }}
+                  UPDATE_VERSION: ${{ needs.version.outputs.new_tag }}
+                  UPDATE_MSG: '${{ needs.changelog.outputs.changelog }}'
               run: bun src/index.ts
