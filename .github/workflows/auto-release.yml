@@ -290,22 +290,22 @@ jobs:
                     gmod-uploader
 
     aide-serveurs:
-        name: Publish to Aide-serveur.fr
+        name: Publish to aide-serveur.fr
         runs-on: ubuntu-latest
         needs: github-release
         steps:
             - name: Checkout helper CLI
-              run: git clone https://github.com/linventif/aide-server-cicd.git aide-server-cicd
+              run: git clone https://github.com/linventif/aide-serveur-cicd.git aide-serveur-cicd
 
             - name: Setup Bun
               uses: oven-sh/setup-bun@v1
 
             - name: Install CLI dependencies
-              working-directory: aide-server-cicd
+              working-directory: aide-serveur-cicd
               run: bun install
 
-            - name: Publish update via aide-server-cicd
-              working-directory: aide-server-cicd
+            - name: Publish update via aide-serveur-cicd
+              working-directory: aide-serveur-cicd
               env:
                   EMAIL: ${{ secrets.AIDE_EMAIL }}
                   PASSWORD: ${{ secrets.AIDE_PASSWORD }}
