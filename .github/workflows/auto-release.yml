@@ -155,17 +155,6 @@ jobs:
                   [ -f README.md ] && cp README.md gmod-integration-release/addons/gmod-integration/
                   [ -f README.md ] && cp README.md gmod-integration-release/
 
-                  if [ ! -f "$DIR/addon.json" ]; then
-                    cat > "$DIR/addon.json" <<EOF
-                    {
-                      "title": "Gmod Integration",
-                      "type": "ServerContent",
-                      "tags": ["fun","roleplay"],
-                      "ignore": ["*.git*","*.md","*.yml","*.yaml"]
-                    }
-                    EOF
-                  fi
-
                   cd gmod-integration-release
                   zip -r ../gmod-integration-${{ needs.version.outputs.new_version }}.zip .
                   cd ..
