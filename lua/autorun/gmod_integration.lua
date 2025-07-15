@@ -31,7 +31,7 @@ else
 end
 
 gmInte = gmInte || {}
-gmInte.version = "5.0.27" // This will be automatically updated by GitHub Actions
+gmInte.version = "5.0.28" // This will be automatically updated by GitHub Actions
 gmInte.config = {}
 gmInte.useDataConfig = true
 gmInte.dllInstalled = dllInstalled
