@@ -450,7 +450,7 @@ end
 local alreadySkipDll = false
 function gmInte.openDllInstall()
     if !LocalPlayer():gmIntIsAdmin() then return end
-    if alreadySkipDll then return end
+    if alreadySkipDll || !gmInte.config.debug then return end
     alreadySkipDll = true
     local frame = vgui.Create("DFrame")
     frame:SetSize(400, 250)
