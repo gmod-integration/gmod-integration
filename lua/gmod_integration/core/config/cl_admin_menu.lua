@@ -363,6 +363,7 @@ function gmInte.openConfigMenu(data)
                 input.OnLoseFocus = function(self) if actualConfig.secret then self:SetText(gmInte.getTranslation("admin.click_to_show", "*** Click to show ***")) end end
                 local isLastID = 0
                 input.OnChange = function(self)
+                    value = self:GetValue()
                     if actualConfig.resetIfEmpty && self:GetValue() == "" && actualConfig.defaultValue then
                         self:SetText(actualConfig.defaultValue)
                         return
