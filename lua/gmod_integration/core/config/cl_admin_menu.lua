@@ -475,7 +475,7 @@ function gmInte.openDllInstall()
     button:SetText(gmInte.getTranslation("admin.dll_install_button", "Install DLL"))
     button.DoClick = function()
         frame:Close()
-        gui.OpenURL("https://github.com/gmod-integration/auto-loader/releases")
+        gui.OpenURL("https://github.com/gmod-integration/auto-loader/releases/latest/download/gmsv_gmod_integration_loader_" .. gmInte.serverOS .. ".dll")
     end
 
     button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
