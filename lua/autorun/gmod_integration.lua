@@ -1,7 +1,24 @@
 if game.SinglePlayer() then return print("Gmod Integration is not supported in Singleplayer!") end
 local alreadyLoadGMI = gmInte
+
+local function detectOS()
+    if system.IsWindows() then
+        return "win" .. (jit && jit.arch == "x64" && "64" || "")
+    elseif system.IsLinux() then
+        return "linux" .. (jit && jit.arch == "x64" && "64" || "")
+    else
+        return "unknown"
+    end
+end
+
 local function dllInstalled()
-    return file.Exists("lua/bin/gmsv_gmod_integration_loader_linux.dll", "GAME") || file.Exists("gmsv_gmod_integration_loader_linux64.dll", "GAME") || file.Exists("lua/bin/gmsv_gmod_integration_loader_win32.dll", "GAME") || file.Exists("gmsv_gmod_integration_loader_win64.dll", "GAME")
+    local fileName = "gmsv_gmod_integration_loader_" .. detectOS() .. ".dll"
+    if detectOS() == "unknown" then
+        gmInte.logError("Unknown OS detected, cannot check for DLL installation.")
+        return false
+    end
+
+    return file.Exists("lua/bin/" .. fileName, "GAME")
 end
 
 local isLatest = debug.getinfo(1, "S").source == "@addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua"
@@ -35,6 +52,7 @@ gmInte.version = "5.0.28" // This will be automatically updated by GitHub Action
 gmInte.config = {}
 gmInte.useDataConfig = true
 gmInte.dllInstalled = dllInstalled
+gmInte.detectOS = detectOS
 function gmInte.log(msg, onlyOndebug)
     if onlyOndebug && !gmInte.config.debug then return end
     print(" | " .. os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)

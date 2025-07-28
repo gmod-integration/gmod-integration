@@ -1,13 +1,3 @@
-function gmInte.detectOS()
-  if system.IsWindows() then
-    return "win" .. (jit && jit.arch == "x64" && "64" || "")
-  elseif system.IsLinux() then
-    return "linux" .. (jit && jit.arch == "x64" && "64" || "")
-  else
-    return "unknown"
-  end
-end
-
 timer.Create("gmInte:CheckDLL", 30, 0, function()
   if gmInte.dllInstalled() || gmInte.config.debug then return end
   print(" ")
