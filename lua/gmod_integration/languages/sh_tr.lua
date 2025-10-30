@@ -82,7 +82,7 @@ return {
   ["filter.ds.3"] = "Yardım URL'si: {1}",
   ["filter.ds.4"] = "İyi günler",
   ["filter.ds.5"] = "Gmod Integration tarafından sağlanan hizmet",
-  ["filter.maintenance"] = "Sunucu şu anda bakım altında ve sizin whitelistinizde değilsiniz.",
+  ["filter.maintenance"] = "Sunucu şu anda bakımda ve whiteliste alınmamışsınız.",
   ["filter.ban"] = "Bu sunucudan yasaklandınız.",
   ["filter.discord_ban"] = "Discord sunucumuzdan yasaklandınız.",
   ["branch.title"] = "Yanlış Dal",
