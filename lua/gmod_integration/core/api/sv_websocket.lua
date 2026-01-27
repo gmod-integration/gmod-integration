@@ -7,9 +7,9 @@ local function websocketDLLExist()
 end
 
 if !websocketDLLExist() then
-    timer.Simple(4, function()
-        gmInte.logHint("GWSockets is not installed !, Syncronize feature will not work !")
-        gmInte.logHint("Please install it from https://github.com/FredyH/GWSockets/releases")
+    timer.Simple(60, function()
+        gmInte.logHint("GWSockets is not installed !")
+        gmInte.logHint("Please read the installation guide: https://docs.gmod-integration.com/getting-started/installation#dll")
     end)
     return
 end
