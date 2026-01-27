@@ -1,57 +1,9 @@
 if game.SinglePlayer() then return print("Gmod Integration is not supported in Singleplayer!") end
-local alreadyLoadGMI = gmInte
-
-local function detectOS()
-    if system.IsWindows() then
-        return "win" .. (jit && jit.arch == "x64" && "64" || "")
-    elseif system.IsLinux() then
-        return "linux" .. (jit && jit.arch == "x64" && "64" || "")
-    else
-        return "unknown"
-    end
-end
-
-local function dllInstalled()
-    local fileName = "gmsv_gmod_integration_loader_" .. detectOS() .. ".dll"
-    if detectOS() == "unknown" then
-        gmInte.logError("Unknown OS detected, cannot check for DLL installation.")
-        return false
-    end
-
-    return file.Exists("lua/bin/" .. fileName, "GAME")
-end
-
-local isLatest = debug.getinfo(1, "S").source == "@addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua"
-local isLatestExist = file.Exists("_gmod_integration_latest", "LUA")
-if !alreadyLoadGMI then
-    if dllInstalled() then
-        if !file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/tmp.json", "DATA") then file.CreateDir("gm_integration") end
-        file.Write("gm_integration/tmp.json", util.TableToJSON({
-            gmod_integration_latest_updated = false,
-        }, true))
-
-        require("gmod_integration_loader")
-        local tmp = util.JSONToTable(file.Read("gm_integration/tmp.json", "DATA"))
-        if tmp.gmod_integration_latest_updated then
-            print(" | " .. os.date("%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. "Latest version of Gmod Integration is already installed, skipping update.")
-            RunConsoleCommand("_restart")
-            timer.Simple(1, function()
-                RunConsoleCommand("_restart")
-            end)
-            return
-        end
-
-        if !isLatest then return end
-    end
-else
-    if !isLatest && isLatestExist then return end
-end
 
 gmInte = gmInte || {}
 gmInte.version = "5.0.32" // This will be automatically updated by GitHub Actions
 gmInte.config = {}
 gmInte.useDataConfig = true
-gmInte.dllInstalled = dllInstalled
 gmInte.detectOS = detectOS
 function gmInte.log(msg, onlyOndebug)
     if onlyOndebug && !gmInte.config.debug then return end
