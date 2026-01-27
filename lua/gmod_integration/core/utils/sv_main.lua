@@ -9,5 +9,5 @@ timer.Create("gmInte:CheckVersion", 60, 0, function()
         print(" ")
       end
     end
-  end
+  end)
 end)
