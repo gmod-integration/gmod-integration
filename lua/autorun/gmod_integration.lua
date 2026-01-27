@@ -6,10 +6,6 @@ gmInte.config = {}
 gmInte.useDataConfig = true
 gmInte.detectOS = detectOS
 
-// Compares two semantic version strings (e.g., "1.2.3") and returns:
-// -1 if v1 < v2
-//  0 if v1 == v2
-//  1 if v1 > v2
 function gmInte.compareVersion(v1, v2)
     local function parseVersion(v)
         local major, minor, patch = v:match("^(%d+)%.(%d+)%.(%d+)$")
