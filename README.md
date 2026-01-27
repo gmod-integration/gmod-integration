@@ -25,9 +25,9 @@ Before installing Gmod Integration, ensure you have:
 
 ## Getting Started Docs (More Detail Procedure)
 
-[Installation](https://docs.gmod-integration.com/getting-started/installation/)
-[Configuration](https://docs.gmod-integration.com/getting-started/configuration)
-[Activation Premium](https://docs.gmod-integration.com/getting-started/activation_premium)
+- [Installation](https://docs.gmod-integration.com/getting-started/installation/)
+- [Configuration](https://docs.gmod-integration.com/getting-started/configuration)
+- [Activation Premium](https://docs.gmod-integration.com/getting-started/activation_premium)
 
 ## Short Installation
 
