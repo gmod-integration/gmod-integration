@@ -13,7 +13,6 @@ local netReceive = {
     ["publicConfig"] = function(data)
         gmInte.config = table.Merge(gmInte.config, data.config)
         gmInte.version = data.other.version
-        gmInte.serverOS = data.other.serverOS
         gmInte.dllExists = data.other.dllExists
         if !gmInte.dllExists then gmInte.openDllInstall() end
         gmInte.loadTranslations()
