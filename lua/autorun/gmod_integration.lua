@@ -1,58 +1,31 @@
 if game.SinglePlayer() then return print("Gmod Integration is not supported in Singleplayer!") end
-local alreadyLoadGMI = gmInte
-
-local function detectOS()
-    if system.IsWindows() then
-        return "win" .. (jit && jit.arch == "x64" && "64" || "")
-    elseif system.IsLinux() then
-        return "linux" .. (jit && jit.arch == "x64" && "64" || "")
-    else
-        return "unknown"
-    end
-end
-
-local function dllInstalled()
-    local fileName = "gmsv_gmod_integration_loader_" .. detectOS() .. ".dll"
-    if detectOS() == "unknown" then
-        gmInte.logError("Unknown OS detected, cannot check for DLL installation.")
-        return false
-    end
-
-    return file.Exists("lua/bin/" .. fileName, "GAME")
-end
-
-local isLatest = debug.getinfo(1, "S").source == "@addons/_gmod_integration_latest/lua/autorun/_gmod_integration_latest.lua"
-local isLatestExist = file.Exists("_gmod_integration_latest", "LUA")
-if !alreadyLoadGMI then
-    if dllInstalled() then
-        if !file.Exists("gm_integration", "DATA") || !file.Exists("gm_integration/tmp.json", "DATA") then file.CreateDir("gm_integration") end
-        file.Write("gm_integration/tmp.json", util.TableToJSON({
-            gmod_integration_latest_updated = false,
-        }, true))
-
-        require("gmod_integration_loader")
-        local tmp = util.JSONToTable(file.Read("gm_integration/tmp.json", "DATA"))
-        if tmp.gmod_integration_latest_updated then
-            print(" | " .. os.date("%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. "Latest version of Gmod Integration is already installed, skipping update.")
-            RunConsoleCommand("_restart")
-            timer.Simple(1, function()
-                RunConsoleCommand("_restart")
-            end)
-            return
-        end
-
-        if !isLatest then return end
-    end
-else
-    if !isLatest && isLatestExist then return end
-end
 
 gmInte = gmInte || {}
-gmInte.version = "5.0.32" // This will be automatically updated by GitHub Actions
+gmInte.version = "5.1.0" // This will be automatically updated by GitHub Actions
 gmInte.config = {}
 gmInte.useDataConfig = true
-gmInte.dllInstalled = dllInstalled
 gmInte.detectOS = detectOS
+
+function gmInte.compareVersion(v1, v2)
+    local function parseVersion(v)
+        local major, minor, patch = v:match("^(%d+)%.(%d+)%.(%d+)$")
+        return tonumber(major) || 0, tonumber(minor) || 0, tonumber(patch) || 0
+    end
+
+    local major1, minor1, patch1 = parseVersion(v1)
+    local major2, minor2, patch2 = parseVersion(v2)
+
+    if major1 < major2 then return -1 end
+    if major1 > major2 then return 1 end
+
+    if minor1 < minor2 then return -1 end
+    if minor1 > minor2 then return 1 end
+
+    if patch1 < patch2 then return -1 end
+    if patch1 > patch2 then return 1 end
+
+    return 0
+end
 function gmInte.log(msg, onlyOndebug)
     if onlyOndebug && !gmInte.config.debug then return end
     print(" | " .. os.date(gmInte.config.logTimestamp || "%Y-%m-%d %H:%M:%S") .. " | Gmod Integration | " .. msg)
@@ -86,7 +59,7 @@ local function loadConfig()
         end
 
         local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
-        if !oldConfig.version || (oldConfig.version != gmInte.version) then
+        if !oldConfig.version || gmInte.compareVersion(oldConfig.version, gmInte.version) == -1 then
             table.Merge(gmInte.config, oldConfig)
             gmInte.config.version = gmInte.version
             file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))

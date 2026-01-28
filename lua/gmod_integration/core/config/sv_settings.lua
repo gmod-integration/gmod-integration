@@ -65,8 +65,6 @@ function gmInte.publicGetConfig(ply)
         ["other"] = {
             ["aprovedCredentials"] = gmInte.aprovedCredentials,
             ["version"] = gmInte.version,
-            ["dllExists"] = gmInte.dllInstalled(),
-            ["serverOS"] = gmInte.detectOS(),
         }
     }, ply)
 end

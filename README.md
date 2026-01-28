@@ -21,22 +21,24 @@ Before installing Gmod Integration, ensure you have:
 
 - A Garry's Mod dedicated server
 - Discord server with Administrator permissions
-- Basic knowledge of server file management
+- Basic knowledge of server file managem
 
-## 🛠️ Installation
+## Getting Started Docs (More Detail Procedure)
+
+- [Installation](https://docs.gmod-integration.com/getting-started/installation/)
+- [Configuration](https://docs.gmod-integration.com/getting-started/configuration)
+- [Activation Premium](https://docs.gmod-integration.com/getting-started/activation_premium)
+
+## Short Installation
 
 ### Method 1: Steam Workshop (Recommended)
 
-1. **Subscribe to the addon** on Steam Workshop
-    - Search for "Gmod Integration" on the Steam Workshop
-    - Click "Subscribe" to add it to your server
+**Subscribe to the addon** on Steam Workshop
 
-2. **Install the DLL** (Required for full functionality)
-    - Download the latest DLL from our [GitHub Releases](https://github.com/gmod-integration/auto-loader/releases)
-    - Place `gmsv_gmod_integration_loader_<YOUR-SERVER-OS>.dll` in your server's `garrysmod/lua/bin/` directory or create the directory if it doesn't exist
-    - Restart your server to apply changes
+- Search for "Gmod Integration" on the Steam Workshop
+- Click "Subscribe" to add it to your server
 
-### Method 2: Manual Installation
+### Method 2: Manual Installation (Not Recommended no auto-update)
 
 1. **Download the addon**
     - Get the latest release from [GitHub](https://github.com/gmod-integration/gmod-integration/releases)
@@ -95,31 +97,6 @@ Since we don't have automated BuiltByBit integration yet, follow these steps:
     - Our team will manually verify and activate Premium
     - This usually takes less than 4 business hour during work days
 
-## 🔧 Advanced Configuration
-
-### DLL Installation Details
-
-The DLL provides enhanced functionality including:
-
-- Advanced authentication features
-- Improved performance and stability
-- Additional security measures
-- Extended API capabilities
-
-**Installation paths:**
-
-- **Linux32 (default)**: `garrysmod/lua/bin/gmsv_gmod_integration_loader_linux.dll`
-- **Linux64**: `garrysmod/lua/bin/gmsv_gmod_integration_loader_linux64.dll`
-- **Windows**: `garrysmod/lua/bin/gmsv_gmod_integration_loader_win32.dll`
-- **Windows64**: `garrysmod/lua/bin/gmsv_gmod_integration_loader_win64.dll`
-
-### Configuration File
-
-The addon automatically creates a configuration file at:
-`garrysmod/data/gm_integration/config.json`
-
-Most settings can be changed through the in-game admin panel, but advanced users can edit this file directly.
-
 ## 🌍 Language Support
 
 Gmod Integration supports multiple languages:
@@ -141,7 +118,7 @@ Change the language in the admin panel under Settings > Language.
 Need help? We're here to assist you:
 
 - **Discord Server**: [Join our community](https://gmod-integration.com/discord) for real-time support
-- **Documentation**: [Full documentation](https://gmod-integration.com/docs)
+- **Documentation**: [Full documentation](https://docs.gmod-integration.com)
 
 ## 🔍 Troubleshooting
 
@@ -149,15 +126,9 @@ Need help? We're here to assist you:
 
 **Addon not loading:**
 
-- Ensure the addon is properly installed in the addons folder or in the workshop and verify the DLL is present
+- Ensure the addon is properly added to your Steam Workshop Collection or installed in theaddons folder
 - Check server console for error messages
-- Verify file permissions
-
-**DLL not found error:**
-
-- Make sure the DLL is in the correct `lua/bin/` directory or create the directory if it doesn't exist
-- Check that you're using the correct DLL for your operating system
-- Restart the server after installing the DLL
+- Check you have the latest version of Gmod Integration
 
 **Connection issues:**
 
@@ -173,13 +144,3 @@ If you're still experiencing issues:
 2. Provide your server console logs
 3. Describe the exact steps that led to the problem
 4. Include your server operating system and GMod version
-
-## 📄 License
-
-This addon is proprietary software. Usage is subject to the terms of service available on our website.
-
----
-
-**Made with ❤️ by the Gmod Integration Team**
-
-_Enhance your Garry's Mod server with the power of Discord integration!_

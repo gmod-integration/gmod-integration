@@ -1,6 +1,13 @@
-timer.Create("gmInte:CheckDLL", 30, 0, function()
-  if gmInte.dllInstalled() || gmInte.config.debug then return end
-  print(" ")
-  print(gmInte.getTranslation("admin.dll_install_problem", "The Gmod Integration DLL is missing!\n\nWithout this DLL, some features will not work correctly, including authentication and advanced integration.") .. "\n\n" .. gmInte.getTranslation("admin.dll_install_description", "Install:\n1. Download 'gmsv_gmod_integration_loader_{1}.dll' from: {2}\n2. Move it to the 'garrysmod/lua/bin' folder.\n3. Restart your server.", gmInte.detectOS(), "https://github.com/gmod-integration/auto-loader/releases/latest/download/gmsv_gmod_integration_loader_" .. gmInte.detectOS() .. ".dll"))
-  print(" ")
+timer.Create("gmInte:CheckVersion", 60, 0, function()
+  http.Fetch("https://api.github.com/repos/gmod-integration/gmod-integration/releases/latest", function(body, len, headers, code)
+    local data = util.JSONToTable(body)
+    if data and data.tag_name then
+      data.tag_name = string.TrimLeft(data.tag_name, "v")
+      if gmInte.compareVersion(gmInte.version, data.tag_name) == -1 then
+        print(" ")
+        gmInte.logHint(gmInte.getTranslation("admin.update_available", "An update is available! Latest version: " .. data.tag_name .. ", you are using: " .. gmInte.version))
+        print(" ")
+      end
+    end
+  end)
 end)

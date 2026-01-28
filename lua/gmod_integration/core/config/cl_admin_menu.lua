@@ -448,42 +448,6 @@ function gmInte.openConfigMenu(data)
     end
 end
 
-local alreadySkipDll = false
-function gmInte.openDllInstall()
-    if !LocalPlayer():gmIntIsAdmin() then return end
-    if alreadySkipDll || gmInte.config.debug then return end
-    alreadySkipDll = true
-    local frame = vgui.Create("DFrame")
-    frame:SetSize(400, 250)
-    frame:Center()
-    frame:SetTitle(gmInte.getFrameName(gmInte.getTranslation("admin.dll_install", "DLL Install")))
-    frame:SetDraggable(true)
-    frame:ShowCloseButton(true)
-    frame:MakePopup()
-    gmInte.applyPaint(frame)
-    local messageLabel = vgui.Create("DLabel", frame)
-    messageLabel:Dock(FILL)
-    messageLabel:SetText(gmInte.getTranslation("admin.dll_install_problem", "The Gmod Integration DLL is missing!\n\nWithout this DLL, some features will not work correctly, including authentication and advanced integration.") .. "\n\n" .. gmInte.getTranslation("admin.dll_install_description", "Install:\n1. Download 'gmsv_gmod_integration_loader_{1}.dll' from: {2}\n2. Move it to the 'garrysmod/lua/bin' folder.\n3. Restart your server.", gmInte.serverOS, "https://github.com/gmod-integration/auto-loader/releases/latest/download/gmsv_gmod_integration_loader_" .. gmInte.serverOS .. ".dll"))
-    messageLabel:SetContentAlignment(5)
-    messageLabel:SetWrap(true)
-    local buttonGrid = vgui.Create("DGrid", frame)
-    buttonGrid:Dock(BOTTOM)
-    buttonGrid:DockMargin(5, 10, 5, 5)
-    buttonGrid:SetCols(1)
-    buttonGrid:SetColWide(frame:GetWide() - 10)
-    buttonGrid:SetRowHeight(35)
-    local button = vgui.Create("DButton")
-    button:SetText(gmInte.getTranslation("admin.dll_install_button", "Install DLL"))
-    button.DoClick = function()
-        frame:Close()
-        gui.OpenURL("https://github.com/gmod-integration/auto-loader/releases/latest/download/gmsv_gmod_integration_loader_" .. gmInte.serverOS .. ".dll")
-    end
-
-    button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
-    gmInte.applyPaint(button)
-    buttonGrid:AddItem(button)
-end
-
 function gmInte.openAdminConfig()
     if !LocalPlayer():gmIntIsAdmin() then
         gmInte.chatAddText(Color(228, 81, 81), gmInte.getTranslation("chat.missing_permissions", "You do not have permission to do this action."))
