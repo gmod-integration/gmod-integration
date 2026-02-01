@@ -1,79 +1,97 @@
 local conFuncs = {
     ["version"] = function() 
-        print("\n=== Gmod Integration Version ===")
+        print()
+        print("=== Gmod Integration Version ===")
         print("Current Version: " .. gmInte.version)
-        print("================================\n")
+        print("================================")
+        print()
     end,
     ["set-setting"] = function(args) 
         if !args[2] || !args[3] then
-            print("\n[ERROR] Usage: gmi set-setting <setting> <value>\n")
+            print()
+            print("[ERROR] Usage: gmi set-setting <setting> <value>")
+            print()
             return
         end
         gmInte.saveSetting(args[2], args[3])
-        print("\n[SUCCESS] Setting '" .. args[2] .. "' updated to '" .. args[3] .. "'\n")
+        print()
+        print("[SUCCESS] Setting '" .. args[2] .. "' updated to '" .. args[3] .. "'")
+        print()
     end,
     ["show-settings"] = function() 
-        print("\n=== Current Settings ===")
+        print()
+        print("=== Current Settings ===")
         PrintTable(gmInte.config)
-        print("========================\n")
+        print("========================")
+        print()
     end,
     ["try"] = function() 
-        print("\n=== Testing Configuration ===")
+        print()
+        print("=== Testing Configuration ===")
         gmInte.tryConfig()
-        print("=============================\n")
+        print("=============================")
+        print()
     end,
     ["get-server-id"] = function() 
-        print("\n=== Server Information ===")
+        print()
+        print("=== Server Information ===")
         print("Server ID: " .. (gmInte.config.id || "Not Set"))
-        print("==========================\n")
+        print("==========================")
+        print()
     end,
     ["export-warns"] = function() 
-        print("\n=== Exporting Warnings ===")
+        print()
+        print("=== Exporting Warnings ===")
         hook.Run("GmodIntegration:ExportWarns")
-        print("==========================\n")
+        print("==========================")
+        print()
     end,
     ["help"] = function()
-        print("\n╔════════════════════════════════════════════════════════════╗")
+        print()
+        print("╔════════════════════════════════════════════════════════════╗")
         print("║         Gmod Integration - Command Reference               ║")
         print("╚════════════════════════════════════════════════════════════╝")
         
         -- Connection Status
-        print("\n🔌 Connection Status:")
+        print()
+        print("Connection Status:")
         local idValid = gmInte.config.id && gmInte.config.id != ""
         local tokenValid = gmInte.config.token && gmInte.config.token != ""
-        local httpStatus = gmInte.aprovedCredentials && "✓ Connected" || "✗ Disconnected"
-        local wsStatus = "✗ Not Available"
+        local httpStatus = gmInte.aprovedCredentials && "[OK] Connected" || "[ERROR] Disconnected"
+        local wsStatus = "[ERROR] Not Available"
         
         if GWSockets && gmInte.websocket then
-            wsStatus = gmInte.websocket:isConnected() && "✓ Connected" || "✗ Disconnected"
+            wsStatus = gmInte.websocket:isConnected() && "[OK] Connected" || "[ERROR] Disconnected"
         end
         
-        print("  Server ID:     " .. (idValid && "✓ Set" || "✗ Not Set"))
-        print("  Server Token:  " .. (tokenValid && "✓ Set" || "✗ Not Set"))
+        print("  Server ID:     " .. (idValid && "[OK] Set" || "[ERROR] Not Set"))
+        print("  Server Token:  " .. (tokenValid && "[OK] Set" || "[ERROR] Not Set"))
         print("  HTTP API:      " .. httpStatus)
         print("  WebSocket:     " .. wsStatus)
         
         if !idValid || !tokenValid then
-            print("\n  ⚠️  Configure your Server ID and Token to connect")
-            print("     Visit: https://gmod-integration.com/dashboard")
+            print()
+            print("  [WARNING] Configure your Server ID and Token to connect")
+            print("  Visit: https://gmod-integration.com/dashboard")
         end
         
-        print("\n📋 Available Commands:")
-        print("  • version              - Display current addon version")
-        print("  • set-setting          - Update a configuration setting")
+        print()
+        print("Available Commands:")
+        print("  version              - Display current addon version")
+        print("  set-setting          - Update a configuration setting")
         print("    Usage: gmi set-setting <name> <value>")
-        print("  • show-settings        - Display all current settings")
-        print("  • try                  - Test current configuration")
-        print("  • get-server-id        - Display server ID")
-        print("  • export-warns         - Export warning logs")
-        print("  • reload-config        - Reload configuration from file")
-        print("  • status               - Show addon status and health")
-        print("  • help                 - Display this help message")
-        print("\n💡 Examples:")
+        print("  show-settings        - Display all current settings")
+        print("  try                  - Test current configuration")
+        print("  get-server-id        - Display server ID")
+        print("  export-warns         - Export warning logs")
+        print("  help                 - Display this help message")
+        print()
+        print("Examples:")
         print("  gmi version")
         print("  gmi set-setting id YOUR_SERVER_ID")
         print("  gmi set-setting token YOUR_SERVER_TOKEN")
-        print("  gmi show-settings\n")
+        print("  gmi show-settings")
+        print()
     end
 }
 
@@ -91,8 +109,10 @@ local function cmdExecuted(ply, cmd, args)
     if conFuncs[args[1]] then
         conFuncs[args[1]](args)
     else
-        print("\n[ERROR] Unknown command: '" .. args[1] .. "'")
-        print("Type 'gmi help' for a list of available commands\n")
+        print()
+        print("[ERROR] Unknown command: '" .. args[1] .. "'")
+        print("Type 'gmi help' for a list of available commands")
+        print()
     end
 end
 
