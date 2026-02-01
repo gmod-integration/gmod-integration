@@ -26,6 +26,7 @@ return {
   ["admin.disabled"] = "Deaktiviert",
   ["admin.click_to_show"] = "*** Klicken zum Anzeigen ***",
   ["admin.server_id_description2"] = "Hier kannst du deine Servereinstellungen konfigurieren.\nServer ID und Token sind im Webpanel in den Servereinstellungen verfügbar.\nDie Dokumentation ist verfügbar unter {1}\nWenn du Hilfe benötigst, kontaktiere uns bitte über unseren Discord-Server.",
+  ["admin.server_id_config_move"] = "Alle In-Game-Servereinstellungen wurden ins Webpanel verschoben.\n{1}",
   ["admin.server_config"] = "Server Konfiguration",
   ["admin.server_token"] = "Server Token",
   ["admin.server_token_description"] = "Server Token im Webpanel gefunden.",

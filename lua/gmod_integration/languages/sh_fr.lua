@@ -26,6 +26,7 @@ return {
   ["admin.disabled"] = "Désactivé",
   ["admin.click_to_show"] = "*** Cliquez pour afficher ***",
   ["admin.server_id_description2"] = "Ici, vous pouvez configurer les paramètres de votre serveur.\nL'ID du serveur et le jeton sont disponibles sur le panneau web dans les paramètres du serveur.\nLa documentation est disponible sur {1}\nSi vous avez besoin d'aide, veuillez nous contacter sur notre serveur Discord.",
+  ["admin.server_id_config_move"] = "Tous les paramètres serveur en jeu ont été déplacés vers le panneau web.\n{1}",
   ["admin.server_config"] = "Configuration du serveur",
   ["admin.server_token"] = "Jeton du serveur",
   ["admin.server_token_description"] = "Jeton du serveur trouvé sur le panneau web.",

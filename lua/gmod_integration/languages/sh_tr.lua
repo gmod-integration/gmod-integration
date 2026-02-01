@@ -26,6 +26,7 @@ return {
   ["admin.disabled"] = "Devre Dışı",
   ["admin.click_to_show"] = "*** Göstermek için tıklayın ***",
   ["admin.server_id_description2"] = "Burada sunucu ayarlarını yapılandırabilirsiniz.\nSunucu Kimliği ve Token, sunucu ayarlarında web panelinde mevcuttur.\nDökümantasyon {1} adresinde mevcuttur.\nYardıma ihtiyacınız varsa, lütfen discord sunucumuzda bize ulaşın.",
+  ["admin.server_id_config_move"] = "Tüm oyun içi sunucu ayarları web panele taşındı.\n{1}",
   ["admin.server_config"] = "Sunucu Yapılandırması",
   ["admin.server_token"] = "Sunucu Token",
   ["admin.server_token_description"] = "Web panelinde bulunan sunucu tokenı.",

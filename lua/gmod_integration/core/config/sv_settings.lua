@@ -22,6 +22,15 @@ function gmInte.saveSetting(setting, value)
             gmInte.publicGetConfig(ply)
         end
     end
+    // send new config to gmod-integration server
+    local ok, err = pcall(function()
+            gmInte.websocket:send("config_save", {
+                data = gmInte.config
+            }, nil, true)
+    end)
+    if !ok then
+        gmInte.logError(err, true)
+    end
 end
 
 function gmInte.tryConfig()
@@ -77,3 +86,47 @@ function gmInte.superadminSetConfig(ply, data)
 
     if data.token || data.id then gmInte.testConnection(ply) end
 end
+
+function gmInte.wsEditSetting(data)
+    local setting, value = data.setting, data.value
+    -- remove prefix ig_
+    setting = setting:gsub("^ig_", "")
+    if gmInte.config[setting] == nil then
+        gmInte.log("Unknown Setting " .. setting)
+        return
+    end
+    if setting == "adminRank" then
+        value = util.JSONToTable(value)
+    end
+    gmInte.saveSetting(setting, value)
+    gmInte.log("Setting " .. setting .. " updated via WebSocket", true)
+end
+
+hook.Add("Initialize", "gmInte:Server:Initialize:SyncConfig", function() timer.Simple(1, function()
+        if (gmInte.compareVersion(gmInte.version, "5.2.0") == -1) then
+            gmInte.http.post("/servers/:serverID/config", gmInte.config, function(code, body)
+                gmInte.saveSetting("upgradeSyncConfig", true)
+                gmInte.log("Server Config Synced with Gmod Integration")
+            end, function(code, body)
+                gmInte.log("Failed to Sync Server Config with Gmod Integration", true)
+            end)
+        else
+            gmInte.http.get("/servers/:serverID/config", function(code, body)
+                for k, v in pairs(body) do
+                    local setting = k:gsub("^ig_", "")
+                    if k == "adminRank" then
+                        v = util.JSONToTable(v)
+                    end
+                    if gmInte.config[setting] != nil then
+                        if gmInte.config[setting] != v then
+                            gmInte.saveSetting(setting, v)
+                        end
+                    end
+                end
+                gmInte.log("Server Config Synced with Gmod Integration")
+            end, function(code, body)
+                gmInte.log("Failed to Sync Server Config with Gmod Integration", true)
+            end)
+        end
+    end)
+end)
