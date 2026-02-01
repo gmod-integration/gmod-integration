@@ -96,16 +96,16 @@ local conFuncs = {
 }
 
 local function cmdExecuted(ply, cmd, args)
-    if ply:IsPlayer() && !ply:gmIntIsAdmin() then 
+    if ply:IsPlayer() && !ply:gmIntIsAdmin() then
         print("[ERROR] You don't have permission to use this command")
-        return 
+        return
     end
-    
+
     if !args[1] || args[1] == "help" then
         conFuncs["help"]()
         return
     end
-    
+
     if conFuncs[args[1]] then
         conFuncs[args[1]](args)
     else
