@@ -135,7 +135,7 @@ else
 end
 
 gmInte.execFolder = debug.getinfo(1, "S").source:match("([^/\\]+)$"):gsub("%.lua$", "") || "gmod_integration"
-loadFile(gmInte.execFolder, "/core/config/sv_default_config.lua")
+loadFile(gmInte.execFolder .. "/core/config", "sv_default_config.lua")
 loadFolder(gmInte.execFolder .. "/languages")
 loadFolder(gmInte.execFolder .. "/core/utils")
 loadFolder(gmInte.execFolder .. "/core/ui")
