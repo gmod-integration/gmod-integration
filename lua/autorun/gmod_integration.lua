@@ -6,7 +6,7 @@ gmInte.config = {}
 gmInte.useDataConfig = true
 gmInte.detectOS = detectOS
 
-function gmInte.compareVersion(v1, v2)
+function gmInte.compareVersion(v1, v2) // Returns -1 if v1 < v2, 0 if v1 == v2, 1 if v1 > v2
     local function parseVersion(v)
         local major, minor, patch = v:match("^(%d+)%.(%d+)%.(%d+)$")
         return tonumber(major) || 0, tonumber(minor) || 0, tonumber(patch) || 0
