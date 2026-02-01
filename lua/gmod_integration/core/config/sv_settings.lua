@@ -22,6 +22,15 @@ function gmInte.saveSetting(setting, value)
             gmInte.publicGetConfig(ply)
         end
     end
+    // send new config to gmod-integration server
+    local ok, err = pcall(function()
+            gmInte.websocket:send("config_save", {
+                data = gmInte.config
+            }, nil, true)
+    end)
+    if !ok then
+        gmInte.logError(err, true)
+    end
 end
 
 function gmInte.tryConfig()

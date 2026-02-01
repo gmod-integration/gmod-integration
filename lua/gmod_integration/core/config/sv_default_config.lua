@@ -1,18 +1,3 @@
-/*
-    Informations:
-        This file is prioritized over the configuration file in data/gmod-integration/config.json if id and token are set in this file.
-        We don't recommend to use a static version of our addon, you should use the workshop version instead.
-
-    Add Server:
-        0. Add the bot to your guild if it's not already done: https://gmod-integration.com/invite
-        1. Go to our dashboard and Login with Discord: https://gmod-integration.com/login you should be redirected to the dashboard
-        2. Add the bot to your guild and click on "Add to Guild" or select your guild if it's already added
-        3. Go to the "Servers" page and click on "Create Server"
-        4. Copy the ID and Token of your server and paste them in this file
-        5 Everything is ready, you can now restart your server
-
-    To go further, you can check the documentation: https://docs.gmod-integration.com
-*/
 // API Connection
 gmInte.config.id = "" // Server ID
 gmInte.config.token = "" // Server Token
@@ -43,3 +28,4 @@ gmInte.config.adminRank = {
     // How can edit the configuration of the addon / bypass the maintenance mode
     ["superadmin"] = true,
 }
+gmInte.config.upgradeSyncConfig = false // Internal use only, do not change this value
