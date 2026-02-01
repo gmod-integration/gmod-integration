@@ -94,7 +94,12 @@ function gmInte.needRestart()
 end
 
 function gmInte.openConfigMenu(data)
-    local configCat = {gmInte.getTranslation("admin.authentication", "Authentication"), gmInte.getTranslation("admin.main", "Main"), gmInte.getTranslation("admin.trust_safety", "Trust & Safety"), gmInte.getTranslation("admin.advanced", "Advanced")}
+    local configCat = {
+        gmInte.getTranslation("admin.authentication", "Authentication"), 
+        -- gmInte.getTranslation("admin.main", "Main"), 
+        -- gmInte.getTranslation("admin.trust_safety", "Trust & Safety"), 
+        gmInte.getTranslation("admin.advanced", "Advanced")
+    }
     local possibleConfig = {
         {
             ["id"] = "id",
@@ -117,108 +122,108 @@ function gmInte.openConfigMenu(data)
             ["onEditDelay"] = 0.5,
             ["category"] = gmInte.getTranslation("admin.authentication", "Authentication")
         },
-        {
-            ["id"] = "maintenance",
-            ["label"] = gmInte.getTranslation("admin.maintenance", "Maintenance"),
-            ["description"] = gmInte.getTranslation("admin.maintenance_description", "Activate or deactivate maintenance mode."),
-            ["type"] = "checkbox",
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["category"] = gmInte.getTranslation("admin.main", "Main")
-        },
-        {
-            ["id"] = "language",
-            ["label"] = gmInte.getTranslation("admin.language", "Language"),
-            ["description"] = gmInte.getTranslation("admin.language_description", "Language used in the interface."),
-            ["type"] = "combo",
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["reloadOnEdit"] = true,
-            ["category"] = gmInte.getTranslation("admin.main", "Main"),
-            ["values"] = {
-                ["de"] = "Deutsch",
-                ["en"] = "English",
-                ["es"] = "Español",
-                ["fr"] = "Français",
-                ["it"] = "Italiano",
-                ["pl"] = "Polski",
-                ["ru"] = "Русский",
-                ["tr"] = "Türkçe",
-            }
-        },
-        {
-            ["id"] = "filterOnBan",
-            ["label"] = gmInte.getTranslation("admin.filter_on_ban", "Block Discord Ban Player"),
-            ["description"] = gmInte.getTranslation("admin.filter_on_ban_description", "Block players banned on the discord server."),
-            ["type"] = "checkbox",
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
-        },
-        {
-            ["id"] = "forcePlayerLink",
-            ["label"] = gmInte.getTranslation("admin.force_player_link", "Force Player Verif"),
-            ["description"] = gmInte.getTranslation("admin.force_player_link_description", "Force player verification."),
-            ["type"] = "checkbox",
-            ["reloadOnEdit"] = true,
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
-        },
-        {
-            ["id"] = "supportLink",
-            ["label"] = gmInte.getTranslation("admin.support_link", "Support Link"),
-            ["description"] = gmInte.getTranslation("admin.support_link_description", "Support Link found on the webpanel."),
-            ["type"] = "textEntry",
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["onEditDelay"] = 0.5,
-            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
-        },
-        {
-            ["id"] = "verifyFamilySharing",
-            ["label"] = gmInte.getTranslation("admin.verifyFamilySharing", "Block Family Sharing"),
-            ["description"] = gmInte.getTranslation("admin.verifyFamilySharing_description", "Block family sharing players."),
-            ["type"] = "checkbox",
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
-        },
-        {
-            ["id"] = "verifyOnJoin",
-            ["label"] = gmInte.getTranslation("admin.verify_on_join", "Verify on Join"),
-            ["description"] = gmInte.getTranslation("admin.verify_on_join_description", "Verify the player when they join the server or on player ready."),
-            ["type"] = "checkbox",
-            ["condition"] = function(data) return data.forcePlayerLink end,
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
-        },
-        {
-            ["id"] = "verifyOnReadyKickTime",
-            ["label"] = gmInte.getTranslation("admin.verify_on_ready_kick_time", "Kick Time if not Verified"),
-            ["description"] = gmInte.getTranslation("admin.verify_on_ready_kick_time_description", "Time in seconds before kicking a player that is not verified."),
-            ["type"] = "textEntry",
-            ["condition"] = function(data) return data.forcePlayerLink end,
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
-        },
-        {
-            ["id"] = "clientBranch",
-            ["label"] = gmInte.getTranslation("admin.client_force_branch", "Client Force Branch"),
-            ["description"] = gmInte.getTranslation("admin.client_force_branch_description", "The branch of the addon that the clients should use."),
-            ["type"] = "combo",
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
-            ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety"),
-            ["values"] = {
-                ["any"] = "Any",
-                ["dev"] = "Dev",
-                ["prerelease"] = "Prerelease",
-                ["x86-64"] = "x86-64",
-            }
-        },
+        -- {
+        --     ["id"] = "maintenance",
+        --     ["label"] = gmInte.getTranslation("admin.maintenance", "Maintenance"),
+        --     ["description"] = gmInte.getTranslation("admin.maintenance_description", "Activate or deactivate maintenance mode."),
+        --     ["type"] = "checkbox",
+        --     ["value"] = function(setting, value) return value end,
+        --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+        --     ["category"] = gmInte.getTranslation("admin.main", "Main")
+        -- },
+        -- {
+        --     ["id"] = "language",
+        --     ["label"] = gmInte.getTranslation("admin.language", "Language"),
+        --     ["description"] = gmInte.getTranslation("admin.language_description", "Language used in the interface."),
+        --     ["type"] = "combo",
+        --     ["value"] = function(setting, value) return value end,
+        --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+        --     ["reloadOnEdit"] = true,
+        --     ["category"] = gmInte.getTranslation("admin.main", "Main"),
+        --     ["values"] = {
+        --         ["de"] = "Deutsch",
+        --         ["en"] = "English",
+        --         ["es"] = "Español",
+        --         ["fr"] = "Français",
+        --         ["it"] = "Italiano",
+        --         ["pl"] = "Polski",
+        --         ["ru"] = "Русский",
+        --         ["tr"] = "Türkçe",
+        --     }
+        -- },
+        -- {
+        --     ["id"] = "filterOnBan",
+        --     ["label"] = gmInte.getTranslation("admin.filter_on_ban", "Block Discord Ban Player"),
+        --     ["description"] = gmInte.getTranslation("admin.filter_on_ban_description", "Block players banned on the discord server."),
+        --     ["type"] = "checkbox",
+        --     ["value"] = function(setting, value) return value end,
+        --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+        --     ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        -- },
+        -- {
+        --     ["id"] = "forcePlayerLink",
+        --     ["label"] = gmInte.getTranslation("admin.force_player_link", "Force Player Verif"),
+        --     ["description"] = gmInte.getTranslation("admin.force_player_link_description", "Force player verification."),
+        --     ["type"] = "checkbox",
+        --     ["reloadOnEdit"] = true,
+        --     ["value"] = function(setting, value) return value end,
+        --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+        --     ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        -- },
+        -- {
+        --     ["id"] = "supportLink",
+        --     ["label"] = gmInte.getTranslation("admin.support_link", "Support Link"),
+        --     ["description"] = gmInte.getTranslation("admin.support_link_description", "Support Link found on the webpanel."),
+        --     ["type"] = "textEntry",
+        --     ["value"] = function(setting, value) return value end,
+        --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+        --     ["onEditDelay"] = 0.5,
+        --     ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        -- },
+        -- {
+        --     ["id"] = "verifyFamilySharing",
+        --     ["label"] = gmInte.getTranslation("admin.verifyFamilySharing", "Block Family Sharing"),
+        --     ["description"] = gmInte.getTranslation("admin.verifyFamilySharing_description", "Block family sharing players."),
+        --     ["type"] = "checkbox",
+        --     ["value"] = function(setting, value) return value end,
+        --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+        --     ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        -- },
+        -- {
+        --     ["id"] = "verifyOnJoin",
+        --     ["label"] = gmInte.getTranslation("admin.verify_on_join", "Verify on Join"),
+        --     ["description"] = gmInte.getTranslation("admin.verify_on_join_description", "Verify the player when they join the server or on player ready."),
+        --     ["type"] = "checkbox",
+        --     ["condition"] = function(data) return data.forcePlayerLink end,
+        --     ["value"] = function(setting, value) return value end,
+        --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+        --     ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        -- },
+        -- {
+        --     ["id"] = "verifyOnReadyKickTime",
+        --     ["label"] = gmInte.getTranslation("admin.verify_on_ready_kick_time", "Kick Time if not Verified"),
+        --     ["description"] = gmInte.getTranslation("admin.verify_on_ready_kick_time_description", "Time in seconds before kicking a player that is not verified."),
+        --     ["type"] = "textEntry",
+        --     ["condition"] = function(data) return data.forcePlayerLink end,
+        --     ["value"] = function(setting, value) return value end,
+        --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+        --     ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety")
+        -- },
+        -- {
+        --     ["id"] = "clientBranch",
+        --     ["label"] = gmInte.getTranslation("admin.client_force_branch", "Client Force Branch"),
+        --     ["description"] = gmInte.getTranslation("admin.client_force_branch_description", "The branch of the addon that the clients should use."),
+        --     ["type"] = "combo",
+        --     ["value"] = function(setting, value) return value end,
+        --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
+        --     ["category"] = gmInte.getTranslation("admin.trust_safety", "Trust & Safety"),
+        --     ["values"] = {
+        --         ["any"] = "Any",
+        --         ["dev"] = "Dev",
+        --         ["prerelease"] = "Prerelease",
+        --         ["x86-64"] = "x86-64",
+        --     }
+        -- },
         {
             ["id"] = "debug",
             ["label"] = gmInte.getTranslation("admin.debug", "Debug"),
