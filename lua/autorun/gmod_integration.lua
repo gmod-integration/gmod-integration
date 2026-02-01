@@ -2,6 +2,7 @@ if game.SinglePlayer() then return print("Gmod Integration is not supported in S
 
 gmInte = gmInte || {}
 gmInte.version = "5.2.1" // This will be automatically updated by GitHub Actions
+gmInte.previusVersion = "0.0.0"
 gmInte.config = {}
 gmInte.useDataConfig = true
 gmInte.detectOS = detectOS
@@ -59,6 +60,7 @@ local function loadConfig()
         end
 
         local oldConfig = util.JSONToTable(file.Read("gm_integration/config.json", "DATA"))
+        gmInte.previusVersion = oldConfig.version
         if !oldConfig.version || gmInte.compareVersion(oldConfig.version, gmInte.version) == -1 then
             table.Merge(gmInte.config, oldConfig)
             gmInte.config.version = gmInte.version

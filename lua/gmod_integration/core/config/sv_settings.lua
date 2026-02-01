@@ -103,7 +103,7 @@ function gmInte.wsEditSetting(data)
 end
 
 hook.Add("Initialize", "gmInte:Server:Initialize:SyncConfig", function() timer.Simple(1, function()
-        if (gmInte.compareVersion(gmInte.version, "5.2.0") == -1) then
+        if (gmInte.compareVersion(gmInte.previusVersion, "5.2.2") == -1) then
             gmInte.http.post("/servers/:serverID/config", gmInte.config, function(code, body)
                 gmInte.saveSetting("upgradeSyncConfig", true)
                 gmInte.log("Server Config Synced with Gmod Integration")
