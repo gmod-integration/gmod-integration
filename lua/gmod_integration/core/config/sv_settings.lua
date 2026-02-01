@@ -86,3 +86,15 @@ function gmInte.superadminSetConfig(ply, data)
 
     if data.token || data.id then gmInte.testConnection(ply) end
 end
+
+hook.Add("Initialize", "gmInte:Server:Initialize:SyncConfig", function() timer.Simple(1, function()
+        if (gmInte.compareVersion(gmInte.version, "5.2.0") == -1) then
+            gmInte.http.post("/servers/:serverID/config", gmInte.config, function(code, body)
+                gmInte.saveSetting("upgradeSyncConfig", true)
+                gmInte.log("Server Config Synced with Gmod Integration")
+            end, function(code, body)
+                gmInte.log("Failed to Sync Server Config with Gmod Integration", true)
+            end)
+        end
+    end)
+end)
