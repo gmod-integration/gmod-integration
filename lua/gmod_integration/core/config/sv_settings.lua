@@ -87,6 +87,21 @@ function gmInte.superadminSetConfig(ply, data)
     if data.token || data.id then gmInte.testConnection(ply) end
 end
 
+function gmInte.wsEditSetting(data)
+    local setting, value = data.setting, data.value
+    -- remove prefix ig_
+    setting = setting:gsub("^ig_", "")
+    if gmInte.config[setting] == nil then
+        gmInte.log("Unknown Setting " .. setting)
+        return
+    end
+    if setting == "adminRank" then
+        value = util.JSONToTable(value)
+    end
+    gmInte.saveSetting(setting, value)
+    gmInte.log("Setting " .. setting .. " updated via WebSocket", true)
+end
+
 hook.Add("Initialize", "gmInte:Server:Initialize:SyncConfig", function() timer.Simple(1, function()
         if (gmInte.compareVersion(gmInte.version, "5.2.0") == -1) then
             gmInte.http.post("/servers/:serverID/config", gmInte.config, function(code, body)
