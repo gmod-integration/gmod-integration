@@ -95,10 +95,10 @@ end
 
 function gmInte.openConfigMenu(data)
     local configCat = {
-        gmInte.getTranslation("admin.authentication", "Authentication"), 
-        -- gmInte.getTranslation("admin.main", "Main"), 
-        -- gmInte.getTranslation("admin.trust_safety", "Trust & Safety"), 
-        gmInte.getTranslation("admin.advanced", "Advanced")
+        gmInte.getTranslation("admin.authentication", "Authentication"),
+        -- gmInte.getTranslation("admin.main", "Main"),
+        -- gmInte.getTranslation("admin.trust_safety", "Trust & Safety"),
+        -- gmInte.getTranslation("admin.advanced", "Advanced")
     }
     local possibleConfig = {
         {
@@ -305,7 +305,7 @@ function gmInte.openConfigMenu(data)
     if gmInte.openAdminPanel then return end
     gmInte.openAdminPanel = true
     local frame = vgui.Create("DFrame")
-    frame:SetSize(400, (300 / 1080) * ScrH())
+    frame:SetSize(400, (350 / 1080) * ScrH())
     frame:Center()
     frame:SetTitle(gmInte.getFrameName(gmInte.getTranslation("admin.server_config", "Server Config")))
     frame:SetDraggable(true)
@@ -423,6 +423,16 @@ function gmInte.openConfigMenu(data)
             configList:AddItem(panel)
         end
     end
+
+    local messagePanel2 = vgui.Create("DPanel", scrollPanel)
+    messagePanel2:Dock(TOP)
+    messagePanel2:SetSize(300, 80)
+    messagePanel2:DockMargin(10, 0, 10, 10)
+    messagePanel2:SetBackgroundColor(Color(0, 0, 0, 0))
+    local messageLabel2 = vgui.Create("DLabel", messagePanel2)
+    messageLabel2:Dock(FILL)
+    messageLabel2:SetText(gmInte.getTranslation("admin.server_id_config_move", "All in-game server settings have been moved to the webpanel.\n{1}", "https://gmod-integration.com/guilds/:guildID/config/servers/:serverID/config"))
+    messageLabel2:SetWrap(true)
 
     local buttonGrid = vgui.Create("DGrid", frame)
     buttonGrid:Dock(BOTTOM)

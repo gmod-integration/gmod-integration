@@ -26,6 +26,7 @@ return {
     ["admin.disabled"] = "Wyłączony",
     ["admin.click_to_show"] = "*** Kliknij, aby pokazać ***",
     ["admin.server_id_description2"] = "Tutaj możesz skonfigurować ustawienia serwera.\nID Serwera i Token są dostępne na panelu internetowym w ustawieniach serwera.\nDokumentacja jest dostępna na {1}\nJeśli potrzebujesz pomocy, skontaktuj się z nami na naszym serwerze Discord.",
+    ["admin.server_id_config_move"] = "Wszystkie ustawienia serwera w grze zostały przeniesione do panelu internetowego.\n{1}",
     ["admin.server_config"] = "Konfiguracja Serwera",
     ["admin.server_token"] = "Token Serwera",
     ["admin.server_token_description"] = "Token Serwera znaleziony na panelu internetowym.",

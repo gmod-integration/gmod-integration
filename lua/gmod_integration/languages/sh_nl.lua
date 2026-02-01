@@ -26,6 +26,7 @@ return {
   ["admin.disabled"] = "Uitgeschakeld",
   ["admin.click_to_show"] = "*** Klik om te tonen ***",
   ["admin.server_id_description2"] = "Hier kun je je serverinstellingen configureren.\nServer ID en Token zijn beschikbaar op het webpaneel in de serverinstellingen.\nDe documentatie is beschikbaar op {1}\nAls je hulp nodig hebt, neem dan contact met ons op via onze Discord-server.",
+  ["admin.server_id_config_move"] = "Alle in-game serverinstellingen zijn verplaatst naar het webpaneel.\n{1}",
   ["admin.server_config"] = "Server Configuratie",
   ["admin.server_token"] = "Server Token",
   ["admin.server_token_description"] = "Server Token gevonden op het webpaneel.",
