@@ -110,6 +110,23 @@ hook.Add("Initialize", "gmInte:Server:Initialize:SyncConfig", function() timer.S
             end, function(code, body)
                 gmInte.log("Failed to Sync Server Config with Gmod Integration", true)
             end)
+        else
+            gmInte.http.get("/servers/:serverID/config", function(code, body)
+                for k, v in pairs(body) do
+                    local setting = k:gsub("^ig_", "")
+                    if k == "adminRank" then
+                        v = util.JSONToTable(v)
+                    end
+                    if gmInte.config[setting] != nil then
+                        if gmInte.config[setting] != v then
+                            gmInte.saveSetting(setting, v)
+                        end
+                    end
+                end
+                gmInte.log("Server Config Synced with Gmod Integration")
+            end, function(code, body)
+                gmInte.log("Failed to Sync Server Config with Gmod Integration", true)
+            end)
         end
     end)
 end)
