@@ -305,7 +305,7 @@ function gmInte.openConfigMenu(data)
     if gmInte.openAdminPanel then return end
     gmInte.openAdminPanel = true
     local frame = vgui.Create("DFrame")
-    frame:SetSize(400, (600 / 1080) * ScrH())
+    frame:SetSize(400, (300 / 1080) * ScrH())
     frame:Center()
     frame:SetTitle(gmInte.getFrameName(gmInte.getTranslation("admin.server_config", "Server Config")))
     frame:SetDraggable(true)
