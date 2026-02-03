@@ -6,38 +6,54 @@ local conFuncs = {
         print("================================")
         print()
     end,
-    ["set-setting"] = function(args)
-        if !args[2] || !args[3] then
+    ["config"] = function(args)
+        if !args[2] then
             print()
-            print("[ERROR] Usage: gmi set-setting <setting> <value>")
+            print("[ERROR] Usage: gmi config <action>")
+            print("Actions: set, show")
             print()
             return
         end
-        gmInte.saveSetting(args[2], args[3])
-        print()
-        print("[SUCCESS] Setting '" .. args[2] .. "' updated to '" .. args[3] .. "'")
-        print()
-    end,
-    ["show-settings"] = function()
-        print()
-        print("=== Current Settings ===")
-        PrintTable(gmInte.config)
-        print("========================")
-        print()
-    end,
-    ["try"] = function()
-        print()
-        print("=== Testing Configuration ===")
-        gmInte.tryConfig()
-        print("=============================")
-        print()
-    end,
-    ["get-server-id"] = function()
-        print()
-        print("=== Server Information ===")
-        print("Server ID: " .. (gmInte.config.id || "Not Set"))
-        print("==========================")
-        print()
+
+        if args[2] == "set" then
+            if !args[3] || !args[4] then
+                print()
+                print("[ERROR] Usage: gmi config set <setting> <value>")
+                print()
+                return
+            end
+
+            local setting = args[3]
+            local value = args[4]
+
+            gmInte.saveSetting(setting, value)
+
+            -- Auto-try connection if id or token was changed
+            if setting == "id" || setting == "token" then
+                print("[INFO] Testing connection with new credentials...")
+                timer.Simple(0.5, function()
+                    gmInte.tryConfig()
+                end)
+            end
+            print()
+        elseif args[2] == "show" then
+            print()
+            print("=== Current Config ===")
+            PrintTable(gmInte.config)
+            print("======================")
+            print()
+        elseif args[2] == "try" then
+            print()
+            print("=== Testing Configuration ===")
+            gmInte.tryConfig()
+            print("=============================")
+            print()
+        else
+            print()
+            print("[ERROR] Unknown config action: '" .. args[2] .. "'")
+            print("Available actions: set, show, try")
+            print()
+        end
     end,
     ["export-warns"] = function()
         print()
@@ -64,10 +80,10 @@ local conFuncs = {
             wsStatus = gmInte.websocket:isConnected() && "✓ Connected" || "✗ Disconnected"
         end
 
-        print("  Server ID:     " .. (idValid && "✓ Set" || "✗ Not Set"))
-        print("  Server Token:  " .. (tokenValid && "✓ Set" || "✗ Not Set"))
-        print("  HTTP API:      " .. httpStatus)
-        print("  WebSocket:     " .. wsStatus)
+        print("  Server ID:          " .. (idValid && "✓ Set" || "✗ Not Set"))
+        print("  Server Token:       " .. (tokenValid && "✓ Set" || "✗ Not Set"))
+        print("  HTTP API:           " .. httpStatus)
+        print("  WebSocket:          " .. wsStatus)
 
         if !idValid || !tokenValid then
             print()
@@ -77,20 +93,21 @@ local conFuncs = {
 
         print()
         print("Available Commands:")
-        print("  • version              - Display current addon version")
-        print("  • set-setting          - Update a configuration setting")
-        print("    Usage: gmi set-setting <name> <value>")
-        print("  • show-settings        - Display all current settings")
-        print("  • try                  - Test current configuration")
-        print("  • get-server-id        - Display server ID")
-        print("  • export-warns         - Export warning logs")
-        print("  • help                 - Display this help message")
+        print("  • version                            - Display current addon version")
+        print("  • config set <name> <value>          - Update a configuration setting")
+        print("  • config show                        - Display all current settings")
+        print("  • config try                         - Test current configuration")
+        print("  • export-warns                       - Export warning logs")
+        print("  • help                               - Display this help message")
         print()
         print("Examples:")
         print("  gmi version")
-        print("  gmi set-setting id YOUR_SERVER_ID")
-        print("  gmi set-setting token YOUR_SERVER_TOKEN")
-        print("  gmi show-settings")
+        print("  gmi config set id YOUR_SERVER_ID")
+        print("  gmi config set token YOUR_SERVER_TOKEN")
+        print("  gmi config show")
+        print("  gmi config try")
+        print()
+        print("Note: Connection is automatically tested when id or token is changed")
         print()
     end
 }
@@ -106,7 +123,9 @@ local function cmdExecuted(ply, cmd, args)
         return
     end
 
-    if conFuncs[args[1]] then
+    if args[1] == "config" then
+        conFuncs["config"](args)
+    elseif conFuncs[args[1]] then
         conFuncs[args[1]](args)
     else
         print()
