@@ -28,9 +28,9 @@ local conFuncs = {
 
             gmInte.saveSetting(setting, value)
 
-            -- Auto-try connection if id or token was changed
-            if setting == "id" || setting == "token" then
-                print("[INFO] Testing connection with new credentials...")
+            -- Auto-try connection if id or token was changed and both are set
+            if setting == "id" && value != "" && gmInte.config.token != "" ||
+               setting == "token" && value != "" && gmInte.config.id != "" then
                 timer.Simple(0.5, function()
                     gmInte.tryConfig()
                 end)
