@@ -208,7 +208,7 @@ jobs:
     gmodstore-release:
         name: Publish to GMod Store
         runs-on: ubuntu-latest
-        needs: [version, changelog, build, github-release]
+        needs: [version, changelog, build, github-release, publish_workshop]
         if: needs.version.outputs.version_type != 'patch'
         steps:
             - name: Download README-only artifact
@@ -309,7 +309,7 @@ jobs:
     aide-serveurs:
         name: Publish to aide-serveur.fr
         runs-on: ubuntu-latest
-        needs: [version, changelog, github-release, build]
+        needs: [version, changelog, github-release, build, publish_workshop]
         steps:
             - name: Download README-only artifact
               uses: actions/download-artifact@v4
