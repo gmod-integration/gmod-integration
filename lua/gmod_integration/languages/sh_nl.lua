@@ -95,6 +95,7 @@ return {
   ["admin.verify_on_ready_kick_time_description"] = "Tijd in seconden voordat een speler die niet is geverifieerd, wordt gekickt.",
   ["admin.client_force_branch"] = "Dwing Client Tak",
   ["admin.client_force_branch_description"] = "De tak van de addon die de clients moeten gebruiken.",
+  ["admin.update_available"] = "Een update is beschikbaar! Nieuwste versie: {1}, je gebruikt: {2}. Als je de workshop-versie gebruikt, start je server gewoon opnieuw op",
   ["filter.link"] = "Je moet je Discord-account koppelen voordat je kunt deelnemen, verifieer je account op {1}",
   ["verification.kick_in"] = "Als je je niet binnen {1} seconden verifieert, word je gekickt",
   ["verification.kick"] = "Je bent gekickt omdat je je niet hebt geverifieerd, verifieer je account op {1}",

@@ -96,6 +96,7 @@ return {
 	["admin.verify_on_ready_kick_time_description"] = "Time in seconds before kicking a player that is not verified.",
 	["admin.client_force_branch"] = "Client Force Branch",
 	["admin.client_force_branch_description"] = "The branch of the addon that the clients should use.",
+	["admin.update_available"] = "An update is available! Latest version: {1}, you are using: {2}. If you're using the workshop version simply restart your server",
 	["filter.link"] = "You need to link your discord account before joining, verify your account on {1}",
 	["verification.kick_in"] = "If you don't verify in {1} seconds you will be kicked",
 	["verification.kick"] = "You have been kicked for not verifying, verify your account on {1}",

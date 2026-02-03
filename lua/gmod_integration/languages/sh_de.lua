@@ -95,6 +95,7 @@ return {
   ["admin.verify_on_ready_kick_time_description"] = "Zeit in Sekunden, bevor ein nicht verifizierter Spieler gekickt wird.",
   ["admin.client_force_branch"] = "Client-Zweig erzwingen",
   ["admin.client_force_branch_description"] = "Der Zweig des Addons, den die Clients verwenden sollen.",
+  ["admin.update_available"] = "Ein Update ist verfügbar! Neueste Version: {1}, du verwendest: {2}. Wenn du die Workshop-Version verwendest, starte einfach deinen Server neu",
   ["filter.link"] = "Du musst dein Discord-Konto verknüpfen, bevor du beitreten kannst. Verifiziere dein Konto auf {1}",
   ["verification.kick_in"] = "Wenn du dich nicht innerhalb von {1} Sekunden verifizierst, wirst du gekickt",
   ["verification.kick"] = "Du wurdest gekickt, weil du dich nicht verifiziert hast. Verifiziere dein Konto auf {1}",

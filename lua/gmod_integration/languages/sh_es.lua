@@ -95,6 +95,7 @@ return {
   ["admin.verify_on_ready_kick_time_description"] = "Tiempo en segundos antes de expulsar a un jugador que no está verificado.",
   ["admin.client_force_branch"] = "Forzar Rama del Cliente",
   ["admin.client_force_branch_description"] = "La rama del addon que los clientes deben usar.",
+  ["admin.update_available"] = "¡Una actualización está disponible! Última versión: {1}, estás usando: {2}. Si estás usando la versión de taller simplemente reinicia tu servidor",
   ["filter.link"] = "Necesitas vincular tu cuenta de Discord antes de unirte, verifica tu cuenta en {1}",
   ["verification.kick_in"] = "Si no verificas en {1} segundos serás expulsado",
   ["verification.kick"] = "Has sido expulsado por no verificar, verifica tu cuenta en {1}",

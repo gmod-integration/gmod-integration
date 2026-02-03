@@ -95,6 +95,7 @@ return {
     ["admin.verify_on_ready_kick_time_description"] = "Czas w sekundach przed wyrzuceniem gracza, który nie jest zweryfikowany.",
     ["admin.client_force_branch"] = "Wymuszona Gałąź Klienta",
     ["admin.client_force_branch_description"] = "Gałąź dodatku, której powinni używać klienci.",
+    ["admin.update_available"] = "Dostępna jest aktualizacja! Najnowsza wersja: {1}, używasz: {2}. Jeśli używasz wersji warsztatu, po prostu uruchom ponownie swój serwer",
     ["filter.link"] = "Musisz powiązać swoje konto Discord przed dołączeniem, zweryfikuj swoje konto na {1}",
     ["verification.kick_in"] = "Jeśli nie zweryfikujesz się w ciągu {1} sekund, zostaniesz wyrzucony",
     ["verification.kick"] = "Zostałeś wyrzucony za brak weryfikacji, zweryfikuj swoje konto na {1}",

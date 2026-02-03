@@ -95,6 +95,7 @@ return {
   ["admin.verify_on_ready_kick_time_description"] = "Doğrulanmamış bir oyuncuyu atmadan önceki süre (saniye cinsinden).",
   ["admin.client_force_branch"] = "İstemci Zorunlu Dal",
   ["admin.client_force_branch_description"] = "İstemcilerin kullanması gereken eklenti dalı.",
+  ["admin.update_available"] = "Bir güncelleme mevcut! En yeni sürüm: {1}, şu an kullanıyorsunuz: {2}. Workshop sürümünü kullanıyorsanız, sunucunuzu yeniden başlatın",
   ["filter.link"] = "Katılmadan önce discord hesabınızı bağlamanız gerekiyor, hesabınızı {1} üzerinde doğrulayın",
   ["verification.kick_in"] = "{1} saniye içinde doğrulamazsanız atılacaksınız",
   ["verification.kick"] = "Doğrulamadığınız için atıldınız, hesabınızı {1} üzerinde doğrulayın",

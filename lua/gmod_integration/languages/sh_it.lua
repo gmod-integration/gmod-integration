@@ -95,6 +95,7 @@ return {
   ["admin.verify_on_ready_kick_time_description"] = "Tempo in secondi prima di espellere un giocatore che non è verificato.",
   ["admin.client_force_branch"] = "Forza Branch Client",
   ["admin.client_force_branch_description"] = "Il branch dell'addon che i client dovrebbero usare.",
+  ["admin.update_available"] = "Un aggiornamento è disponibile! Versione più recente: {1}, stai usando: {2}. Se stai usando la versione workshop semplicemente riavvia il tuo server",
   ["filter.link"] = "Devi collegare il tuo account Discord prima di unirti, verifica il tuo account su {1}",
   ["verification.kick_in"] = "Se non verifichi entro {1} secondi sarai espulso",
   ["verification.kick"] = "Sei stato espulso per non aver verificato, verifica il tuo account su {1}",

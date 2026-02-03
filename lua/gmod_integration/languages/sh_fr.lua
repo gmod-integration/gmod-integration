@@ -95,6 +95,7 @@ return {
   ["admin.verify_on_ready_kick_time_description"] = "Temps en secondes avant d'expulser un joueur qui n'est pas vérifié.",
   ["admin.client_force_branch"] = "Forcer la branche du client",
   ["admin.client_force_branch_description"] = "La branche de l'addon que les clients doivent utiliser.",
+  ["admin.update_available"] = "Une mise à jour est disponible ! Dernière version : {1}, vous utilisez : {2}. Si vous utilisez la version atelier, redémarrez simplement votre serveur",
   ["filter.link"] = "Vous devez lier votre compte Discord avant de rejoindre, vérifiez votre compte sur {1}",
   ["verification.kick_in"] = "Si vous ne vérifiez pas dans {1} secondes, vous serez expulsé",
   ["verification.kick"] = "Vous avez été expulsé pour ne pas avoir vérifié, vérifiez votre compte sur {1}",
