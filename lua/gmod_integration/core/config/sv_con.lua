@@ -111,6 +111,56 @@ local conFuncs = {
     end
 }
 
+local function handleMultipleCommands(ply, cmd, args)
+    -- Check if there are multiple command keywords in the arguments
+    local commandKeywords = {"gmi", "gmod-integration"}
+    local splitIndices = {}
+
+    -- Find all occurrences of command keywords
+    for i = 1, #args do
+        for _, keyword in ipairs(commandKeywords) do
+            if args[i] == keyword then
+                table.insert(splitIndices, i)
+                break
+            end
+        end
+    end
+
+    -- If we found multiple command keywords, split and execute each
+    if #splitIndices > 1 then
+        local commands = {}
+
+        -- Extract command groups
+        for cmdIdx = 1, #splitIndices do
+            local startIdx = splitIndices[cmdIdx] + 1  -- Start after the keyword
+            local endIdx = (splitIndices[cmdIdx + 1] or (#args + 1)) - 1  -- End before next keyword or at end
+
+            local commandArgs = {}
+            for i = startIdx, endIdx do
+                if i >= 1 && i <= #args then
+                    table.insert(commandArgs, args[i])
+                end
+            end
+
+            if #commandArgs > 0 then
+                table.insert(commands, commandArgs)
+            end
+        end
+
+        -- Execute all commands sequentially with delays
+        for cmdIdx = 1, #commands do
+            local delay = (cmdIdx - 1) * 0.15  -- 150ms delay between commands
+            timer.Simple(delay, function()
+                cmdExecuted(ply, cmd, commands[cmdIdx])
+            end)
+        end
+
+        return true
+    end
+
+    return false
+end
+
 local function cmdExecuted(ply, cmd, args)
     if ply:IsPlayer() && !ply:gmIntIsAdmin() then
         print("[ERROR] You don't have permission to use this command")
@@ -134,5 +184,12 @@ local function cmdExecuted(ply, cmd, args)
     end
 end
 
-concommand.Add("gmi", cmdExecuted)
-concommand.Add("gmod-integration", cmdExecuted)
+concommand.Add("gmi", function(ply, cmd, args)
+    if handleMultipleCommands(ply, cmd, args) then return end
+    cmdExecuted(ply, cmd, args)
+end)
+
+concommand.Add("gmod-integration", function(ply, cmd, args)
+    if handleMultipleCommands(ply, cmd, args) then return end
+    cmdExecuted(ply, cmd, args)
+end)
