@@ -35,7 +35,6 @@ local conFuncs = {
                     gmInte.tryConfig()
                 end)
             end
-            print()
         elseif args[2] == "show" then
             print()
             print("=== Current Config ===")
