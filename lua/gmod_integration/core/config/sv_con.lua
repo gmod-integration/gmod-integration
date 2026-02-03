@@ -111,8 +111,32 @@ local conFuncs = {
     end
 }
 
+local function cmdExecuted(ply, cmd, args)
+    if ply:IsPlayer() && !ply:gmIntIsAdmin() then
+        print("[ERROR] You don't have permission to use this command")
+        return
+    end
+
+    if !args[1] || args[1] == "help" then
+        conFuncs["help"]()
+        return
+    end
+
+    if args[1] == "config" then
+        conFuncs["config"](args)
+    elseif conFuncs[args[1]] then
+        conFuncs[args[1]](args)
+    else
+        print()
+        print("[ERROR] Unknown command: '" .. args[1] .. "'")
+        print("Type 'gmi help' for a list of available commands")
+        print()
+    end
+end
+
 local function handleMultipleCommands(ply, cmd, args)
-    -- Check if there are multiple command keywords in the arguments
+    -- Check if there are command keywords in the arguments
+    -- The first command is already handled by concommand, so we look for additional commands
     local commandKeywords = {"gmi", "gmod-integration"}
     local splitIndices = {}
 
@@ -126,11 +150,21 @@ local function handleMultipleCommands(ply, cmd, args)
         end
     end
 
-    -- If we found multiple command keywords, split and execute each
-    if #splitIndices > 1 then
+    -- If we found any command keywords in the args (meaning there's a second command), split and execute
+    if #splitIndices > 0 then
         local commands = {}
 
-        -- Extract command groups
+        -- First command: from start to first keyword
+        local firstArgs = {}
+        for i = 1, splitIndices[1] - 1 do
+            table.insert(firstArgs, args[i])
+        end
+
+        if #firstArgs > 0 then
+            table.insert(commands, firstArgs)
+        end
+
+        -- Remaining commands: extract from each keyword
         for cmdIdx = 1, #splitIndices do
             local startIdx = splitIndices[cmdIdx] + 1  -- Start after the keyword
             local endIdx = (splitIndices[cmdIdx + 1] or (#args + 1)) - 1  -- End before next keyword or at end
@@ -159,29 +193,6 @@ local function handleMultipleCommands(ply, cmd, args)
     end
 
     return false
-end
-
-local function cmdExecuted(ply, cmd, args)
-    if ply:IsPlayer() && !ply:gmIntIsAdmin() then
-        print("[ERROR] You don't have permission to use this command")
-        return
-    end
-
-    if !args[1] || args[1] == "help" then
-        conFuncs["help"]()
-        return
-    end
-
-    if args[1] == "config" then
-        conFuncs["config"](args)
-    elseif conFuncs[args[1]] then
-        conFuncs[args[1]](args)
-    else
-        print()
-        print("[ERROR] Unknown command: '" .. args[1] .. "'")
-        print("Type 'gmi help' for a list of available commands")
-        print()
-    end
 end
 
 concommand.Add("gmi", function(ply, cmd, args)
