@@ -146,7 +146,7 @@ jobs:
               with:
                   ref: ${{ needs.version.outputs.new_tag }}
 
-            - name: Create release archive
+            - name: Create full release archive
               run: |
                   mkdir -p gmod-integration-release/addons/gmod-integration
                   cp -r lua/ gmod-integration-release/addons/gmod-integration/
@@ -160,11 +160,27 @@ jobs:
                   zip -r ../gmod-integration-${{ needs.version.outputs.new_version }}.zip .
                   cd ..
 
-            - name: Upload artifact
+            - name: Create README-only archive for gmodstore and aide-serveurs
+              run: |
+                  mkdir -p gmod-integration-readme/addons/gmod-integration
+                  [ -f README.md ] && cp README.md gmod-integration-readme/addons/gmod-integration/
+                  [ -f README.md ] && cp README.md gmod-integration-readme/
+
+                  cd gmod-integration-readme
+                  zip -r ../gmod-integration-readme-${{ needs.version.outputs.new_version }}.zip .
+                  cd ..
+
+            - name: Upload full archive artifact
               uses: actions/upload-artifact@v4
               with:
                   name: release-archive
                   path: gmod-integration-${{ needs.version.outputs.new_version }}.zip
+
+            - name: Upload README-only archive artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: release-archive-readme
+                  path: gmod-integration-readme-${{ needs.version.outputs.new_version }}.zip
 
     github-release:
         name: Create GitHub Release
@@ -195,10 +211,10 @@ jobs:
         needs: [version, changelog, build, github-release]
         if: needs.version.outputs.version_type != 'patch'
         steps:
-            - name: Download artifact
+            - name: Download README-only artifact
               uses: actions/download-artifact@v4
               with:
-                  name: release-archive
+                  name: release-archive-readme
 
             - name: Publish to GMod Store
               run: |
@@ -213,7 +229,7 @@ jobs:
                     -H "Authorization: Bearer ${{ secrets.GMODSTORE_API_TOKEN }}" \
                     -F "name=v$NEW_VERSION" \
                     -F "changelog=$API_CHANGELOG" \
-                    -F "file=@gmod-integration-$NEW_VERSION.zip" \
+                    -F "file=@gmod-integration-readme-$NEW_VERSION.zip" \
                     -F "releaseType=stable" \
                     --fail-with-body || echo "Failed to publish to GMod Store - check your API token and product ID"
               env:
@@ -293,8 +309,13 @@ jobs:
     aide-serveurs:
         name: Publish to aide-serveur.fr
         runs-on: ubuntu-latest
-        needs: [version, changelog, github-release]
+        needs: [version, changelog, github-release, build]
         steps:
+            - name: Download README-only artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: release-archive-readme
+
             - name: Checkout helper CLI
               run: git clone https://github.com/linventif/aide-serveur-cicd.git aide-serveur-cicd
 
@@ -304,6 +325,10 @@ jobs:
             - name: Install CLI dependencies
               working-directory: aide-serveur-cicd
               run: bun install
+
+            - name: Prepare README-only archive for upload
+              run: |
+                  mv gmod-integration-readme-${{ needs.version.outputs.new_version }}.zip gmod-integration-${{ needs.version.outputs.new_version }}.zip
 
             - name: Publish update via aide-serveur-cicd
               working-directory: aide-serveur-cicd
