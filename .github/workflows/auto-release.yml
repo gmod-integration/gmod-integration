@@ -162,8 +162,7 @@ jobs:
 
             - name: Create README-only archive for gmodstore and aide-serveurs
               run: |
-                  mkdir -p gmod-integration-readme/addons/gmod-integration
-                  [ -f README.md ] && cp README.md gmod-integration-readme/addons/gmod-integration/
+                  mkdir -p gmod-integration-readme
                   [ -f README.md ] && cp README.md gmod-integration-readme/
 
                   cd gmod-integration-readme
