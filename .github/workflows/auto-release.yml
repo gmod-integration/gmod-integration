@@ -261,8 +261,8 @@ jobs:
                   steam_pass: ${{ secrets.STEAM_PASS }}
                   steam_shared_secret: ${{ secrets.STEAM_SHARED_SECRET }}
                   published_file_id: ${{ secrets.GMOD_INTEGRATION_PUBLISHED_FILE_ID }}
-                  content_path: /data/workshop
-                  preview_file: /data/workshop/materials/gmod_integration/logo.png
+                  content_path: /github/workspace/workshop
+                  preview_file: /github/workspace/workshop/materials/gmod_integration/logo.png
                   title: Gmod Integration v${{ needs.version.outputs.new_version }}
                   description: Workshop Content of gmod-integration.com – all information on the website.
                   visibility: "0"
