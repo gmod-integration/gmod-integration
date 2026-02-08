@@ -237,36 +237,36 @@ jobs:
                   GMODSTORE_PRODUCT_ID: ${{ secrets.GMODSTORE_PRODUCT_ID }}
 
     publish_workshop:
-    name: Publish to Steam Workshop
-    runs-on: ubuntu-latest
-    needs: [build, version, changelog, github-release]
+        name: Publish to Steam Workshop
+        runs-on: ubuntu-latest
+        needs: [build, version, changelog, github-release]
 
-    steps:
-        - name: Checkout gmod-integration
-          uses: actions/checkout@v4
-          with:
-              ref: ${{ needs.version.outputs.new_tag }}
+        steps:
+            - name: Checkout gmod-integration
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ needs.version.outputs.new_tag }}
 
-        - name: Prepare workshop folder
-          run: |
-              mkdir -p workshop
-              cp -r lua/ workshop/
-              cp -r materials/ workshop/
-              cp addon.json workshop/
+            - name: Prepare workshop folder
+              run: |
+                  mkdir -p workshop
+                  cp -r lua/ workshop/
+                  cp -r materials/ workshop/
+                  cp addon.json workshop/
 
-        - name: Publish to Workshop
-          uses: linventif/gmod-workshop-cicd@2.0.0
-          with:
-              steam_user: ${{ secrets.STEAM_USER }}
-              steam_pass: ${{ secrets.STEAM_PASS }}
-              steam_shared_secret: ${{ secrets.STEAM_SHARED_SECRET }}
-              published_file_id: ${{ secrets.GMOD_INTEGRATION_PUBLISHED_FILE_ID }}
-              content_path: /data/workshop
-              preview_file: /data/workshop/materials/gmod_integration/logo.png
-              title: Gmod Integration v${{ needs.version.outputs.new_version }}
-              description: Workshop Content of gmod-integration.com – all information on the website.
-              visibility: "0"
-              change_note: ${{ needs.changelog.outputs.changelog }}
+            - name: Publish to Workshop
+              uses: linventif/gmod-workshop-cicd@2.0.0
+              with:
+                  steam_user: ${{ secrets.STEAM_USER }}
+                  steam_pass: ${{ secrets.STEAM_PASS }}
+                  steam_shared_secret: ${{ secrets.STEAM_SHARED_SECRET }}
+                  published_file_id: ${{ secrets.GMOD_INTEGRATION_PUBLISHED_FILE_ID }}
+                  content_path: /data/workshop
+                  preview_file: /data/workshop/materials/gmod_integration/logo.png
+                  title: Gmod Integration v${{ needs.version.outputs.new_version }}
+                  description: Workshop Content of gmod-integration.com – all information on the website.
+                  visibility: "0"
+                  change_note: ${{ needs.changelog.outputs.changelog }}
 
     aide-serveurs:
         name: Publish to aide-serveur.fr
