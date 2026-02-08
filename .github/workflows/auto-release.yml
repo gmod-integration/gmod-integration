@@ -237,74 +237,36 @@ jobs:
                   GMODSTORE_PRODUCT_ID: ${{ secrets.GMODSTORE_PRODUCT_ID }}
 
     publish_workshop:
-        name: Publish to Steam Workshop
-        runs-on: ubuntu-latest
-        needs: [build, version, changelog, github-release]
+    name: Publish to Steam Workshop
+    runs-on: ubuntu-latest
+    needs: [build, version, changelog, github-release]
 
-        steps:
-            - name: Checkout gmod-integration
-              uses: actions/checkout@v4
-              with:
-                  ref: ${{ needs.version.outputs.new_tag }}
+    steps:
+        - name: Checkout gmod-integration
+          uses: actions/checkout@v4
+          with:
+              ref: ${{ needs.version.outputs.new_tag }}
 
-            - name: Clone gmod-workshop-cicd
-              run: |
-                  git clone https://github.com/linventif/gmod-workshop-cicd.git gmod-workshop-cicd
+        - name: Prepare workshop folder
+          run: |
+              mkdir -p workshop
+              cp -r lua/ workshop/
+              cp -r materials/ workshop/
+              cp addon.json workshop/
 
-            - name: Build gmod-uploader image
-              run: |
-                  docker build -t gmod-uploader ./gmod-workshop-cicd
-
-            - name: Set up Python
-              uses: actions/setup-python@v4
-              with:
-                  python-version: '3.x'
-
-            - name: Install steampy
-              run: pip install steampy
-
-            - name: Generate Steam Guard OTP
-              id: steam_otp
-              env:
-                  STEAM_SHARED_SECRET: ${{ secrets.STEAM_SHARED_SECRET }}
-              run: |
-                  echo "otp=$(python3 otp.py)" >> $GITHUB_OUTPUT
-              working-directory: ${{ github.workspace }}/gmod-workshop-cicd
-
-            - name: Publish to Workshop
-              env:
-                  STEAM_USER: ${{ secrets.STEAM_USER }}
-                  STEAM_PASS: ${{ secrets.STEAM_PASS }}
-                  STEAM_SHARED_SECRET: ${{ secrets.STEAM_SHARED_SECRET }}
-                  STEAM_GUARD: ${{ steps.steam_otp.outputs.otp }}
-                  PUBLISHED_FILE_ID: ${{ secrets.GMOD_INTEGRATION_PUBLISHED_FILE_ID }}
-                  CONTENT_PATH: /workshop
-                  PREVIEW_FILE: /workshop/materials/gmod_integration/logo.png
-                  TITLE: Gmod Integration v${{ needs.version.outputs.new_version }}
-                  DESCRIPTION: Workshop Content of gmod-integration.com – all information on the website.
-                  VISIBILITY: '0'
-                  CHANGE_NOTE: |
-                      ${{ needs.changelog.outputs.changelog }}
-              run: |
-                  mkdir -p workshop
-                  cp -r lua/ workshop/
-                  cp -r materials/ workshop/
-                  cp addon.json workshop/
-
-                  docker run --rm \
-                    -e STEAM_USER \
-                    -e STEAM_PASS \
-                    -e STEAM_SHARED_SECRET \
-                    -e STEAM_GUARD \
-                    -e CONTENT_PATH \
-                    -e PREVIEW_FILE \
-                    -e TITLE \
-                    -e DESCRIPTION \
-                    -e VISIBILITY \
-                    -e CHANGE_NOTE \
-                    -e PUBLISHED_FILE_ID \
-                    -v ${{ github.workspace }}/workshop:/workshop:ro \
-                    gmod-uploader
+        - name: Publish to Workshop
+          uses: linventif/gmod-workshop-cicd@2.0.0
+          with:
+              steam_user: ${{ secrets.STEAM_USER }}
+              steam_pass: ${{ secrets.STEAM_PASS }}
+              steam_shared_secret: ${{ secrets.STEAM_SHARED_SECRET }}
+              published_file_id: ${{ secrets.GMOD_INTEGRATION_PUBLISHED_FILE_ID }}
+              content_path: /data/workshop
+              preview_file: /data/workshop/materials/gmod_integration/logo.png
+              title: Gmod Integration v${{ needs.version.outputs.new_version }}
+              description: Workshop Content of gmod-integration.com – all information on the website.
+              visibility: "0"
+              change_note: ${{ needs.changelog.outputs.changelog }}
 
     aide-serveurs:
         name: Publish to aide-serveur.fr
