@@ -1,7 +1,7 @@
 if game.SinglePlayer() then return print("Gmod Integration is not supported in Singleplayer!") end
 
 gmInte = gmInte || {}
-gmInte.version = "5.2.4" // This will be automatically updated by GitHub Actions
+gmInte.version = "5.2.3" // This will be automatically updated by GitHub Actions
 gmInte.previusVersion = "0.0.0"
 gmInte.config = {}
 gmInte.useDataConfig = true
