@@ -21,15 +21,19 @@ permissions:
     contents: write
     pull-requests: write
 
+concurrency:
+    group: auto-release-${{ github.repository }}
+    cancel-in-progress: false
+
 jobs:
     version:
-        name: Calculate Version & Update Code
+        name: Resolve Version & Tag
         runs-on: ubuntu-latest
         outputs:
-            new_version: ${{ steps.calc_version.outputs.new_version }}
-            new_tag: ${{ steps.calc_version.outputs.new_tag }}
-            latest_tag: ${{ steps.get_tag.outputs.latest_tag }}
-            version_type: ${{ steps.calc_version.outputs.version_type }}
+            new_version: ${{ steps.resolve.outputs.new_version }}
+            new_tag: ${{ steps.resolve.outputs.new_tag }}
+            latest_tag: ${{ steps.resolve.outputs.latest_tag }}
+            version_type: ${{ steps.resolve.outputs.version_type }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -37,69 +41,197 @@ jobs:
                   fetch-depth: 0
                   token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Get latest tag
-              id: get_tag
+            - name: Resolve release state
+              id: resolve
+              shell: bash
               run: |
-                  git fetch --tags
-                  LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-                  echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-                  echo "Latest tag: $LATEST_TAG"
+                  set -euo pipefail
 
-            - name: Calculate new version
-              id: calc_version
-              run: |
-                  LATEST_TAG="${{ steps.get_tag.outputs.latest_tag }}"
+                  git fetch origin --tags "+refs/heads/*:refs/remotes/origin/*"
+
+                  SOURCE_SHA="${{ github.sha }}"
                   VERSION_TYPE="${{ github.event.inputs.version_type || 'patch' }}"
+                  RELEASE_COMMIT=""
+                  NEW_VERSION=""
+                  NEW_TAG=""
+                  NEEDS_VERSION_COMMIT="false"
+                  TAG_EXISTS="false"
 
-                  # Remove 'v' prefix if present
-                  VERSION=${LATEST_TAG#v}
+                  version_from_commit() {
+                      git show "$1:lua/autorun/gmod_integration.lua" |
+                          sed -n 's/.*gmInte\.version = "\([0-9][0-9.]*\)".*/\1/p'
+                  }
 
-                  # Split version into parts
-                  IFS='.' read -ra VERSION_PARTS <<< "$VERSION"
-                  MAJOR=${VERSION_PARTS[0]:-0}
-                  MINOR=${VERSION_PARTS[1]:-0}
-                  PATCH=${VERSION_PARTS[2]:-0}
+                  # A tag-triggered run is already versioned by definition.
+                  if [[ "${{ github.ref_type }}" == "tag" ]]; then
+                      NEW_TAG="${{ github.ref_name }}"
+                      if [[ ! "$NEW_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                          echo "Unsupported release tag: $NEW_TAG" >&2
+                          exit 1
+                      fi
+                      RELEASE_COMMIT=$(git rev-list -n 1 "$NEW_TAG")
+                      NEW_VERSION="${NEW_TAG#v}"
+                      TAG_EXISTS="true"
+                  fi
 
-                  # Increment based on type
-                  case $VERSION_TYPE in
-                    major)
-                      MAJOR=$((MAJOR + 1))
-                      MINOR=0
-                      PATCH=0
-                      ;;
-                    minor)
-                      MINOR=$((MINOR + 1))
-                      PATCH=0
-                      ;;
-                    patch)
-                      PATCH=$((PATCH + 1))
-                      ;;
-                  esac
+                  # The old workflow pushed the tag before the release commit.
+                  # Recover a tagged child of the triggering commit even when
+                  # the subsequent branch push failed.
+                  if [[ -z "$RELEASE_COMMIT" ]]; then
+                      while IFS= read -r CANDIDATE_TAG; do
+                          CANDIDATE_COMMIT=$(git rev-list -n 1 "$CANDIDATE_TAG")
+                          CANDIDATE_PARENT=$(git rev-parse "$CANDIDATE_COMMIT^" 2>/dev/null || true)
+                          CANDIDATE_SUBJECT=$(git show -s --format=%s "$CANDIDATE_COMMIT")
 
-                  NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-                  NEW_TAG="v$NEW_VERSION"
+                          if [[ "$CANDIDATE_COMMIT" == "$SOURCE_SHA" ]] || \
+                             { [[ "$CANDIDATE_PARENT" == "$SOURCE_SHA" ]] && [[ "$CANDIDATE_SUBJECT" == "chore: bump version to "* ]]; }; then
+                              RELEASE_COMMIT="$CANDIDATE_COMMIT"
+                              NEW_TAG="$CANDIDATE_TAG"
+                              NEW_VERSION="${NEW_TAG#v}"
+                              TAG_EXISTS="true"
+                              break
+                          fi
+                      done < <(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname)
+                  fi
 
-                  echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-                  echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
-                  echo "New version: $NEW_VERSION"
+                  # A previous attempt may have pushed its version commit before
+                  # failing to create the tag or before a downstream publish job.
+                  if [[ -z "$RELEASE_COMMIT" ]]; then
+                      SOURCE_SUBJECT=$(git show -s --format=%s "$SOURCE_SHA")
+                      if [[ "$SOURCE_SUBJECT" == "chore: bump version to "* ]]; then
+                          RELEASE_COMMIT="$SOURCE_SHA"
+                      else
+                          BRANCH_REF="refs/remotes/origin/${{ github.ref_name }}"
+                          if git show-ref --verify --quiet "$BRANCH_REF"; then
+                              CANDIDATE=$(git rev-list --ancestry-path --reverse "$SOURCE_SHA..$BRANCH_REF" | head -n 1 || true)
+                              if [[ -n "$CANDIDATE" ]] && [[ "$(git rev-parse "$CANDIDATE^")" == "$SOURCE_SHA" ]]; then
+                                  CANDIDATE_SUBJECT=$(git show -s --format=%s "$CANDIDATE")
+                                  if [[ "$CANDIDATE_SUBJECT" == "chore: bump version to "* ]]; then
+                                      RELEASE_COMMIT="$CANDIDATE"
+                                  fi
+                              fi
+                          fi
+                      fi
 
-            - name: Update version in code
+                      if [[ -n "$RELEASE_COMMIT" ]]; then
+                          NEW_VERSION=$(version_from_commit "$RELEASE_COMMIT")
+                          NEW_TAG="v$NEW_VERSION"
+
+                          if git rev-parse -q --verify "refs/tags/$NEW_TAG" >/dev/null; then
+                              TAG_COMMIT=$(git rev-list -n 1 "$NEW_TAG")
+                              if [[ "$TAG_COMMIT" != "$RELEASE_COMMIT" ]]; then
+                                  echo "Tag $NEW_TAG points to $TAG_COMMIT instead of $RELEASE_COMMIT" >&2
+                                  exit 1
+                              fi
+                              TAG_EXISTS="true"
+                          fi
+                      fi
+                  fi
+
+                  if [[ -z "$RELEASE_COMMIT" ]]; then
+                      LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | sed -n '1p')
+                      LATEST_TAG=${LATEST_TAG:-v0.0.0}
+
+                      VERSION=${LATEST_TAG#v}
+                      IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+                      MAJOR=${MAJOR:-0}
+                      MINOR=${MINOR:-0}
+                      PATCH=${PATCH:-0}
+
+                      case "$VERSION_TYPE" in
+                          major)
+                              MAJOR=$((MAJOR + 1))
+                              MINOR=0
+                              PATCH=0
+                              ;;
+                          minor)
+                              MINOR=$((MINOR + 1))
+                              PATCH=0
+                              ;;
+                          patch)
+                              PATCH=$((PATCH + 1))
+                              ;;
+                          *)
+                              echo "Unsupported version type: $VERSION_TYPE" >&2
+                              exit 1
+                              ;;
+                      esac
+
+                      NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+                      NEW_TAG="v$NEW_VERSION"
+                      NEEDS_VERSION_COMMIT="true"
+                  fi
+
+                  if [[ -z "$NEW_VERSION" ]] || [[ ! "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                      echo "Could not resolve a valid release version" >&2
+                      exit 1
+                  fi
+
+                  LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -Fxv "$NEW_TAG" | head -n 1 || true)
+                  LATEST_TAG=${LATEST_TAG:-v0.0.0}
+
+                  PREVIOUS_VERSION=${LATEST_TAG#v}
+                  IFS='.' read -r PREVIOUS_MAJOR PREVIOUS_MINOR _ <<< "$PREVIOUS_VERSION"
+                  IFS='.' read -r NEW_MAJOR NEW_MINOR _ <<< "$NEW_VERSION"
+                  if (( NEW_MAJOR > ${PREVIOUS_MAJOR:-0} )); then
+                      VERSION_TYPE="major"
+                  elif (( NEW_MINOR > ${PREVIOUS_MINOR:-0} )); then
+                      VERSION_TYPE="minor"
+                  else
+                      VERSION_TYPE="patch"
+                  fi
+
+                  echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+                  echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+                  echo "latest_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+                  echo "version_type=$VERSION_TYPE" >> "$GITHUB_OUTPUT"
+                  echo "release_commit=$RELEASE_COMMIT" >> "$GITHUB_OUTPUT"
+                  echo "needs_version_commit=$NEEDS_VERSION_COMMIT" >> "$GITHUB_OUTPUT"
+                  echo "tag_exists=$TAG_EXISTS" >> "$GITHUB_OUTPUT"
+
+                  echo "Release: $NEW_TAG"
+                  echo "Previous release: $LATEST_TAG"
+                  echo "Existing release commit: ${RELEASE_COMMIT:-none}"
+                  echo "Tag already exists: $TAG_EXISTS"
+
+            - name: Create or reuse version commit and tag
+              shell: bash
               run: |
-                  NEW_VERSION="${{ steps.calc_version.outputs.new_version }}"
-                  sed -i "s/gmInte\.version = \"[^\"]*\"/gmInte.version = \"$NEW_VERSION\"/g" lua/autorun/gmod_integration.lua
-                  grep "gmInte.version" lua/autorun/gmod_integration.lua
+                  set -euo pipefail
 
-            - name: Commit and tag
-              run: |
                   git config --local user.email "action@github.com"
                   git config --local user.name "GitHub Action"
-                  git add lua/autorun/gmod_integration.lua
-                  git commit -m "chore: bump version to ${{ steps.calc_version.outputs.new_version }}" || exit 0
 
-                  NEW_TAG="${{ steps.calc_version.outputs.new_tag }}"
-                  git tag $NEW_TAG
-                  git push origin $NEW_TAG
-                  git push origin HEAD
+                  NEW_VERSION="${{ steps.resolve.outputs.new_version }}"
+                  NEW_TAG="${{ steps.resolve.outputs.new_tag }}"
+                  RELEASE_COMMIT="${{ steps.resolve.outputs.release_commit }}"
+
+                  if [[ "${{ steps.resolve.outputs.needs_version_commit }}" == "true" ]]; then
+                      sed -i "s/gmInte\.version = \"[^\"]*\"/gmInte.version = \"$NEW_VERSION\"/g" lua/autorun/gmod_integration.lua
+                      grep "gmInte.version" lua/autorun/gmod_integration.lua
+
+                      git add lua/autorun/gmod_integration.lua
+                      git commit -m "chore: bump version to $NEW_VERSION" -m "Release-Source: ${{ github.sha }}"
+                      RELEASE_COMMIT=$(git rev-parse HEAD)
+                  fi
+
+                  # Push the release commit before its tag. This also repairs a
+                  # previous tag-only attempt without rewriting branch history.
+                  if [[ "${{ github.ref_type }}" != "tag" ]]; then
+                      BRANCH_REF="refs/remotes/origin/${{ github.ref_name }}"
+                      if ! git merge-base --is-ancestor "$RELEASE_COMMIT" "$BRANCH_REF"; then
+                          git push origin "$RELEASE_COMMIT:refs/heads/${{ github.ref_name }}"
+                      else
+                          echo "Release commit is already present on ${{ github.ref_name }}"
+                      fi
+                  fi
+
+                  if [[ "${{ steps.resolve.outputs.tag_exists }}" != "true" ]]; then
+                      git tag "$NEW_TAG" "$RELEASE_COMMIT"
+                      git push origin "refs/tags/$NEW_TAG"
+                  else
+                      echo "Reusing existing tag $NEW_TAG"
+                  fi
 
     changelog:
         name: Generate Changelog
@@ -174,12 +306,14 @@ jobs:
               with:
                   name: release-archive
                   path: gmod-integration-${{ needs.version.outputs.new_version }}.zip
+                  overwrite: true
 
             - name: Upload README-only archive artifact
               uses: actions/upload-artifact@v4
               with:
                   name: release-archive-readme
                   path: gmod-integration-readme-${{ needs.version.outputs.new_version }}.zip
+                  overwrite: true
 
     github-release:
         name: Create GitHub Release
