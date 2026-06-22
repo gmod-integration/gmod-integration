@@ -23,7 +23,7 @@ hook.Add("PlayerSay", "gmInte:SyncChat:PlayerSay", function(ply, text, team)
     -- The wrapped SAM command relays the final content instead of the command itself.
     if isSAMAsayCommand(text) then return end
 
-    F(ply, text, team)
+    gmInte.playerSay(ply, text, team)
 end)
 
 local function wrapSAMAsayCommand(command)
