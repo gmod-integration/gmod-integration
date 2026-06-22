@@ -28,6 +28,12 @@ Before installing Gmod Integration, ensure you have:
 - [Configuration](https://docs.gmod-integration.com/getting-started/configuration)
 - [Activation Premium](https://docs.gmod-integration.com/getting-started/activation_premium)
 
+## Contributor Documentation
+
+- [Architecture](docs/architecture.md)
+- [Development guide](docs/development.md)
+- [Coding-agent instructions](AGENTS.md)
+
 ## 🌍 Language Support
 
 Gmod Integration supports multiple languages:
