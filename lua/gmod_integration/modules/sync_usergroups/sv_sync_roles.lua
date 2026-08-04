@@ -1,7 +1,7 @@
 local cachedPlayers = {}
 function gmInte.wsPlayerUpdateGroup(data)
     gmInte.log("[Sync Role] Player " .. data.steamID64 .. " has been updated to group " .. data.group, true)
-    if cachedPlayers[steamID64] == data.group then return end
+    if cachedPlayers[data.steamID64] == data.group then return end
     data.steamID = util.SteamIDFrom64(data.steamID64)
     data.group = data.add && data.group || "user"
     cachedPlayers[data.steamID64] = data.group
