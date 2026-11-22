@@ -118,6 +118,15 @@ stale replies cannot replace newer local edits.
 
 Optional integrations must fail closed or become inert when absent. They must not prevent the rest of the addon from loading.
 
+## Required account verification
+
+When `forcePlayerLink` is enabled, ready players stay blocked until a current account lookup confirms
+their Discord link. Unverified players remain queued across the 30-second reminder sweeps. The kick
+deadline starts with the first challenge and is not reset by refresh requests; a zero timeout keeps the
+block without kicking. Enabling the option also checks existing ready players on the next sweep.
+Disabling it releases the account-verification block and invalidates pending callbacks. Disconnects
+remove queued work. A successful account check does not release a separate wrong-branch block.
+
 ## Persistence and generated state
 
 - `data/gm_integration/config.json`: credentials and settings.
