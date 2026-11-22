@@ -43,8 +43,22 @@ function gmInte.tryConfig()
     end)
 end
 
+local connectionTests = setmetatable({}, { __mode = "k" })
 function gmInte.testConnection(ply)
-    gmInte.http.get("/servers/:serverID", function(code, body) if ply then gmInte.SendNet("testApiConnection", body, ply) end end, function(code, body) if ply then gmInte.SendNet("testApiConnection", body, ply) end end)
+    if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
+    local now = CurTime()
+    if (connectionTests[ply] || 0) > now then return end
+    connectionTests[ply] = now + 2
+    local function reply(body)
+        if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
+        local result = { error = "connection_failed" }
+        if istable(body) && isstring(body.id) && #body.id > 0 && #body.id <= 96 then
+            result = { id = body.id }
+            if isstring(body.name) && #body.name <= 255 then result.name = body.name end
+        end
+        gmInte.SendNet("testApiConnection", result, ply)
+    end
+    gmInte.http.get("/servers/:serverID", function(_, body) reply(body) end, function() reply(nil) end)
 end
 
 function gmInte.superadminGetConfig(ply)

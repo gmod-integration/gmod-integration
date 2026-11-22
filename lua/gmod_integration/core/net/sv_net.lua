@@ -17,7 +17,7 @@ local netReceive = {
         ply.branch = data.branch
         hook.Run("gmInte:PlayerReady", ply)
     end,
-    ["testConnection"] = function(ply, data) gmInte.testConnection(ply, data) end,
+    ["testConnection"] = function(ply, data) if ply:gmIntIsAdmin() then gmInte.testConnection(ply, data) end end,
     ["getConfig"] = function(ply) gmInte.superadminGetConfig(ply) end,
     ["saveConfig"] = function(ply, data) gmInte.superadminSetConfig(ply, data) end,
     ["takeScreenShot"] = function(ply) gmInte.takeScreenshot(ply) end,
@@ -30,13 +30,15 @@ local netReceive = {
 }
 
 net.Receive("gmIntegration", function(len, ply)
-    if !ply || ply && !ply:IsValid() then return end
+    if !IsValid(ply) || !ply:IsPlayer() || len > 60000 * 8 then return end
     local id = net.ReadString()
-    local data = util.JSONToTable(net.ReadString() || "{}")
-    if !netReceive[id] then return end
+    if #id > 64 || !netReceive[id] then return end
+    local json = net.ReadString()
+    if #json > 60000 then return end
+    local ok, data = pcall(util.JSONToTable, json)
+    if !ok || !istable(data) then return end
     netReceive[id](ply, data)
     if gmInte.config.debug then
         gmInte.log("[net] Received net message: " .. id .. " from " .. (ply && ply:Nick() || "Unknown"))
-        gmInte.log("[net] Data: " .. util.TableToJSON(data))
     end
 end)

@@ -30,6 +30,5 @@ net.Receive("gmIntegration", function()
     netReceive[id](args)
     if gmInte.config.debug then
         gmInte.log("[net] Received net message: " .. id)
-        gmInte.log("[net] Data: " .. util.TableToJSON(args))
     end
 end)
