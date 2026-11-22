@@ -1,0 +1,219 @@
+-- Integrate the actual server receiver, permission method and configuration handlers.
+-- All credentials and players below are synthetic; no Garry's Mod service is contacted.
+local passes, failures = 0, {}
+local playerMeta, players, commands, requests, sent, writes, logs, console, printedTables
+local receiver, strings, position, now, encodedValues
+local credential = "fixture-server-credential-keep-private"
+
+local function copy(value)
+    if type(value) ~= "table" then return value end
+    local result = {}
+    for key, child in pairs(value) do result[key] = copy(child) end
+    return result
+end
+
+local function encode(value)
+    if type(value) == "string" then
+        return '"' .. value:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"'
+    end
+    if type(value) ~= "table" then return tostring(value) end
+    local entries = {}
+    for key, child in pairs(value) do entries[#entries + 1] = encode(tostring(key)) .. ":" .. encode(child) end
+    table.sort(entries)
+    return "{" .. table.concat(entries, ",") .. "}"
+end
+
+local function player(group)
+    return setmetatable({ valid = true, group = group }, { __index = playerMeta })
+end
+
+local function reset()
+    SERVER, CLIENT = true, false
+    players, commands, requests, sent, writes, logs, console, printedTables = {}, {}, {}, {}, {}, {}, {}, {}
+    strings, position, now, encodedValues = {}, 0, 100, {}
+    isstring = function(value) return type(value) == "string" end
+    istable = function(value) return type(value) == "table" end
+    isnumber = function(value) return type(value) == "number" end
+    isbool = function(value) return type(value) == "boolean" end
+    IsValid = function(value) return value and value.valid == true end
+    CurTime = function() return now end
+    FindMetaTable = function() return playerMeta end
+    playerMeta = {
+        IsPlayer = function() return true end,
+        GetUserGroup = function(self) return self.group end,
+        Nick = function() return "Synthetic player" end,
+    }
+    util = {
+        AddNetworkString = function() end,
+        TableToJSON = function(value)
+            local json = encode(value)
+            encodedValues[json] = copy(value)
+            return json
+        end,
+        JSONToTable = function(json) return copy(assert(encodedValues[json], "Unexpected JSON fixture")) end,
+    }
+    net = {
+        Receive = function(_, callback) receiver = callback end,
+        ReadString = function() position = position + 1; return strings[position] end,
+        Start = function() strings.out = {} end,
+        WriteString = function(value) strings.out[#strings.out + 1] = value end,
+        Send = function(ply) sent[#sent + 1] = { id = strings.out[1], data = util.JSONToTable(strings.out[2]), ply = ply } end,
+        Broadcast = function() error("Configuration must never broadcast an unprojected payload") end,
+    }
+    hook = { Add = function() end, Run = function() end }
+    timer = { Simple = function(_, callback) callback() end }
+    file = { Write = function(path, contents) writes[#writes + 1] = { path = path, contents = contents } end }
+    _G.player = { GetAll = function() return players end }
+    game = { GetMap = function() return "test_map" end }
+    concommand = { Add = function(name, callback) commands[name] = callback end }
+    RunConsoleCommand = function() error("Unexpected console side effect") end
+    PrintTable = function(value) printedTables[#printedTables + 1] = copy(value) end
+    print = function(...)
+        local values = {}
+        for _, value in ipairs({ ... }) do values[#values + 1] = tostring(value) end
+        console[#console + 1] = table.concat(values, " ")
+    end
+    GWSockets = {}
+    gmInte = {
+        config = {}, useDataConfig = true, version = "5.2.8", aprovedCredentials = true,
+        api = {
+            get = function(endpoint, success, failed) requests[#requests + 1] = { endpoint = endpoint, success = success, failed = failed } end,
+            post = function(endpoint, body, success, failed) requests[#requests + 1] = { endpoint = endpoint, body = copy(body), success = success, failed = failed } end,
+        },
+        loadTranslations = function() end,
+        log = function(message) logs[#logs + 1] = message end,
+        logWarning = function(message) logs[#logs + 1] = message end,
+        logError = function(message) logs[#logs + 1] = message end,
+    }
+    loadGLua("lua/gmod_integration/core/config/sv_default_config.lua")
+    gmInte.config.token = credential
+    gmInte.config.id = "76561198000000001"
+    gmInte.config.debug = true
+    loadGLua("lua/gmod_integration/core/utils/sh_player_meta.lua")
+    loadGLua("lua/gmod_integration/core/config/sv_settings.lua")
+    loadGLua("lua/gmod_integration/core/net/sh_json.lua")
+    loadGLua("lua/gmod_integration/core/net/sv_net.lua")
+    loadGLua("lua/gmod_integration/core/config/sv_con.lua")
+end
+
+local function receive(id, body, ply)
+    local json = util.TableToJSON(body or {})
+    strings, position = { id, json }, 0
+    now = now + 10
+    receiver((#id + #json + 2) * 8, ply)
+end
+
+local function noCredential(value)
+    assert(not encode(value):find(credential, 1, true), "A server credential crossed an output boundary")
+end
+
+local function test(name, callback)
+    local ok, message = pcall(callback)
+    if ok then passes = passes + 1
+    else failures[#failures + 1] = name .. ": " .. tostring(message) end
+end
+
+test("ordinary players cannot read or replace credentials through any administrative net action", function()
+    reset()
+    local ordinary = player("user")
+    for _, id in ipairs({ "getConfig", "saveConfig", "testConnection" }) do
+        receive(id, { token = "attempted-replacement", adminRank = { user = true }, group = "superadmin", gmIntIsAdmin = true }, ordinary)
+        receive(id, {}, ordinary)
+    end
+    assert(#sent == 0 and #requests == 0 and #writes == 0)
+    assert(gmInte.config.token == credential and gmInte.config.adminRank.user == nil)
+    noCredential(logs)
+end)
+
+test("all console aliases reject ordinary players before config reads or writes", function()
+    reset()
+    for _, name in ipairs({ "gmi", "gmod-integration" }) do
+        commands[name](player("user"), name, { "config", "show" })
+        commands[name](player("user"), name, { "config", "set", "token", "attempted-replacement" })
+    end
+    assert(#printedTables == 0 and #sent == 0 and #requests == 0 and #writes == 0)
+    assert(gmInte.config.token == credential)
+    noCredential(console)
+end)
+
+test("public and administrator snapshots expose configuration state without credentials or unknown records", function()
+    reset()
+    local admin, ordinary = player("superadmin"), player("user")
+    gmInte.config.futureSecret = "fixture-unknown-private-record"
+    gmInte.publicGetConfig(ordinary)
+    receive("getConfig", {}, admin)
+    assert(#sent == 2 and sent[1].id == "publicConfig" and sent[1].ply == ordinary)
+    assert(sent[1].data.config.token == nil and sent[1].data.config.futureSecret == nil)
+    local snapshot = sent[2].data
+    assert(sent[2].id == "adminConfig" and sent[2].ply == admin)
+    assert(snapshot.token == nil and snapshot.futureSecret == nil and snapshot.tokenConfigured == true)
+    assert(snapshot.id == gmInte.config.id and snapshot.websocket == true and snapshot.adminRank.superadmin == true)
+    noCredential(sent)
+    snapshot.adminRank.superadmin = false
+    assert(gmInte.config.adminRank.superadmin == true)
+    assert(gmInte.config.token == credential and gmInte.config.futureSecret == "fixture-unknown-private-record")
+end)
+
+test("console configuration display and snapshot construction never mutate or print the stored token", function()
+    reset()
+    commands.gmi(player("superadmin"), "gmi", { "config", "show" })
+    assert(#printedTables == 1 and printedTables[1].token == nil and printedTables[1].tokenConfigured == true)
+    noCredential(printedTables)
+    noCredential(console)
+    assert(gmInte.config.token == credential)
+    gmInte.config.token = ""
+    assert(gmInte.getConfigSnapshot().tokenConfigured == false and gmInte.getConfigSnapshot().token == nil)
+end)
+
+test("an authorized replacement remains in server persistence and is not echoed to players or remote settings", function()
+    reset()
+    local admin, ordinary = player("superadmin"), player("user")
+    players = { admin, ordinary }
+    receive("saveConfig", { token = "replacement-server-credential" }, admin)
+    assert(gmInte.config.token == "replacement-server-credential" and #writes == 1)
+    assert(writes[1].path == "gm_integration/config.json")
+    assert(writes[1].contents:find("replacement-server-credential", 1, true))
+    for _, message in ipairs(sent) do
+        assert(message.id == "publicConfig" and not encode(message.data):find("replacement-server-credential", 1, true))
+    end
+    assert(#requests == 1 and requests[1].endpoint == "/servers/:serverID")
+    noCredential(logs)
+end)
+
+test("connection callbacks recheck the current server rank and never forward raw response credentials", function()
+    reset()
+    local admin = player("superadmin")
+    receive("testConnection", {}, admin)
+    assert(#requests == 1)
+    admin.group = "user"
+    requests[1].success(200, { id = gmInte.config.id, name = "Synthetic server", token = credential })
+    assert(#sent == 0)
+    admin.group = "superadmin"
+    receive("testConnection", {}, admin)
+    requests[2].success(200, { id = gmInte.config.id, name = "Synthetic server", token = credential, nested = { token = credential } })
+    assert(#sent == 1 and sent[1].id == "testApiConnection")
+    assert(sent[1].data.id == gmInte.config.id and sent[1].data.name == "Synthetic server")
+    assert(sent[1].data.token == nil and sent[1].data.nested == nil)
+    noCredential(sent)
+    receive("testConnection", {}, admin)
+    requests[3].failed(503, { error = credential, token = credential })
+    assert(#sent == 2 and sent[2].data.error == "connection_failed")
+    noCredential(sent)
+end)
+
+test("invalid or disconnected actors and oversized connection metadata fail without leaking payloads", function()
+    reset()
+    local admin = player("superadmin")
+    receive("testConnection", {}, admin)
+    admin.valid = false
+    requests[1].success(200, { id = gmInte.config.id, name = "Synthetic server", token = credential })
+    assert(#sent == 0)
+    admin.valid = true
+    receive("testConnection", {}, admin)
+    requests[2].success(200, { id = string.rep("i", 1000), name = string.rep("n", 5000), token = credential })
+    assert(#sent == 1 and sent[1].data.error == "connection_failed")
+    noCredential(sent)
+end)
+
+if #failures > 0 then error(table.concat(failures, "\n")) end
+io.write("Configuration security regressions: " .. passes .. " passed\n")

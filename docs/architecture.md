@@ -100,7 +100,7 @@ operations are screenshots, bugs and errors; the server derives their actor and 
 
 ### Configuration
 
-Defaults originate in `sv_default_config.lua`. Runtime values are persisted under `data/gm_integration/config.json`, can be edited by configured admin ranks, and synchronize with the remote service. Public client config is a deliberate subset; the server token remains server/admin-only and never travels in ordinary player tool requests.
+Defaults originate in `sv_default_config.lua`. Runtime values are persisted under `data/gm_integration/config.json`, can be edited by configured admin ranks, and synchronize with the remote service. Public client config is a deliberate subset. The saved server token stays on the dedicated server: administrative snapshots and console config output expose only `tokenConfigured`, never the credential. The admin token control starts empty and accepts a replacement; opening, focusing or clearing that control does not change the saved token. Connection-test replies project only bounded server ID/name or a generic failure and recheck the current player's permission after the asynchronous request.
 `apiFQDN` remains persisted for compatibility with old configuration files but is no longer used or
 shown as an active connection setting. Config saves and reconnect synchronization are serialized;
 stale replies cannot replace newer local edits.

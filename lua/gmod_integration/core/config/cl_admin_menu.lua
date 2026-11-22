@@ -344,24 +344,25 @@ function gmInte.openConfigMenu(data)
                 input = vgui.Create("DTextEntry", panel)
                 local value = actualConfig.value(actualConfig.id, data[actualConfig.id] || "")
                 if actualConfig.secret then
-                    input:SetText(gmInte.getTranslation("admin.click_to_show", "*** Click to show ***"))
+                    gmInte.configureTokenEntry(input, data.tokenConfigured, function(replacement)
+                        actualConfig.onEdit(actualConfig.id, replacement)
+                    end, actualConfig.onEditDelay)
                 else
                     input:SetText(value)
-                end
+                    local isLastID = 0
+                    input.OnChange = function(self)
+                        value = self:GetValue()
+                        if actualConfig.resetIfEmpty && self:GetValue() == "" && actualConfig.defaultValue then
+                            self:SetText(actualConfig.defaultValue)
+                            return
+                        end
 
-                input.OnGetFocus = function(self) if actualConfig.secret then self:SetText(value) end end
-                input.OnLoseFocus = function(self) if actualConfig.secret then self:SetText(gmInte.getTranslation("admin.click_to_show", "*** Click to show ***")) end end
-                local isLastID = 0
-                input.OnChange = function(self)
-                    value = self:GetValue()
-                    if actualConfig.resetIfEmpty && self:GetValue() == "" && actualConfig.defaultValue then
-                        self:SetText(actualConfig.defaultValue)
-                        return
+                        isLastID = isLastID + 1
+                        local isLocalLastID = isLastID
+                        timer.Simple(actualConfig.onEditDelay || 0.5, function()
+                            if IsValid(self) && isLocalLastID == isLastID then actualConfig.onEdit(actualConfig.id, self:GetValue()) end
+                        end)
                     end
-
-                    isLastID = isLastID + 1
-                    local isLocalLastID = isLastID
-                    timer.Simple(actualConfig.onEditDelay || 0.5, function() if isLocalLastID == isLastID then actualConfig.onEdit(actualConfig.id, self:GetValue()) end end)
                 end
             elseif actualConfig.type == "checkbox" then
                 input = vgui.Create("DComboBox", panel)

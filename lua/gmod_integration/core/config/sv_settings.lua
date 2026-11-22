@@ -133,10 +133,27 @@ end
 
 function gmInte.testConnection(ply)
     if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
-    local function reply(_, body)
-        if IsValid(ply) then gmInte.SendNet("testApiConnection", istable(body) && body || { error = "connection_failed" }, ply) end
+    local function reply(body)
+        if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
+        local result = { error = "connection_failed" }
+        if istable(body) && isstring(body.id) && #body.id > 0 && #body.id <= 96 then
+            result = { id = body.id }
+            if isstring(body.name) && #body.name <= 255 then result.name = body.name end
+        end
+        gmInte.SendNet("testApiConnection", result, ply)
     end
-    gmInte.api.get("/servers/:serverID", reply, reply)
+    gmInte.api.get("/servers/:serverID", function(_, body) reply(body) end, function() reply(nil) end)
+end
+
+function gmInte.getConfigSnapshot()
+    local settings = {}
+    for setting, value in pairs(gmInte.config) do
+        local valid, normalized = normalizeSetting(setting, value)
+        if setting != "token" && valid then settings[setting] = normalized end
+    end
+    settings.tokenConfigured = isstring(gmInte.config.token) && gmInte.config.token != ""
+    settings.websocket = GWSockets && true || false
+    return settings
 end
 
 function gmInte.superadminGetConfig(ply)
@@ -145,8 +162,7 @@ function gmInte.superadminGetConfig(ply)
         gmInte.SendNet("notEditableConfig", {}, ply)
         return
     end
-    gmInte.config.websocket = GWSockets && true || false
-    gmInte.SendNet("adminConfig", gmInte.config, ply)
+    gmInte.SendNet("adminConfig", gmInte.getConfigSnapshot(), ply)
 end
 
 function gmInte.publicGetConfig(ply)

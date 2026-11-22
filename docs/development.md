@@ -65,6 +65,11 @@ Check at least:
 
 Add a default in `sv_default_config.lua`, expose only the intended subset through `publicGetConfig`, and update admin UI/console behavior where applicable. Never send `gmInte.config.token` in public config. If a key or data path changes, retain a migration path and document removal criteria for the legacy form.
 
+Administrative snapshots use `getConfigSnapshot`, an allowlist of recognized settings without the token.
+Keep the token control write-only and use `tokenConfigured` for its saved state. Never print the persisted
+configuration table directly. Connection tests must project their response and revalidate the recipient's
+permission after asynchronous work. A client-provided rank or identity is never an authorization input.
+
 ## Translations
 
 English is the fallback table. New user-facing text should use a stable namespaced key and provide an English fallback at the call site. Update `sh_en.lua` first, then keep all language tables aligned. Placeholder forms such as `{1}` and `{2}` must remain consistent between languages.
@@ -108,7 +113,7 @@ not emulate a Garry's Mod dedicated server. There is no configured GLua linter. 
 
 1. start the dedicated server and confirm every file loads without Lua errors;
 2. connect an ordinary player and an admin;
-3. verify public config, player-ready, admin permissions and absence of player API tokens;
+3. verify public config, player-ready and admin permissions; confirm neither the public nor admin reply contains the saved server token, and the token field opens empty with its configured-state placeholder;
 4. exercise the changed feature in success and failure modes;
 5. disconnect/reconnect WebSocket, rotate credentials, and verify no automatic replay of uncertain writes;
 6. inspect server and client consoles for duplicate hooks, leaked payloads, and retries;

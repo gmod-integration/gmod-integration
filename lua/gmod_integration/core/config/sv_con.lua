@@ -38,7 +38,7 @@ local conFuncs = {
         elseif args[2] == "show" then
             print()
             print("=== Current Config ===")
-            PrintTable(gmInte.config)
+            PrintTable(gmInte.getConfigSnapshot())
             print("======================")
             print()
         elseif args[2] == "try" then
