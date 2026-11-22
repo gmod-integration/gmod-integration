@@ -78,6 +78,8 @@ return {
 	["chat.server_fail"] = ", check your ID and Token.",
 	["chat.error.screenshot_failed"] = "Failed to take screenshot, your system may not support this feature.",
 	["chat.screenshot.sent"] = "Screenshot sent to Discord.",
+	["chat.screenshot.close_menus"] = "Screenshot queued. Close the console and game menus to take it.",
+	["chat.screenshot.shorter_title"] = "Please use a shorter screenshot title.",
 	["report_bug.description.full"] = "Hey, your about to report a bug to the owners of this server.\nPlease provide as much information as possible to help us fix the issue.\nThank you for helping us improve the server.\n\nIf you have a issue with Gmod Integration, please use our discord server.",
 	["report_bug.context_menu.screen_capture"] = "Close the context menu to take the screenshot to use in the bug report.",
 	["filter.ds.1"] = "You cannot join this server",

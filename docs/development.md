@@ -89,6 +89,17 @@ Keep third-party code inside a narrowly named module directory. Guard its global
 
 Test both with and without the dependency installed.
 
+## Client tools
+
+`gmi_tools screenshot [title]`, `gmi_tools bug` and `gmi_tools settings` open the existing client tools.
+The command completes these action names in the game console, without suggesting credentials or
+changing authorization. The existing screenshot, report and administration aliases remain available.
+
+Screenshot commands queue one capture and explain when the console or a game menu must be closed.
+Rendering waits until the console, Escape menu and context menu have been clear for half a second,
+then checks them again immediately before capture. Repeated requests cannot overwrite a queued title.
+The settings action uses the existing client and server permission checks.
+
 ## Validation checklist
 
 Static checks available today:

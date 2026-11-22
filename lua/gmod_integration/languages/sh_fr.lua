@@ -77,6 +77,8 @@ return {
   ["chat.server_fail"] = ", vérifiez votre ID et votre jeton.",
   ["chat.error.screenshot_failed"] = "Impossible de prendre une capture d'écran, votre système ne prend peut-être pas en charge cette fonctionnalité.",
   ["chat.screenshot.sent"] = "Capture d'écran envoyée à Discord.",
+  ["chat.screenshot.close_menus"] = "Capture en attente. Fermez la console et les menus du jeu pour la prendre.",
+  ["chat.screenshot.shorter_title"] = "Veuillez utiliser un titre de capture plus court.",
   ["report_bug.description.full"] = "Salut, vous êtes sur le point de signaler un bug aux propriétaires de ce serveur.\nVeuillez fournir autant d'informations que possible pour nous aider à résoudre le problème.\nMerci de nous aider à améliorer le serveur.\n\nSi vous avez un problème avec Gmod Integration, veuillez utiliser notre serveur Discord.",
   ["report_bug.context_menu.screen_capture"] = "Fermez le menu contextuel pour prendre la capture d'écran à utiliser dans le rapport de bug.",
   ["filter.ds.1"] = "Vous ne pouvez pas rejoindre ce serveur",

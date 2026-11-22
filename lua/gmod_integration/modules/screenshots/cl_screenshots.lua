@@ -1,9 +1,49 @@
 local ScreenshotRequested = false
+local ScreenshotWaiting = false
 local ScreenshotSending = false
 local FailAttempts = 0
 local ScreenshotTitle = ""
+local CaptureReadyAt
+local CloseNoticeShown = false
+local contextMenuOpen = false
+local contextClick = false
+
+local function captureBlocked()
+  return gui.IsConsoleVisible() || gui.IsGameUIVisible() || contextMenuOpen
+end
+
+local function showCloseNotice()
+  if CloseNoticeShown then return end
+  CloseNoticeShown = true
+  local message = gmInte.getTranslation("chat.screenshot.close_menus", "Screenshot queued. Close the console and game menus to take it.")
+  gmInte.log(message)
+  gmInte.chatAddText(Color(255, 255, 255), message)
+end
+
+hook.Add("Think", "gmInte:Screenshot:WaitForInterface", function()
+  if !ScreenshotWaiting then return end
+  if captureBlocked() then
+    CaptureReadyAt = nil
+    showCloseNotice()
+    return
+  end
+  CaptureReadyAt = CaptureReadyAt || CurTime() + 0.5
+  if CurTime() < CaptureReadyAt then return end
+  ScreenshotWaiting = false
+  ScreenshotRequested = true
+  contextClick = false
+end)
+
 hook.Add("PostRender", "gmInteScreenshot", function()
   if !ScreenshotRequested then return end
+  -- A menu can reopen after Think but before this frame's capture.
+  if captureBlocked() then
+    ScreenshotRequested = false
+    ScreenshotWaiting = true
+    CaptureReadyAt = nil
+    showCloseNotice()
+    return
+  end
   local captureData = {
     format = "jpeg",
     x = 0,
@@ -18,11 +58,11 @@ hook.Add("PostRender", "gmInteScreenshot", function()
   gmInte.showScreenshotInfo = false
   if !screenCapture then
     if FailAttempts < 3 then
-      timer.Simple(0.5, function()
-        ScreenshotRequested = true
-        FailAttempts = FailAttempts + 1
-        gmInte.log("Failed to take screenshot, retrying... (" .. FailAttempts .. "/3)", true)
-      end)
+      FailAttempts = FailAttempts + 1
+      ScreenshotWaiting = true
+      CaptureReadyAt = CurTime() + 0.5
+      gmInte.showScreenshotInfo = true
+      gmInte.log("Failed to take screenshot, retrying... (" .. FailAttempts .. "/3)", true)
       return
     else
       FailAttempts = 0
@@ -31,6 +71,7 @@ hook.Add("PostRender", "gmInteScreenshot", function()
     end
   end
 
+  FailAttempts = 0
   local base64Capture = util.Base64Encode(screenCapture, true)
   local size = math.Round(string.len(base64Capture) / 1024)
   gmInte.log("Screenshot Taken - " .. size .. "KB", true)
@@ -55,22 +96,25 @@ hook.Add("PostRender", "gmInteScreenshot", function()
   end)
 end)
 
-function gmInte.takeScreenShot()
-  if ScreenshotRequested || ScreenshotSending then return end
-  timer.Simple(0.5, function()
-    ScreenshotRequested = true
-    gmInte.showScreenshotInfo = true
-  end)
+function gmInte.takeScreenShot(title)
+  if ScreenshotRequested || ScreenshotWaiting || ScreenshotSending then return false end
+  if title != nil && !isstring(title) then return false end
+  if title && #title > 256 then
+    gmInte.chatAddText(Color(255, 255, 255), gmInte.getTranslation("chat.screenshot.shorter_title", "Please use a shorter screenshot title."))
+    return false
+  end
+  ScreenshotTitle = title || ""
+  FailAttempts = 0
+  CloseNoticeShown = false
+  ScreenshotWaiting = true
+  CaptureReadyAt = CurTime() + 0.5
+  gmInte.showScreenshotInfo = true
+  if captureBlocked() then CaptureReadyAt = nil; showCloseNotice() end
+  return true
 end
 
 local function extractTitleFromCmd(ply, cmd, args)
-  if !args[1] then
-    ScreenshotTitle = ""
-  else
-    ScreenshotTitle = table.concat(args, " ")
-  end
-
-  gmInte.takeScreenShot()
+  gmInte.takeScreenShot(table.concat(args, " "))
 end
 
 concommand.Add("gmi_screen", extractTitleFromCmd)
@@ -79,14 +123,12 @@ hook.Add("OnPlayerChat", "gmInteChatCommands", function(ply, text, teamChat, isD
   if ply != LocalPlayer() then return end
   if string.len(text) < 7 then return end
   local cmdPrefix = string.sub(text, 1, 1)
+  if cmdPrefix != "!" && cmdPrefix != "/" then return end
   local args = string.Explode(" ", string.sub(text, 2))
   if args[1] != "screen" && args[1] != "screenshot" then return end
-  ScreenshotTitle = table.concat(args, " ", 2)
-  gmInte.takeScreenShot()
+  gmInte.takeScreenShot(table.concat(args, " ", 2))
 end)
 
-local contextMenuOpen = false
-local contextClick = false
 hook.Add("OnContextMenuOpen", "gmInte:ContextScreen:ContextMenu:Open", function() contextMenuOpen = true end)
 hook.Add("OnContextMenuClose", "gmInte:ContextScreen:ContextMenu:Close", function() contextMenuOpen = false end)
 hook.Add("HUDPaint", "gmInte:ContextScreen:Screenshot", function()
@@ -105,14 +147,6 @@ hook.Add("HUDPaint", "gmInte:ContextScreen:Screenshot", function()
 end)
 
 function gmInte.contextScreenshot()
-  if ScreenshotRequested || ScreenshotSending then return end
+  if !gmInte.takeScreenShot() then return end
   contextClick = true
-  local timerName = "gmInte:ContextScreen:Screenshot:Open"
-  gmInte.showScreenshotInfo = true
-  timer.Create(timerName, 0.2, 0, function()
-    if contextMenuOpen then return end
-    contextClick = false
-    timer.Remove(timerName)
-    timer.Simple(0.5, gmInte.takeScreenShot)
-  end)
 end
