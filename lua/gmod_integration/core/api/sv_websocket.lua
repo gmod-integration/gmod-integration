@@ -161,9 +161,9 @@ local commands = {
         validate = function(data) return steamID64(data.steamID64) && shortString(data.group, 64) && isbool(data.add) end,
         run = function(data) gmInte.wsPlayerUpdateGroup(data) end,
     },
-    wsRcon = {
-        validate = function(data) return shortString(data.command, 8192) && shortString(data.steamID, 128) end,
-        run = function(data) gmInte.wsRcon(data) end,
+    wsAuthorizedRcon = {
+        validate = function(data) return isfunction(gmInte.validateRconCommand) && gmInte.validateRconCommand(data) end,
+        run = function(data) return gmInte.wsAuthorizedRcon(data) end,
     },
     wsRunLua = {
         validate = function(data) return shortString(data.data, 128 * 1024) && shortString(data.steamID, 128) end,
@@ -181,8 +181,12 @@ local function onRemoteCommand(data)
         gmInte.logWarning("Rejected an unsupported or malformed WebSocket command", true)
         return
     end
-    local ok = pcall(command.run, data)
+    local ok, executed, code = pcall(command.run, data)
     if !ok then gmInte.logError("WebSocket command failed", true) end
+    if data.method == "wsAuthorizedRcon" then
+        local result = { action = "addon.command-result", id = data.requestID, method = "wsAuthorizedRcon", ok = ok && executed == true, code = ok && code || "execution_failed" }
+        pcall(function() gmInte.websocket:write(util.TableToJSON(result)) end)
+    end
 end
 
 local function scheduleRetry()

@@ -21,6 +21,7 @@ local function reset(options)
     isbool = function(value) return type(value) == 'boolean' end
     IsValid = function(value) return type(value) == 'table' and value.valid ~= false end
     SysTime = function() return clock end
+    os.time = function() return 1700000000 + math.floor(clock) end
     math.Rand = function(minimum) return minimum end
     HTTP = function() error('HTTP must never be used') end
     http = { Fetch = function() error('HTTP Fetch must never be used') end }
@@ -49,7 +50,12 @@ local function reset(options)
         JSONToTable = function(value) return clone(serialized[value]) end,
     }
     file = { Write = function(_, value) observations.persisted = util.JSONToTable(value) end }
-    player = { GetAll = function() return {} end }
+    player = { GetAll = function() return {} end, GetBySteamID64 = function() return observations.player end }
+    game = { ConsoleCommand = function(command)
+        if options.consoleFailure then error('console failure') end
+        observations.commands = (observations.commands or 0) + 1
+        observations.command = command
+    end }
     gmInte = {
         config = {}, version = '5.2.8', previusVersion = '5.2.8', useDataConfig = true,
         log = function() end, logWarning = function() end, logError = function() end, logHint = function() end,
@@ -83,6 +89,11 @@ local function reset(options)
     require = function() if options.noModule then error('module absent') end end
     originalLoad('lua/gmod_integration/core/api/sh_api.lua')
     originalLoad('lua/gmod_integration/core/api/sv_websocket.lua')
+    local playerMeta = {}
+    FindMetaTable = function() return playerMeta end
+    originalLoad('lua/gmod_integration/core/utils/sh_player_meta.lua')
+    observations.playerMeta = playerMeta
+    originalLoad('lua/gmod_integration/modules/console_commands/sv_rcon.lua')
 end
 
 local function message(socket, value)
@@ -272,12 +283,72 @@ test('rejects unknown and malformed remote commands before existing handlers', f
     ready(socket)
     local calls = 0
     gmInte.arbitraryFunction = function() error('untrusted dispatcher') end
-    gmInte.wsRcon = function() calls = calls + 1 end
+    gmInte.wsAuthorizedRcon = function() calls = calls + 1 return true, 'executed' end
     socket:onMessage('{')
     message(socket, { method = 'arbitraryFunction' })
-    message(socket, { method = 'wsRcon', command = {}, steamID = '76561198000000001' })
     message(socket, { method = 'wsRcon', command = 'status', steamID = '76561198000000001' })
+    message(socket, { method = 'wsAuthorizedRcon', command = {}, steamID = '76561198000000001' })
+    message(socket, { method = 'wsAuthorizedRcon', command = 'status', steamID = '76561198000000001', requestID = '3a918b48-ff6f-4ed4-b2b9-f4b722840f04', expiresAt = os.time() * 1000 + 5000 })
     assert(calls == 1)
+end)
+
+local function rconPacket(changes)
+    local packet = { method = 'wsAuthorizedRcon', command = 'status', steamID = '76561198000000001', requestID = '3a918b48-ff6f-4ed4-b2b9-f4b722840f04', expiresAt = os.time() * 1000 + 5000 }
+    for key, value in pairs(changes or {}) do packet[key] = value end
+    return packet
+end
+local function onlinePlayer(group)
+    observations.player = setmetatable({ group = group, GetUserGroup = function(self) return self.group end }, { __index = observations.playerMeta })
+end
+
+test('RCON checks current configured ranks and acknowledges execution only once', function()
+    gmInte.config.adminRank = { owner = true }
+    onlinePlayer('owner')
+    gmInte.setupWebSocket()
+    local socket = sockets[1]
+    ready(socket)
+    local packet = rconPacket()
+    message(socket, packet)
+    local ack = util.JSONToTable(socket.writes[#socket.writes])
+    assert(ack.action == 'addon.command-result' and ack.id == packet.requestID and ack.ok == true and ack.code == 'executed')
+    assert(observations.commands == 1 and observations.command == 'status\n')
+    message(socket, packet)
+    assert(observations.commands == 1)
+    message(socket, rconPacket({ command = 'quit' }))
+    assert(observations.commands == 1)
+    assert(util.JSONToTable(socket.writes[#socket.writes]).ok == false)
+end)
+
+test('RCON refuses offline, demoted and no-longer-configured administrators', function()
+    assert(gmInte.wsAuthorizedRcon(rconPacket()) == false)
+    onlinePlayer('superadmin')
+    gmInte.config.adminRank = { owner = true }
+    local ok, code = gmInte.wsAuthorizedRcon(rconPacket({ requestID = '4a918b48-ff6f-4ed4-b2b9-f4b722840f04' }))
+    assert(ok == false and code == 'permission_denied' and observations.commands == nil)
+    onlinePlayer('owner')
+    observations.player.group = 'user'
+    assert(gmInte.wsAuthorizedRcon(rconPacket({ requestID = '5a918b48-ff6f-4ed4-b2b9-f4b722840f04' })) == false)
+end)
+
+test('RCON rejects expired, malformed, oversized and legacy packets', function()
+    onlinePlayer('superadmin')
+    for _, changes in ipairs({ { command = '' }, { command = string.rep('x', 8193) }, { command = 'status\nquit' }, { command = 'status\0quit' }, { steamID = 'bad' }, { requestID = 'bad' }, { extra = true } }) do
+        assert(gmInte.wsAuthorizedRcon(rconPacket(changes)) == false)
+    end
+    assert(gmInte.wsAuthorizedRcon({ method = 'wsAuthorizedRcon', command = 'status', steamID = '76561198000000001' }) == false)
+    local ok, code = gmInte.wsAuthorizedRcon(rconPacket({ expiresAt = os.time() * 1000 }))
+    assert(ok == false and code == 'expired')
+    assert(gmInte.wsAuthorizedRcon(rconPacket({ expiresAt = os.time() * 1000 + 500 })) == false)
+    assert(gmInte.wsAuthorizedRcon(rconPacket({ expiresAt = os.time() * 1000 + 20000 })) == false)
+    assert(observations.commands == nil)
+end)
+
+test('RCON acknowledges execution failures without retrying the console effect', function()
+    reset({ consoleFailure = true })
+    onlinePlayer('superadmin')
+    local ok, code = gmInte.wsAuthorizedRcon(rconPacket())
+    assert(ok == false and code == 'execution_failed')
+    assert(gmInte.wsAuthorizedRcon(rconPacket()) == false)
 end)
 
 test('resolves every batched log endpoint to the authenticated server', function()

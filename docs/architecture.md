@@ -78,6 +78,14 @@ WebSocket JSON -> explicit method allowlist + field validation -> existing handl
 RCON, Lua execution, settings and moderation remain privileged operations. The dispatcher does not
 look up arbitrary names on `gmInte`. Unknown or malformed commands are rejected before execution.
 
+Console requests use `wsAuthorizedRcon` with a UUID, linked SteamID64, bounded single-line command
+and deadline. The addon resolves the online player and checks `gmIntIsAdmin()` immediately before
+console submission, using the configured administrator groups instead of historical platform stats.
+It reserves recent request IDs before executing and returns `addon.command-result`; duplicates do
+not execute twice. Success confirms console acceptance, not command output. The legacy `wsRcon`
+method is rejected, and older addons do not recognize the new method. Keep host clocks aligned and
+deploy the matching addon/backend before using this flow; missing acknowledgements remain uncertain.
+
 ### Client/server net channel
 
 ```text
