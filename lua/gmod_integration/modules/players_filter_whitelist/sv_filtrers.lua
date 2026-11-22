@@ -46,7 +46,7 @@ local function playerFilter(data)
     local cachedData = cachePlayerFilter[data.steamID64]
     // Check if player is banned
     if !cachedData || !cachedData.filterData || cachedData.filterData.curTime + 30 < CurTime() then
-        gmInte.http.get("/servers/:serverID/players/" .. data.steamID64, function(code, body)
+        gmInte.api.get("/servers/:serverID/players/" .. data.steamID64, function(code, body)
             cachePlayerFilter[data.steamID64].filterData = {
                 ["code"] = code,
                 ["body"] = body,
@@ -62,7 +62,7 @@ local function playerFilter(data)
     // Check if player has a discord account linked
     if gmInte.config.forcePlayerLink && gmInte.config.verifyOnJoin then
         if !cachedData || !cachedData.isLinkData || cachedData.isLinkData.curTime + 30 < CurTime() then
-            gmInte.http.get("/users?steamID64=" .. data.steamID64, function(code, body)
+            gmInte.api.get("/users?steamID64=" .. data.steamID64, function(code, body)
                 cachePlayerFilter[data.steamID64].isLinkData = {
                     ["code"] = code,
                     ["body"] = body,

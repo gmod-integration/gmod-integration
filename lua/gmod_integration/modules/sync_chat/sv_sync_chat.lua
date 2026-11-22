@@ -3,7 +3,7 @@ function gmInte.wsPlayerSay(data)
 end
 
 function gmInte.playerSay(ply, text, teamOnly)
-    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/say", {
+    gmInte.api.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/say", {
         ["player"] = gmInte.getPlayerFormat(ply),
         ["text"] = text,
         ["teamOnly"] = teamOnly,

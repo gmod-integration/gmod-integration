@@ -1,6 +1,6 @@
 function gmInte.postDarkRPDroppedMoney(ply, amount, entity)
   if !ply:IsValid() || !ply:IsPlayer(ply) then return end
-  gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/dark-rp/drop-money", {
+  gmInte.api.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/dark-rp/drop-money", {
     ["player"] = gmInte.getPlayerFormat(ply),
     ["amount"] = math.Round(amount),
     ["entity"] = gmInte.getEntityFormat(entity),
@@ -9,7 +9,7 @@ end
 
 function gmInte.postDarkRPPickedUpMoney(ply, price, entity)
   if !ply:IsValid() || !ply:IsPlayer(ply) then return end
-  gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/dark-rp/picked-up-money", {
+  gmInte.api.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/dark-rp/picked-up-money", {
     ["player"] = gmInte.getPlayerFormat(ply),
     ["amount"] = math.Round(price),
     ["entity"] = gmInte.getEntityFormat(entity),
@@ -19,8 +19,8 @@ end
 function gmInte.postDarkRPPickedUpCheque(plyWriter, plyTarget, price, sucess, entity)
   if !plyWriter:IsValid() || !plyWriter:IsPlayer() then return end
   if !plyTarget:IsValid() || !plyTarget:IsPlayer() then return end
-  if ply != plyTo then return end
-  gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/dark-rp/picked-up-cheque", {
+  if !sucess then return end
+  gmInte.api.postLog("/servers/:serverID/players/" .. plyTarget:SteamID64() .. "/dark-rp/picked-up-cheque", {
     ["playerChequeWriter"] = gmInte.getPlayerFormat(plyWriter),
     ["playerChequeTarget"] = gmInte.getPlayerFormat(plyTarget),
     ["amount"] = math.Round(price),

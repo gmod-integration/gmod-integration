@@ -3,7 +3,8 @@ function gmInte.verifyPlayer(ply)
     if !gmInte.config.forcePlayerLink then return end
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
     ply:Freeze(true)
-    gmInte.http.get("/users?steamID64=" .. ply:SteamID64(), function(code, data)
+    gmInte.api.get("/users?steamID64=" .. ply:SteamID64(), function(code, data)
+        if !IsValid(ply) then return end
         if data && data.discordID then ply.gmIntVerified = true end
         if !gmInte.config.forcePlayerLink || !ply.gmIntIsReady then return end
         if ply:gmIntIsVerified() then
@@ -29,6 +30,7 @@ function gmInte.verifyPlayer(ply)
             gmInte.SendNet("openVerifPopup", nil, ply)
         end
     end, function(code, data)
+        if !IsValid(ply) then return end
         gmInte.plyInVerifQueue[ply:SteamID64()] = ply
         ply:Freeze(true)
         gmInte.SendNet("chatColorMessage", {

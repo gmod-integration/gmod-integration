@@ -1,4 +1,5 @@
 local ScreenshotRequested = false
+local ScreenshotSending = false
 local FailAttempts = 0
 local ScreenshotTitle = ""
 hook.Add("PostRender", "gmInteScreenshot", function()
@@ -30,16 +31,21 @@ hook.Add("PostRender", "gmInteScreenshot", function()
     end
   end
 
-  local base64Capture = util.Base64Encode(screenCapture)
+  local base64Capture = util.Base64Encode(screenCapture, true)
   local size = math.Round(string.len(base64Capture) / 1024)
   gmInte.log("Screenshot Taken - " .. size .. "KB", true)
-  gmInte.http.post("/clients/:steamID64/servers/:serverID/screenshots", {
+  ScreenshotSending = true
+  gmInte.api.post("/clients/:steamID64/servers/:serverID/screenshots", {
     ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
     ["screenshot"] = base64Capture,
     ["title"] = ScreenshotTitle,
     ["captureData"] = captureData,
     ["size"] = size .. "KB"
-  }, function(code, body) gmInte.chatAddText(Color(255, 130, 92), gmInte.getTranslation("chat.screenshot.sent", "Screenshot sent to Discord.")) end, function(code, body)
+  }, function(code, body)
+    ScreenshotSending = false
+    gmInte.chatAddText(Color(255, 130, 92), gmInte.getTranslation("chat.screenshot.sent", "Screenshot sent to Discord."))
+  end, function(code, body)
+    ScreenshotSending = false
     if code == 429 then
       gmInte.chatAddText(Color(255, 255, 255), gmInte.getTranslation("chat.error.rate_limit", "This interaction is being rate limited, please try again later."))
       return
@@ -50,6 +56,7 @@ hook.Add("PostRender", "gmInteScreenshot", function()
 end)
 
 function gmInte.takeScreenShot()
+  if ScreenshotRequested || ScreenshotSending then return end
   timer.Simple(0.5, function()
     ScreenshotRequested = true
     gmInte.showScreenshotInfo = true
@@ -98,7 +105,7 @@ hook.Add("HUDPaint", "gmInte:ContextScreen:Screenshot", function()
 end)
 
 function gmInte.contextScreenshot()
-  if ScreenshotRequested then return end
+  if ScreenshotRequested || ScreenshotSending then return end
   contextClick = true
   local timerName = "gmInte:ContextScreen:Screenshot:Open"
   gmInte.showScreenshotInfo = true

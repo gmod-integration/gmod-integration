@@ -1,9 +1,12 @@
 function gmInte.SendNet(id, args, func)
+    local encoded = util.TableToJSON(args || {})
+    if !encoded || #encoded > 60000 then return false end
     net.Start("gmIntegration")
     net.WriteString(id)
-    net.WriteString(util.TableToJSON(args || {}))
+    net.WriteString(encoded)
     if func then func() end
     net.SendToServer()
+    return true
 end
 
 local netReceive = {
@@ -19,17 +22,18 @@ local netReceive = {
     end,
     ["chatColorMessage"] = function(data) gmInte.chatAddTextFromTable(data) end,
     ["openVerifPopup"] = function() gmInte.openVerifPopup() end,
-    ["savePlayerToken"] = function(data) gmInte.config.token = data.token end,
+    ["apiRelayResponse"] = function(data) gmInte.receiveClientAPIResponse(data) end,
     ["notEditableConfig"] = function() gmInte.openDisabledConfig() end,
 }
 
-net.Receive("gmIntegration", function()
+net.Receive("gmIntegration", function(len)
+    if len > 60000 * 8 then return end
     local id = net.ReadString()
-    local args = util.JSONToTable(net.ReadString())
-    if !netReceive[id] then return end
+    if !netReceive[id] || #id > 64 then return end
+    local args = gmInte.decodeBoundedNetJSON(net.ReadString())
+    if !istable(args) then return end
     netReceive[id](args)
-    if gmInte.config.debug then
+    if gmInte.config.debug && id != "apiRelayResponse" then
         gmInte.log("[net] Received net message: " .. id)
-        gmInte.log("[net] Data: " .. util.TableToJSON(args))
     end
 end)

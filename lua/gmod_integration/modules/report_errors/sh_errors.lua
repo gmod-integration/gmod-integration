@@ -6,7 +6,8 @@ function gmInte.sendLuaErrorReport(err, realm, stack, name, id)
         ["count"] = count,
     }
 
-    if !gmInte.config.id || !gmInte.config.token then return end
+    if !gmInte.config.id || gmInte.config.id == "" then return end
+    if SERVER && (!gmInte.config.token || gmInte.config.token == "") then return end
     if CLIENT && !IsValid(LocalPlayer()) then return end
     timer.Simple(0.5, function()
         if !cacheErrors[err] then return end
@@ -17,12 +18,12 @@ function gmInte.sendLuaErrorReport(err, realm, stack, name, id)
         end
 
         local endpoint = SERVER && "/servers/:serverID/errors" || "/clients/:steamID64/servers/:serverID/errors"
-        gmInte.http.post(endpoint, {
+        gmInte.api.post(endpoint, {
             ["error"] = err,
             ["realm"] = realm,
             ["stack"] = stack,
             ["name"] = name,
-            ["id"] = id,
+            ["id"] = id != nil && tostring(id) || nil,
             ["count"] = count,
             ["uptime"] = math.Round(RealTime()),
             ["identifier"] = SERVER && gmInte.config.id || CLIENT && LocalPlayer():SteamID64()

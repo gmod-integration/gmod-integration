@@ -25,14 +25,15 @@ Use the realm prefix expected by the bootstrap:
 
 The loader recursively discovers files, so no registry update is normally required. Shared files must guard realm-specific blocks with `if SERVER` or `if CLIENT`.
 
-## HTTP changes
+## Request façade changes
 
-1. Use `gmInte.http` rather than calling `HTTP` directly.
-2. Preserve endpoint placeholders and send JSON-safe tables.
-3. Provide success and failure callbacks when behavior depends on delivery.
-4. Avoid secrets or raw image data in debug logs.
-5. Decide explicitly whether an event is immediate (`post`) or batchable telemetry (`postLog`).
-6. Test success, non-2xx JSON, non-JSON, timeout/DNS failure, and missing credentials.
+1. Use `gmInte.api`; connected operations travel only through the authenticated server WebSocket.
+2. Preserve local endpoint placeholders and JSON-safe tables, and update the shared backend allowlist/schema.
+3. Provide success and failure callbacks when behavior depends on delivery; success waits for a correlated acknowledgement.
+4. Never log credentials, report contents or image data. Player tools never receive platform tokens.
+5. Use `postLog` only for batchable telemetry. The bounded FIFO handles unsent work; never automatically replay uncertain mutations.
+6. Test protocol readiness, rejection, timeout, disconnect, queue saturation, credential rotation and reconnect.
+7. For player tools, keep the explicit relay kinds, rebuild identity server-side, and enforce chunk, memory, depth, rate and expiry limits.
 
 ## WebSocket changes
 
@@ -95,13 +96,21 @@ git diff
 rg -n 'changedSymbol|changedEvent|changedKey' lua
 ```
 
-There is no repository-owned test suite or configured GLua linter as of 2026-06-22. The minimum staging smoke test is:
+Run the repository-owned mocked regressions first:
+
+```bash
+python3 scripts/test_lua.py
+```
+
+The runner uses a Lua 5.3/5.4 executable or shared library and translates GLua operators only in memory.
+It preserves source files and tests the transport, relay and net boundaries with engine mocks; it does
+not emulate a Garry's Mod dedicated server. There is no configured GLua linter. The staging smoke test is:
 
 1. start the dedicated server and confirm every file loads without Lua errors;
 2. connect an ordinary player and an admin;
-3. verify public config, player-ready, token, and admin permissions;
+3. verify public config, player-ready, admin permissions and absence of player API tokens;
 4. exercise the changed feature in success and failure modes;
-5. disconnect/reconnect the API or WebSocket if the change touches transport;
+5. disconnect/reconnect WebSocket, rotate credentials, and verify no automatic replay of uncertain writes;
 6. inspect server and client consoles for duplicate hooks, leaked payloads, and retries;
 7. restart or change map to verify persistence and clean reinitialization.
 

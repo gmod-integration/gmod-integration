@@ -2,7 +2,7 @@
 gmInte.config.id = "" // Server ID
 gmInte.config.token = "" // Server Token
 gmInte.config.websocketFQDN = "ws.gmod-integration.com" // The FQDN of the websocket server
-gmInte.config.apiFQDN = "api.gmod-integration.com" // The FQDN of the API server
+gmInte.config.apiFQDN = "api.gmod-integration.com" // Legacy persisted value; connected features use websocketFQDN
 // Punishment
 gmInte.config.syncBan = true // If true, the addon will sync gmod bans with discord bans (and vice versa)
 gmInte.config.syncTimeout = false // If true, the addon will sync gmod timeouts with discord timeouts (and vice versa)

@@ -171,7 +171,13 @@ local function openReportBug()
   button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
   gmInte.applyPaint(button)
   buttonGrid:AddItem(button)
+  local reportRequest
+  local sending = false
+  frame.OnClose = function()
+    if reportRequest then gmInte.cancelClientAPI(reportRequest) end
+  end
   button.DoClick = function()
+    if sending then return end
     local readyForSend = true
     if !elements[1]:GetText() || elements[1]:GetText() == "" then readyForSend = false end
     if !elements[2]:GetSelected() then readyForSend = false end
@@ -185,7 +191,7 @@ local function openReportBug()
 
     local screenData = {}
     if screenCapture then
-      local base64Capture = util.Base64Encode(screenCapture)
+      local base64Capture = util.Base64Encode(screenCapture, true)
       local size = math.Round(string.len(base64Capture) / 1024)
       screenData = {
         ["screenshot"] = base64Capture,
@@ -195,7 +201,9 @@ local function openReportBug()
     end
 
     local _, importanceValue = elements[2]:GetSelected()
-    gmInte.http.post("/clients/:steamID64/servers/:serverID/bugs", {
+    sending = true
+    button:SetEnabled(false)
+    reportRequest = gmInte.api.post("/clients/:steamID64/servers/:serverID/bugs", {
       ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
       ["screenshot"] = screenData,
       ["description"] = elements[1]:GetText(),
@@ -204,9 +212,16 @@ local function openReportBug()
       ["expected"] = elements[4]:GetText(),
       ["actual"] = elements[5]:GetText(),
     }, function(code, body)
+      reportRequest = nil
+      sending = false
+      if !IsValid(frame) then return end
       notification.AddLegacy(gmInte.getTranslation("report_bug.success", "Bug report sent successfully"), NOTIFY_GENERIC, 5)
       frame:Close()
     end, function(code, body)
+      reportRequest = nil
+      sending = false
+      if IsValid(button) then button:SetEnabled(true) end
+      if code == 499 || !IsValid(frame) then return end
       if code == 429 then
         gmInte.chatAddText(Color(255, 255, 255), gmInte.getTranslation("chat.error.rate_limit", "This interaction is being rate limited, please try again later."))
         return

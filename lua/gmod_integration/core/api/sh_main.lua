@@ -1,5 +1,5 @@
 function gmInte.sendToAPI(endpoint, method, data, onSuccess, onFailed)
-  gmInte.http.requestAPI({
+  return gmInte.api.requestAPI({
     ["endpoint"] = endpoint,
     ["method"] = method,
     ["body"] = data,

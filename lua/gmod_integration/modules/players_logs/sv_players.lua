@@ -4,26 +4,26 @@ function gmInte.playerReady(ply)
     ply.gmIntTimeConnect = math.Round(RealTime())
     // Send Public Config
     gmInte.publicGetConfig(ply)
-    gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/ready", {
+    gmInte.api.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/ready", {
         ["player"] = gmInte.getPlayerFormat(ply)
     })
 end
 
 function gmInte.playerConnect(data)
     data.steamID64 = util.SteamIDTo64(data.networkid)
-    gmInte.http.post("/servers/:serverID/players/" .. util.SteamIDTo64(data.networkid) .. "/connect", data)
+    gmInte.api.post("/servers/:serverID/players/" .. util.SteamIDTo64(data.networkid) .. "/connect", data)
 end
 
 function gmInte.playerDisconnected(ply)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
-    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/disconnect", {
+    gmInte.api.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/disconnect", {
         ["player"] = gmInte.getPlayerFormat(ply),
     })
 end
 
 function gmInte.playerChangedTeam(ply, oldTeam, newTeam)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
-    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/team", {
+    gmInte.api.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/team", {
         ["player"] = gmInte.getPlayerFormat(ply),
         ["oldTeam"] = gmInte.getTeamFormat(oldTeam),
         ["newTeam"] = gmInte.getTeamFormat(newTeam)
@@ -32,7 +32,7 @@ end
 
 function gmInte.playerSpawn(ply)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
-    gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/spawn", {
+    gmInte.api.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/spawn", {
         ["player"] = gmInte.getPlayerFormat(ply)
     })
 end
@@ -41,7 +41,7 @@ function gmInte.playerDeath(ply, inflictor, attacker)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
     if !attacker:IsValid() || !attacker:IsPlayer(attacker) then return end
     if !inflictor:IsValid() then return end
-    gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/death", {
+    gmInte.api.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/death", {
         ["player"] = gmInte.getPlayerFormat(ply),
         ["inflictor"] = gmInte.getEntityFormat(inflictor),
         ["attacker"] = gmInte.getPlayerFormat(attacker)
@@ -50,7 +50,7 @@ end
 
 function gmInte.playerInitialSpawn(ply)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
-    gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/initial-spawn", {
+    gmInte.api.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/initial-spawn", {
         ["player"] = gmInte.getPlayerFormat(ply)
     })
 end
@@ -69,7 +69,7 @@ function gmInte.postLogPlayerHurt(ply, attacker, healthRemaining, damageTaken)
             return
         end
 
-        gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/hurt", {
+        gmInte.api.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/hurt", {
             ["victim"] = gmInte.getPlayerFormat(ply),
             ["attacker"] = gmInte.getPlayerFormat(attacker),
             ["healthRemaining"] = math.Round(healthRemaining),
@@ -81,7 +81,7 @@ end
 function gmInte.postLogPlayerSpawnedSomething(object, ply, ent, model)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
     if !ent:IsValid() then return end
-    gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/spawn/" .. object, {
+    gmInte.api.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/spawn/" .. object, {
         ["player"] = gmInte.getPlayerFormat(ply),
         ["entity"] = gmInte.getEntityFormat(ent),
         ["model"] = model || ""
@@ -90,7 +90,7 @@ end
 
 function gmInte.postLogPlayerGive(ply, class, swep)
     if !ply:IsValid() || !ply:IsPlayer(ply) then return end
-    gmInte.http.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/give", {
+    gmInte.api.postLog("/servers/:serverID/players/" .. ply:SteamID64() .. "/give", {
         ["player"] = gmInte.getPlayerFormat(ply),
         ["class"] = class,
         ["swep"] = swep

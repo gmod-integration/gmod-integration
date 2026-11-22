@@ -2,7 +2,7 @@
 
 ## Purpose and boundaries
 
-The addon is the in-server half of Gmod Integration. It observes Garry's Mod events, sends state and logs to the HTTP API, receives privileged commands through a WebSocket, and provides client UI for configuration, verification, screenshots, and reports.
+The addon is the in-server half of Gmod Integration. It observes Garry's Mod events, sends state and logs through the dedicated server's authenticated WebSocket, receives validated privileged commands on that socket, and provides client UI for configuration, verification, screenshots, and reports.
 
 The remote API, Discord bot/web application, `gwsockets` binary module, and third-party admin/economy addons are external systems. Their implementation is outside this repository.
 
@@ -30,11 +30,12 @@ Renaming a file can therefore alter runtime behavior even when its contents do n
 
 ### Core
 
-- `core/api/sh_http.lua`: API URL construction, bearer authentication, JSON requests, and three-second log batching.
-- `core/api/sv_websocket.lua`: authenticated WebSocket lifecycle, inbound method dispatch, outbound request callbacks, and reconnect loop.
+- `core/api/sh_api.lua`: local request façade, placeholder resolution and three-second log batching; no HTTP fallback.
+- `core/api/cl_relay.lua` and `sv_relay.lua`: bounded, identity-checked player-tool transfers through the dedicated server.
+- `core/api/sv_websocket.lua`: authenticated protocol readiness, allowlisted command dispatch, correlated request callbacks, bounded FIFO and reconnect backoff.
 - `core/config/`: defaults, persisted settings, web synchronization, console commands, and admin UI.
 - `core/net/`: one multiplexed `gmIntegration` net channel with realm-specific message allowlists.
-- `core/security/sv_tokens.lua`: fetches a public server token and derives per-player temporary client tokens.
+- `core/net/sh_json.lua`: bounded JSON decoding shared by the net receivers and upload relay. Player API token issuance is removed.
 - `core/utils/`: formats players/entities, tracks adjusted time and custom values, supplies player metatable helpers, and checks releases.
 - `core/ui/`: fonts and colors.
 
@@ -49,31 +50,33 @@ Renaming a file can therefore alter runtime behavior even when its contents do n
 
 ## Main data flows
 
-### Server to API
+### Platform requests
 
 ```text
-GMod hook/module -> gmInte.http.get/post/put/delete
-                 -> JSON + server bearer token
-                 -> /v3 endpoint
+Server hook/module -> gmInte.api.get/post/postLog
+                   -> bounded unsent FIFO -> authenticated WebSocket
+                   -> addon.request -> shared allowlisted backend model
+                   <- addon.response with matching id/status/body
 
-High-volume event -> gmInte.http.postLog
-                  -> in-memory batch (3 seconds or 30 entries)
-                  -> /v3/servers/:serverID/logs
+Player screenshot/report/error -> compressed chunks over Garry's Mod net
+                               -> server validates and rebuilds player identity
+                               -> same authenticated WebSocket
 ```
 
-API helpers replace `:serverID` from server config. Client-side requests also replace `:steamID64` with `LocalPlayer():SteamID64()`.
+The façade retains local endpoint names and resolves `:serverID` (and client-side `:steamID64`). These
+are dispatch keys, not HTTP calls. Only `addon.ready` protocol 1 confirms the connection; TCP open is
+insufficient. At most four requests are in flight and 128 requests / 24 MiB are buffered. Requests
+expire, and already-sent mutations are never replayed after a lost acknowledgement. Reconnects use
+exponential backoff independently of any HTTP response. A credential change discards old queued work.
 
 ### Remote service to server
 
 ```text
-WebSocket JSON -> onMessage -> method lookup on gmInte -> handler
-                                                |-> RCON / Lua
-                                                |-> config change
-                                                |-> ban / kick / rank / name
-                                                `-> chat relay
+WebSocket JSON -> explicit method allowlist + field validation -> existing handler
 ```
 
-This is the most privileged trust boundary in the addon. The current dispatcher is global-name based;
+RCON, Lua execution, settings and moderation remain privileged operations. The dispatcher does not
+look up arbitrary names on `gmInte`. Unknown or malformed commands are rejected before execution.
 
 ### Client/server net channel
 
@@ -82,17 +85,23 @@ Client gmInte.SendNet -> "gmIntegration" -> server netReceive allowlist
 Server gmInte.SendNet -> "gmIntegration" -> client netReceive allowlist
 ```
 
-The payload is encoded as a JSON string after a string message ID. Message handlers—not the transport—own authorization and schema validation.
+The outer JSON is size/depth checked and parsed under `pcall`. Handlers own authorization and domain
+validation. Player uploads use paced 30,000-byte chunks, one assembly per player, bounded encoded and
+decoded sizes, a shared reservation budget, timeouts and disconnect cleanup. The only relayed client
+operations are screenshots, bugs and errors; the server derives their actor and server identity.
 
 ### Configuration
 
-Defaults originate in `sv_default_config.lua`. Runtime values are persisted under `data/gm_integration/config.json`, can be edited by configured admin ranks, and synchronize with the remote service. Public client config is a deliberate subset; the server token must remain server/admin-only.
+Defaults originate in `sv_default_config.lua`. Runtime values are persisted under `data/gm_integration/config.json`, can be edited by configured admin ranks, and synchronize with the remote service. Public client config is a deliberate subset; the server token remains server/admin-only and never travels in ordinary player tool requests.
+`apiFQDN` remains persisted for compatibility with old configuration files but is no longer used or
+shown as an active connection setting. Config saves and reconnect synchronization are serialized;
+stale replies cannot replace newer local edits.
 
 ## External dependencies and compatibility
 
 - Garry's Mod dedicated server APIs and GLua are required.
-- `gwsockets` is required for WebSocket features; HTTP-only behavior can still load without it.
-- The hosted Gmod Integration API/WebSocket service is required for connected features.
+- `gwsockets` is required for all connected features. Missing modules fail visibly; local loading does not add an HTTP fallback.
+- A compatible hosted WebSocket gateway must be deployed before this addon is distributed. Older gateways cannot confirm the new protocol.
 - CAMI and many admin systems are supported opportunistically by the usergroup module.
 - DarkRP, CH ATM, GlorifiedBanking, and AWarn3 integrations depend on their respective hooks/globals.
 

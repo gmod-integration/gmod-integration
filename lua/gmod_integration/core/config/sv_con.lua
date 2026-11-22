@@ -72,16 +72,14 @@ local conFuncs = {
         print("Connection Status:")
         local idValid = gmInte.config.id && gmInte.config.id != ""
         local tokenValid = gmInte.config.token && gmInte.config.token != ""
-        local httpStatus = gmInte.aprovedCredentials && "✓ Connected" || "✗ Disconnected"
         local wsStatus = "✗ Not Available"
 
         if GWSockets && gmInte.websocket then
-            wsStatus = gmInte.websocket:isConnected() && "✓ Connected" || "✗ Disconnected"
+            wsStatus = gmInte.aprovedCredentials && gmInte.websocket:isConnected() && "✓ Connected" || "✗ Disconnected"
         end
 
         print("  Server ID:          " .. (idValid && "✓ Set" || "✗ Not Set"))
         print("  Server Token:       " .. (tokenValid && "✓ Set" || "✗ Not Set"))
-        print("  HTTP API:           " .. httpStatus)
         print("  WebSocket:          " .. wsStatus)
 
         if !idValid || !tokenValid then

@@ -6,7 +6,7 @@ end
 
 function gmInte.playerBan(data)
     data.steamID64 = util.SteamIDTo64(data.networkid)
-    gmInte.http.post("/servers/:serverID/players/" .. util.SteamIDTo64(data.networkid) .. "/ban", data)
+    gmInte.api.post("/servers/:serverID/players/" .. util.SteamIDTo64(data.networkid) .. "/ban", data)
 end
 
 gameevent.Listen("server_addban")
