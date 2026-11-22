@@ -134,8 +134,30 @@ not emulate a Garry's Mod dedicated server. There is no configured GLua linter. 
 
 Report exactly which checks ran. A static diff review is not a runtime test.
 
+For an end-to-end acceptance session, use a dedicated test server, test Discord channels, one
+ordinary player and one administrator. Record the backend revision and addon commit actually running,
+then record each result separately; a configured destination or an online socket is only a prerequisite.
+
+| Flow | Required observation |
+| --- | --- |
+| Chat in both directions | One synthetic message arrives once in the configured game/Discord destination, with no echo loop. Check disabled directions and filtering separately. |
+| Screenshot | The player receives the storage outcome, the image opens in the panel, and configured Discord publication is independently confirmed. A Discord failure must preserve the stored image and show a partial-delivery notice. |
+| Bug report | A report without an attachment and one with a valid capture each appear once. A failed or oversized capture preserves the report, closes the accepted form and explains the attachment failure. Do not resend an accepted report. |
+| Account verification and roles | Link a test account, verify the configured role/rank result, then confirm an ordinary player cannot use administrator settings or issue connection tests. Never use a production account for rank changes. |
+| Disconnect and reconnect | Interrupt only the test connection, restore it, and wait for protocol readiness. Confirm future requests work and an already-sent uncertain mutation is not automatically replayed. |
+| Map change and restart | In an agreed interruption window, change map and restart the dedicated server separately. Verify saved settings, one connection and one copy of each hook/relay afterward. |
+| Missing GWSockets | On a separate stopped test installation, omit the binary and start it. Administrators must see dependency guidance; connected operations fail explicitly and local configuration remains usable. |
+
+Record blocked or unobserved cases as pending, including those requiring a connected player or an
+agreed interruption. Keep account identifiers, report text, captures and diagnostics private.
+
 ## Release notes
 
 The release workflow owns `gmInte.version` and packaging. Markdown under `docs/` and `AGENTS.md` is excluded from Workshop packaging by `addon.json`, while remaining available in the source repository.
+
+Pull requests and branch pushes run the mocked Lua regressions. The release workflow runs the same
+checks before its version job, so a failed test cannot bump the version, create a tag or publish an
+archive or Workshop update. The monorepo also tests its pinned addon commit before image publication.
+These automated gates do not replace the dedicated-server acceptance session above.
 
 The version job is intentionally idempotent. On a rerun it reuses a release tag/commit associated with the triggering commit, accepts a target version already written in a clean worktree, repairs a missing branch push or missing tag, and does not increment the version again. Release commits should retain the `chore: bump version to X.Y.Z` subject because recovery of releases created by the legacy workflow uses it when available. Do not move or recreate an existing release tag on another commit.

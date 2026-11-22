@@ -22,18 +22,23 @@ local function release(ply)
     active[ply] = nil
 end
 
-local function respond(ply, id, status, body)
+local function respond(ply, id, status, body, kind)
     if not IsValid(ply) then return end
     -- Client tools only need the outcome; do not echo stored reports, images or server internals.
     local result = status >= 200 and status < 300 and { success = true } or {
         error = istable(body) and boundedString(body.error, 256, true) and body.error or "request_failed"
     }
-    if result.success and istable(body) and body.saved == true and isbool(body.discordDelivered) then
+    if result.success and kind == "screenshots" and istable(body) and body.saved == true and isbool(body.discordDelivered) then
         result.saved = true
         result.discordDelivered = body.discordDelivered
         if body.discordDelivered == false and (body.delivery == "not_configured" or body.delivery == "unavailable") then
             result.delivery = body.delivery
         end
+    end
+    if result.success and kind == "bugs" and istable(body) and body.saved == true and
+        (body.attachment == "none" or body.attachment == "saved" or body.attachment == "failed") then
+        result.saved = true
+        result.attachment = body.attachment
     end
     gmInte.SendNet("apiRelayResponse", { id = id, status = status, body = result }, ply)
 end
@@ -120,11 +125,9 @@ local function cleanBody(ply, kind, body)
         not boundedString(body.expected, 8000, true) or not boundedString(body.actual, 8000, true) or
         not isstring(body.importance) or not importance[body.importance] then return end
     local image
-    if istable(body.screenshot) and body.screenshot.screenshot ~= nil then
-        image = cleanImage(body.screenshot)
-        if not image then return end
-    elseif body.screenshot ~= nil and not istable(body.screenshot) then
-        return
+    if body.screenshot ~= nil and (not istable(body.screenshot) or next(body.screenshot) ~= nil) then
+        -- Preserve the report while forwarding only a bounded marker for an invalid optional capture.
+        image = cleanImage(body.screenshot) or { invalid = true }
     end
     return {
         player = player, screenshot = image, description = body.description, importance = body.importance,
@@ -190,7 +193,7 @@ function gmInte.receiveClientAPIChunk(ply, data)
     local function complete(status, result)
         if active[ply] ~= transfer then return end
         release(ply)
-        respond(ply, data.id, status, result)
+        respond(ply, data.id, status, result, transfer.kind)
     end
     gmInte.api.requestAPI({
         method = "POST",

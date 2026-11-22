@@ -336,6 +336,43 @@ test("bug report importance and text limits are enforced", function()
     assert(#requests == 1 and messages[1].data.status == 400)
 end)
 
+test("bug report acknowledgements disclose only the saved report and bounded attachment outcome", function()
+    for _, attachment in ipairs({ "none", "saved", "failed" }) do
+        reset("server")
+        local ply = player()
+        local body = { description = "Bug", importance = "critical", steps = "Step", expected = "Expected", actual = "Actual" }
+        send(ply, chunks("bugs", body))
+        requests[1].success(200, {
+            success = true, saved = true, attachment = attachment, description = "private report",
+            token = "private credential", url = "https://private.example/capture", discordDelivered = true
+        })
+        local result = messages[1].data.body
+        assert(result.success == true and result.saved == true and result.attachment == attachment)
+        assert(result.description == nil and result.token == nil and result.url == nil and result.discordDelivered == nil)
+        assert(requests[1].body.player.steamID64 == ply:SteamID64())
+    end
+    reset("server")
+    send(player(), chunks("bugs", { description = "Bug", importance = "critical", steps = "Step", expected = "Expected", actual = "Actual" }))
+    requests[1].success(200, { saved = true, attachment = "private storage exception" })
+    assert(messages[1].data.body.attachment == nil and messages[1].data.body.saved == nil)
+end)
+
+test("invalid optional captures do not discard a valid bug report or forward malformed capture contents", function()
+    for _, screenshot in ipairs({ "private invalid data", { invalid = true }, { screenshot = "private malformed image" } }) do
+        reset("server")
+        local ply = player()
+        send(ply, chunks("bugs", {
+            description = "Bug", importance = "critical", steps = "Step", expected = "Expected", actual = "Actual",
+            player = { steamID64 = "76561198999999999" }, screenshot = screenshot
+        }))
+        assert(#requests == 1 and requests[1].body.description == "Bug")
+        assert(requests[1].body.player.steamID64 == ply:SteamID64())
+        assert(requests[1].body.screenshot.invalid == true and requests[1].body.screenshot.screenshot == nil)
+        requests[1].success(200, { saved = true, attachment = "failed" })
+        assert(messages[1].data.body.attachment == "failed")
+    end
+end)
+
 test("forwarded request gets enough time for queue and server acknowledgement", function()
     reset("server")
     send(player(), chunks("screenshots", image()))

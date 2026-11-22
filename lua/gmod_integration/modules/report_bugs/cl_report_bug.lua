@@ -20,6 +20,25 @@ end)
 local screenCapture = nil
 local screenFileID = nil
 local captureData = nil
+local captureAttempted = false
+-- Match cl_relay's whole-report budgets and sv_relay's optional image bound before sending.
+local MAX_CAPTURE_BASE64_BYTES = 9 * 1024 * 1024
+local MAX_REPORT_JSON_BYTES = 10 * 1024 * 1024
+local MAX_REPORT_COMPRESSED_BYTES = 6 * 1024 * 1024
+
+local function fitOptionalCapture(report)
+  if !isstring(report.screenshot.screenshot) then return end
+  local ok, json = pcall(util.TableToJSON, report)
+  if !ok or !isstring(json) or #json > MAX_REPORT_JSON_BYTES then
+    report.screenshot = { invalid = true }
+    return
+  end
+  local compressedOK, compressed = pcall(util.Compress, json)
+  if !compressedOK or !isstring(compressed) or #compressed > MAX_REPORT_COMPRESSED_BYTES then
+    report.screenshot = { invalid = true }
+  end
+end
+
 hook.Add("PostRender", "gmInte:BugReport:Screenshot", function()
   if !ScreenshotRequested then return end
   if contextMenuOpen then return end
@@ -32,6 +51,7 @@ hook.Add("PostRender", "gmInte:BugReport:Screenshot", function()
     quality = 95,
   }
 
+  captureAttempted = true
   screenCapture = render.Capture(captureData)
   ScreenshotRequested = false
   gmInte.showScreenshotInfo = false
@@ -129,13 +149,13 @@ local function openReportBug()
     label:SetText(field.title)
     label:SetFont("DermaDefaultBold")
     if field.type == "image" then
-      if !screenCapture then continue end
-      if !file.Exists("gmod_integration/report_bug/" .. screenFileID .. ".jpeg", "DATA") then continue end
-      local image = vgui.Create("DImage", dPanel)
-      image:Dock(TOP)
-      image:DockMargin(5, 5, 5, 5)
-      image:SetImage("data/gmod_integration/report_bug/" .. screenFileID .. ".jpeg")
-      image:SetSize(frame:GetWide() - 10, (frame:GetWide() - 10) * (9 / 16))
+      if screenCapture and file.Exists("gmod_integration/report_bug/" .. screenFileID .. ".jpeg", "DATA") then
+        local image = vgui.Create("DImage", dPanel)
+        image:Dock(TOP)
+        image:DockMargin(5, 5, 5, 5)
+        image:SetImage("data/gmod_integration/report_bug/" .. screenFileID .. ".jpeg")
+        image:SetSize(frame:GetWide() - 10, (frame:GetWide() - 10) * (9 / 16))
+      end
     elseif field.type == "text" then
       local text = vgui.Create("DTextEntry", dPanel)
       text:Dock(TOP)
@@ -167,17 +187,18 @@ local function openReportBug()
   buttonGrid:SetColWide(frame:GetWide() - 10)
   buttonGrid:SetRowHeight(35)
   local button = vgui.Create("DButton")
-  button:SetText("Send Report")
+  button:SetText(gmInte.getTranslation("report_bug.submit", "Submit Bug Report"))
   button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight())
   gmInte.applyPaint(button)
   buttonGrid:AddItem(button)
   local reportRequest
   local sending = false
+  local accepted = false
   frame.OnClose = function()
     if reportRequest then gmInte.cancelClientAPI(reportRequest) end
   end
   button.DoClick = function()
-    if sending then return end
+    if sending or accepted or !IsValid(frame) then return end
     local readyForSend = true
     if !elements[1]:GetText() || elements[1]:GetText() == "" then readyForSend = false end
     if !elements[2]:GetSelected() then readyForSend = false end
@@ -191,19 +212,24 @@ local function openReportBug()
 
     local screenData = {}
     if screenCapture then
-      local base64Capture = util.Base64Encode(screenCapture, true)
-      local size = math.Round(string.len(base64Capture) / 1024)
-      screenData = {
-        ["screenshot"] = base64Capture,
-        ["captureData"] = captureData,
-        ["size"] = size .. "KB"
-      }
+      screenData = { invalid = true }
+      if #screenCapture <= MAX_CAPTURE_BASE64_BYTES * 0.75 then
+        local encoded, base64Capture = pcall(util.Base64Encode, screenCapture, true)
+        if encoded and isstring(base64Capture) and #base64Capture > 0 and #base64Capture <= MAX_CAPTURE_BASE64_BYTES then
+          local size = math.Round(string.len(base64Capture) / 1024)
+          screenData = {
+            ["screenshot"] = base64Capture,
+            ["captureData"] = captureData,
+            ["size"] = size .. "KB"
+          }
+        end
+      end
+    elseif captureAttempted then
+      screenData = { invalid = true }
     end
 
     local _, importanceValue = elements[2]:GetSelected()
-    sending = true
-    button:SetEnabled(false)
-    reportRequest = gmInte.api.post("/clients/:steamID64/servers/:serverID/bugs", {
+    local report = {
       ["player"] = gmInte.getPlayerFormat(LocalPlayer()),
       ["screenshot"] = screenData,
       ["description"] = elements[1]:GetText(),
@@ -211,13 +237,32 @@ local function openReportBug()
       ["steps"] = elements[3]:GetText(),
       ["expected"] = elements[4]:GetText(),
       ["actual"] = elements[5]:GetText(),
-    }, function(code, body)
+    }
+    -- Drop only an unsent optional capture; an uncertain delivery must never replay the report.
+    fitOptionalCapture(report)
+    local screenshotSubmitted = next(screenData) ~= nil
+    sending = true
+    button:SetEnabled(false)
+    reportRequest = gmInte.api.post("/clients/:steamID64/servers/:serverID/bugs", report, function(code, body)
+      if accepted then return end
+      accepted = true
       reportRequest = nil
       sending = false
       if !IsValid(frame) then return end
-      notification.AddLegacy(gmInte.getTranslation("report_bug.success", "Bug report sent successfully"), NOTIFY_GENERIC, 5)
+      if istable(body) and body.saved == true and (body.attachment == "failed" or (body.attachment == "none" and screenshotSubmitted)) then
+        notification.AddLegacy(gmInte.getTranslation("report_bug.screenshot_failed", "Bug report saved, but its screenshot could not be attached. Do not resend the report."), NOTIFY_HINT, 8)
+      elseif istable(body) and body.saved == true and body.attachment == "saved" then
+        notification.AddLegacy(gmInte.getTranslation("report_bug.screenshot_saved", "Bug report and screenshot saved."), NOTIFY_GENERIC, 5)
+      elseif istable(body) and body.saved == true and body.attachment == "none" then
+        notification.AddLegacy(gmInte.getTranslation("report_bug.success", "Bug report saved."), NOTIFY_GENERIC, 5)
+      elseif screenshotSubmitted then
+        notification.AddLegacy(gmInte.getTranslation("report_bug.screenshot_unconfirmed", "Bug report accepted, but its screenshot status could not be confirmed. Check the web panel before resending."), NOTIFY_HINT, 8)
+      else
+        notification.AddLegacy(gmInte.getTranslation("report_bug.accepted", "Bug report accepted."), NOTIFY_GENERIC, 5)
+      end
       frame:Close()
     end, function(code, body)
+      if accepted then return end
       reportRequest = nil
       sending = false
       if IsValid(button) then button:SetEnabled(true) end
@@ -238,6 +283,7 @@ function gmInte.openReportBug()
   ScreenshotRequested = true
   gmInte.showScreenshotInfo = true
   screenCapture = nil
+  captureAttempted = false
   screenFileID = gmInte.config.id .. "-" .. util.CRC(LocalPlayer():SteamID64() .. "-" .. tostring(os.time())) .. "-" .. tostring(os.time())
   timer.Create(timerName, 0.2, 0, function()
     if contextMenuOpen then return end

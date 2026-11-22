@@ -26,9 +26,30 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
+    test:
+        name: Test GLua transport and player tools
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.12'
+
+            - name: Install the Lua test runtime
+              run: sudo apt-get update && sudo apt-get install -y lua5.4
+
+            - name: Run addon regressions
+              run: python3 scripts/test_lua.py
+
     version:
         name: Resolve Version & Tag
         runs-on: ubuntu-latest
+        needs: test
         outputs:
             new_version: ${{ steps.resolve.outputs.new_version }}
             new_tag: ${{ steps.resolve.outputs.new_tag }}
