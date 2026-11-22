@@ -59,11 +59,11 @@ local function reset(options)
     gmInte = {
         config = {}, version = '5.2.8', previusVersion = '5.2.8', useDataConfig = true,
         log = function() end, logWarning = function() end, logError = function() end, logHint = function() end,
-        isPrivateIP = function(host) return host == '127.0.0.1' or host == 'localhost' end,
         loadTranslations = function() end,
         compareVersion = function() return 0 end,
         SendNet = function(id, data) observations.net = { id = id, data = data } end,
     }
+    originalLoad('lua/gmod_integration/core/utils/sh_utils.lua')
     originalLoad('lua/gmod_integration/core/config/sv_default_config.lua')
     gmInte.config.id = 'server-id'
     gmInte.config.token = 'secret-token'
@@ -115,6 +115,29 @@ local function test(name, run)
     passed = passed + 1
     print('ok transport: ' .. name)
 end
+
+test('recognizes only localhost and canonical private or loopback IPv4 addresses', function()
+    for _, host in ipairs({ 'localhost', '10.0.0.0', '10.255.255.255', '127.0.0.1', '127.255.255.255', '192.168.0.1', '172.16.0.1', '172.31.255.255' }) do
+        assert(gmInte.isPrivateIP(host), host)
+    end
+    for _, host in ipairs({ '8.8.8.8', '172.15.0.1', '172.32.0.1', '192.169.0.1', '169.254.0.1', '0.0.0.0', '10.example.com', '192.168.example.com', '127.example.com', '172.foo', '10.0.0', '10.0.0.1.example', '10.0.0.256', '10.0.0.-1', '10.0.0.01', '010.0.0.1', '10.0.0.1.', '10.0.0.1:80', ' 127.0.0.1', '127.1', '0x7f000001', '[::1]', '' }) do
+        assert(not gmInte.isPrivateIP(host), host)
+    end
+    assert(not gmInte.isPrivateIP(nil) and not gmInte.isPrivateIP(false) and not gmInte.isPrivateIP(127) and not gmInte.isPrivateIP({}))
+end)
+
+test('keeps hostname lookalikes on TLS and private IPv4 development sockets local', function()
+    for _, host in ipairs({ '10.example.com', '192.168.example.com', '127.example.com', '172.foo', '10.0.0.256', '010.0.0.1', '172.32.0.1', 'ws.example.com' }) do
+        gmInte.config.websocketFQDN = host .. ':53137'
+        assert(gmInte.setupWebSocket())
+        assert(sockets[#sockets].url == 'wss://' .. host .. ':53137', host)
+    end
+    for _, host in ipairs({ 'localhost', '10.0.0.1', '127.0.0.1', '192.168.0.1', '172.16.0.1', '172.31.0.1' }) do
+        gmInte.config.websocketFQDN = host .. ':53137'
+        assert(gmInte.setupWebSocket())
+        assert(sockets[#sockets].url == 'ws://' .. host .. ':53137', host)
+    end
+end)
 
 test('waits for protocol readiness, resolves placeholders and correlates one response', function()
     local calls = 0

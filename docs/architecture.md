@@ -68,6 +68,9 @@ are dispatch keys, not HTTP calls. Only `addon.ready` protocol 1 confirms the co
 insufficient. At most four requests are in flight and 128 requests / 24 MiB are buffered. Requests
 expire, and already-sent mutations are never replayed after a lost acknowledgement. Reconnects use
 exponential backoff independently of any HTTP response. A credential change discards old queued work.
+DNS hostnames use `wss`; plaintext `ws` is selected only for exact `localhost` or canonical private/loopback
+IPv4 literals. A hostname resembling a private address does not disable TLS. These local plaintext
+connections require a trusted network; the addon does not turn an internal address into an encrypted link.
 
 ### Remote service to server
 

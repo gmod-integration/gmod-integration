@@ -1,14 +1,18 @@
 // Is Private IP
 function gmInte.isPrivateIP(ip)
-    // detect localhost
+    if !isstring(ip) then return false end
     if ip == "localhost" then return true end
-    // detect private IP addresses (RFC 1918)
-    local parts = string.Explode(".", ip)
-    if parts[1] == "192" && parts[2] == "168" then return true end
-    if parts[1] == "10" then return true end
-    if parts[1] == "172" && tonumber(parts[2]) >= 16 && tonumber(parts[2]) <= 31 then return true end
-    if parts[1] == "127" then return true end
-    return false
+    if #ip > 15 then return false end
+    local first, second, third, fourth = string.match(ip, "^(%d+)%.(%d+)%.(%d+)%.(%d+)$")
+    if !fourth then return false end
+    local parts = { first, second, third, fourth }
+    for index, part in ipairs(parts) do
+        -- A hostname or ambiguous numeric form must never select a plaintext transport.
+        if (#part > 1 && string.sub(part, 1, 1) == "0") || tonumber(part) > 255 then return false end
+        parts[index] = tonumber(part)
+    end
+    return parts[1] == 10 || parts[1] == 127 || (parts[1] == 192 && parts[2] == 168) ||
+        (parts[1] == 172 && parts[2] >= 16 && parts[2] <= 31)
 end
 
 // Generate Random String
