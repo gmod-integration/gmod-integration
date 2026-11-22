@@ -8,6 +8,7 @@ local function reset()
     captureResult = "synthetic-image-bytes"
     localPlayer = {}
     isstring = function(value) return type(value) == "string" end
+    istable = function(value) return type(value) == "table" end
     CurTime = function() return clock end
     LocalPlayer = function() return localPlayer end
     ScrW = function() return 1920 end
@@ -144,6 +145,44 @@ test("a relay error releases the busy state without retrying an already sent ima
     frame(10)
     assert(#requests == 1)
     assert(gmInte.takeScreenShot())
+end)
+
+test("only a confirmed Discord acknowledgement announces a Discord delivery", function()
+    gmInte.takeScreenShot()
+    frame(0.5)
+    assert(#notices == 0 and #requests == 1)
+    requests[1].success(200, { success = true, saved = true, discordDelivered = true })
+    assert(notices[1] == "Screenshot sent to Discord.")
+    assert(gmInte.takeScreenShot())
+end)
+
+test("saved screenshots explain missing destinations and unconfirmed Discord delivery", function()
+    for _, delivery in ipairs({ "not_configured", "unavailable" }) do
+        reset()
+        gmInte.takeScreenShot()
+        frame(0.5)
+        requests[1].success(200, { success = true, saved = true, discordDelivered = false, delivery = delivery })
+        assert(notices[1]:find("saved in the web panel", 1, true))
+        if delivery == "not_configured" then assert(notices[1]:find("No Discord screenshot channel", 1, true))
+        else assert(notices[1]:find("could not be confirmed", 1, true)) end
+        assert(not notices[1]:find("sent to Discord", 1, true))
+        frame(10)
+        assert(#requests == 1 and gmInte.takeScreenShot())
+    end
+end)
+
+test("unconfirmed acknowledgements and non-rate-limit failures are visible without private details", function()
+    for _, status in ipairs({ 200, 400, 503, 504 }) do
+        reset()
+        gmInte.takeScreenShot()
+        frame(0.5)
+        if status == 200 then requests[1].success(status, { success = true })
+        else requests[1].failed(status, { error = "private token or report data" }) end
+        assert(notices[1]:find("could not be sent or confirmed", 1, true))
+        assert(not notices[1]:find("private token", 1, true))
+        frame(10)
+        assert(#requests == 1 and gmInte.takeScreenShot())
+    end
 end)
 
 test("invalid titles are refused before queuing or rendering", function()

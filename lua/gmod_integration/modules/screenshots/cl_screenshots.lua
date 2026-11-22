@@ -84,7 +84,17 @@ hook.Add("PostRender", "gmInteScreenshot", function()
     ["size"] = size .. "KB"
   }, function(code, body)
     ScreenshotSending = false
-    gmInte.chatAddText(Color(255, 130, 92), gmInte.getTranslation("chat.screenshot.sent", "Screenshot sent to Discord."))
+    if istable(body) && body.discordDelivered == true then
+      gmInte.chatAddText(Color(255, 130, 92), gmInte.getTranslation("chat.screenshot.sent", "Screenshot sent to Discord."))
+    elseif istable(body) && body.saved == true then
+      if body.delivery == "not_configured" then
+        gmInte.chatAddText(Color(255, 255, 255), gmInte.getTranslation("chat.screenshot.saved_no_channel", "Screenshot saved in the web panel. No Discord screenshot channel is configured."))
+      else
+        gmInte.chatAddText(Color(255, 255, 255), gmInte.getTranslation("chat.screenshot.discord_unconfirmed", "Screenshot saved in the web panel, but delivery to Discord could not be confirmed."))
+      end
+    else
+      gmInte.chatAddText(Color(255, 255, 255), gmInte.getTranslation("chat.screenshot.send_failed", "The screenshot could not be sent or confirmed. Check the server connection and try again."))
+    end
   end, function(code, body)
     ScreenshotSending = false
     if code == 429 then
@@ -92,7 +102,9 @@ hook.Add("PostRender", "gmInteScreenshot", function()
       return
     end
 
-    gmInte.log("Screenshot failed to send to Discord, error code: " .. code, true)
+    local message = gmInte.getTranslation("chat.screenshot.send_failed", "The screenshot could not be sent or confirmed. Check the server connection and try again.")
+    gmInte.chatAddText(Color(255, 255, 255), message)
+    gmInte.log(message)
   end)
 end)
 

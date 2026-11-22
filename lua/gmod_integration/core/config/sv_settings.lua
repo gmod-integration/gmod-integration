@@ -123,6 +123,7 @@ function gmInte.saveSetting(setting, value)
 end
 
 function gmInte.tryConfig()
+    if gmInte.logWebsocketRequirement && gmInte.logWebsocketRequirement() then return end
     gmInte.api.get("/servers/:serverID", function(_, body)
         gmInte.log("Your server is connected to Gmod Integration using WebSocket")
         if istable(body) && isstring(body.name) then gmInte.log("Server Name: " .. body.name) end
@@ -133,6 +134,10 @@ end
 
 function gmInte.testConnection(ply)
     if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
+    if !gmInte.hasWebsocketModule() then
+        gmInte.SendNet("testApiConnection", { error = "gwsockets_required" }, ply)
+        return
+    end
     local function reply(body)
         if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
         local result = { error = "connection_failed" }
@@ -152,7 +157,7 @@ function gmInte.getConfigSnapshot()
         if setting != "token" && valid then settings[setting] = normalized end
     end
     settings.tokenConfigured = isstring(gmInte.config.token) && gmInte.config.token != ""
-    settings.websocket = GWSockets && true || false
+    settings.websocket = gmInte.hasWebsocketModule()
     return settings
 end
 
@@ -163,6 +168,17 @@ function gmInte.superadminGetConfig(ply)
         return
     end
     gmInte.SendNet("adminConfig", gmInte.getConfigSnapshot(), ply)
+end
+
+local dependencyWarnings = setmetatable({}, { __mode = "k" })
+local function notifyMissingWebsocket(ply)
+    if gmInte.hasWebsocketModule() || !ply:gmIntIsAdmin() || dependencyWarnings[ply] then return end
+    dependencyWarnings[ply] = true
+    gmInte.SendNet("chatColorMessage", {
+        { text = gmInte.getTranslation("admin.gwsockets_required", "GWSockets is missing or could not be loaded. This library is mandatory: all connected Gmod Integration features are unavailable without it."), color = Color(228, 81, 81) },
+        { text = "\n" .. gmInte.getTranslation("admin.gwsockets_installation", "Install the GWSockets server binary matching the server's operating system and architecture in garrysmod/lua/bin, then fully stop and restart the server. A map change is not enough."), color = Color(255, 255, 255) },
+        { text = "\nhttps://docs.gmod-integration.com/getting-started/installation#dll", color = Color(255, 255, 255) },
+    }, ply)
 end
 
 function gmInte.publicGetConfig(ply)
@@ -176,6 +192,7 @@ function gmInte.publicGetConfig(ply)
         },
         other = { aprovedCredentials = gmInte.aprovedCredentials, version = gmInte.version },
     }, ply)
+    notifyMissingWebsocket(ply)
 end
 
 function gmInte.superadminSetConfig(ply, data)

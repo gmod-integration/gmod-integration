@@ -18,12 +18,21 @@ local stopped = false
 local draining = false
 
 local moduleOK = pcall(require, "gwsockets")
-if !moduleOK || !GWSockets then
-    timer.Simple(1, function()
-        gmInte.logHint("GWSockets is required to connect to Gmod Integration.")
-        gmInte.logHint("Installation guide: https://docs.gmod-integration.com/getting-started/installation#dll")
-    end)
+moduleOK = moduleOK && istable(GWSockets) && isfunction(GWSockets.createWebSocket)
+
+function gmInte.hasWebsocketModule()
+    return moduleOK == true && istable(GWSockets) && isfunction(GWSockets.createWebSocket)
 end
+
+function gmInte.logWebsocketRequirement()
+    if gmInte.hasWebsocketModule() then return false end
+    gmInte.logError(gmInte.getTranslation("admin.gwsockets_required", "GWSockets is missing or could not be loaded. This library is mandatory: all connected Gmod Integration features are unavailable without it."))
+    gmInte.logHint(gmInte.getTranslation("admin.gwsockets_installation", "Install the GWSockets server binary matching the server's operating system and architecture in garrysmod/lua/bin, then fully stop and restart the server. A map change is not enough."))
+    gmInte.logHint("https://docs.gmod-integration.com/getting-started/installation#dll")
+    return true
+end
+
+if !moduleOK then timer.Simple(1, gmInte.logWebsocketRequirement) end
 
 local function call(callback, code, body)
     if !isfunction(callback) then return end
@@ -100,7 +109,7 @@ local function drainQueue()
 end
 
 function gmInte.websocketRequest(params)
-    if !moduleOK || !GWSockets then
+    if !gmInte.hasWebsocketModule() then
         call(params.failed, 503, { error = "gwsockets_required" })
         return false
     end
@@ -195,7 +204,7 @@ local function scheduleRetry()
 end
 
 function gmInte.setupWebSocket()
-    if stopped || !moduleOK || !GWSockets then return false end
+    if stopped || !gmInte.hasWebsocketModule() then return false end
     generation = generation + 1
     local current = generation
     local oldSocket = gmInte.websocket

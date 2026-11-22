@@ -28,6 +28,13 @@ local function respond(ply, id, status, body)
     local result = status >= 200 and status < 300 and { success = true } or {
         error = istable(body) and boundedString(body.error, 256, true) and body.error or "request_failed"
     }
+    if result.success and istable(body) and body.saved == true and isbool(body.discordDelivered) then
+        result.saved = true
+        result.discordDelivered = body.discordDelivered
+        if body.discordDelivered == false and (body.delivery == "not_configured" or body.delivery == "unavailable") then
+            result.delivery = body.delivery
+        end
+    end
     gmInte.SendNet("apiRelayResponse", { id = id, status = status, body = result }, ply)
 end
 

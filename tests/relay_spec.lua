@@ -156,6 +156,29 @@ test("self upload binds server and player identity and waits for acknowledgement
     assert(#messages == 1 and messages[1].data.status == 200 and messages[1].data.body.secret == nil)
 end)
 
+test("screenshot acknowledgements keep only verified storage and Discord delivery outcomes", function()
+    for _, outcome in ipairs({
+        { saved = true, discordDelivered = true },
+        { saved = true, discordDelivered = false, delivery = "not_configured" },
+        { saved = true, discordDelivered = false, delivery = "unavailable" },
+    }) do
+        reset("server")
+        local ply = player()
+        send(ply, chunks("screenshots", image()))
+        outcome.secret = "stored screenshot and credentials must not be echoed"
+        outcome.url = "https://private.example/screenshot"
+        requests[1].success(200, outcome)
+        local body = messages[1].data.body
+        assert(body.success == true and body.saved == true)
+        assert(body.discordDelivered == outcome.discordDelivered and body.delivery == outcome.delivery)
+        assert(body.secret == nil and body.url == nil)
+    end
+    reset("server")
+    send(player(), chunks("screenshots", image()))
+    requests[1].success(200, { saved = true, discordDelivered = false, delivery = "private exception details" })
+    assert(messages[1].data.body.delivery == nil)
+end)
+
 test("unapproved operation and malformed metadata cannot dispatch", function()
     reset("server")
     local ply = player()

@@ -19,7 +19,7 @@ return {
   ["admin.link.open_webpanel"] = "Web Panelini Aç",
   ["admin.link.test_connection"] = "Bağlantıyı Test Et",
   ["admin.link.buy_premium"] = "Premium Satın Al",
-  ["admin.link.install_websocket"] = "Websocket Kur",
+  ["admin.link.install_websocket"] = "GWSockets yükle (zorunlu)",
   ["admin.websocket_required"] = "\n\nBu özellik düzgün çalışması için bir websocket bağlantısı gerektirir.",
   ["admin.feature_soon"] = "\n\nBu özellik yakında kullanılabilir olacak.",
   ["admin.enabled"] = "Etkin",
@@ -74,6 +74,10 @@ return {
   ["chat.server_link"] = ", sunucu {1} olarak bağlandı.",
   ["chat.server_fail"] = ", ID ve Token'ınızı kontrol edin.",
   ["chat.error.screenshot_failed"] = "Ekran görüntüsü alınamadı, sistemizin bu özelliği desteklemiyor olabilir.",
+  ["chat.screenshot.saved_no_channel"] = "Ekran görüntüsü web paneline kaydedildi. Ekran görüntüleri için Discord kanalı yapılandırılmamış.",
+  ["chat.screenshot.discord_unconfirmed"] = "Ekran görüntüsü web paneline kaydedildi ancak Discord’a teslim edildiği doğrulanamadı.",
+  ["chat.screenshot.send_failed"] = "Ekran görüntüsünün gönderildiği doğrulanamadı. Sunucu bağlantısını kontrol edip tekrar deneyin.",
+  ["chat.relay_failed"] = "Sohbet aktarıcısı Discord’a teslimi doğrulayamadı. Sunucu konsolunu ve aktarıcı ayarlarını kontrol edin.",
   ["chat.screenshot.sent"] = "Ekran görüntüsü Discord'a gönderildi.",
   ["report_bug.description.full"] = "Merhaba, bu sunucunun sahiplerine bir hata raporu göndermek üzeresiniz.\nLütfen sorunu düzeltmemize yardımcı olmak için mümkün olduğunca fazla bilgi sağlayın.\nSunucuyu geliştirmemize yardımcı olduğunuz için teşekkür ederiz.\n\nGmod Integration ile ilgili bir sorununuz varsa, lütfen discord sunucumuzu kullanın.",
   ["report_bug.context_menu.screen_capture"] = "Hata raporunda kullanmak için ekran görüntüsünü almak için bağlam menüsünü kapatın.",
@@ -106,6 +110,6 @@ return {
   ["verification.family_sharing_description"] = "Aile paylaşımı yapan oyuncuları engelle.",
   ["admin.config_disabled_description"] = "Varsayılan sv_config.lua dosyası düzenlendiği için yapılandırma devre dışı bırakıldı.\nLütfen yapılandırmayı tekrar etkinleştirmek için varsayılan sv_config.lua dosyasını geri yükleyin.",
   ["admin.config_disabled"] = "Yapılandırma Devre Dışı",
-  ["admin.dll_install_problem"] = "Gmod Integration DLL dosyası eksik!\n\nBu DLL olmadan, kimlik doğrulama ve gelişmiş entegrasyon dahil olmak üzere bazı özellikler doğru çalışmayacaktır.",
-  ["admin.dll_install_description"] = "Kurulum:\n1. '{2}' adresinden 'gmsv_gmod_integration_loader_{1}.dll' dosyasını indirin\n2. 'garrysmod/lua/bin' klasörüne taşıyın.\n3. Sunucunuzu yeniden başlatın."
+  ["admin.gwsockets_required"] = "GWSockets eksik veya yüklenemedi. Bu kütüphane zorunludur: GWSockets olmadan Gmod Integration bağlantılı özelliklerinin hiçbiri kullanılamaz.",
+  ["admin.gwsockets_installation"] = "Sunucunun işletim sistemine ve mimarisine uygun GWSockets sunucu modülünü garrysmod/lua/bin dizinine yükleyin, ardından sunucuyu tamamen durdurup yeniden başlatın. Harita değiştirmek yeterli değildir."
 }

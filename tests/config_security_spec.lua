@@ -35,6 +35,8 @@ local function reset()
     istable = function(value) return type(value) == "table" end
     isnumber = function(value) return type(value) == "number" end
     isbool = function(value) return type(value) == "boolean" end
+    isfunction = function(value) return type(value) == "function" end
+    Color = function(r, g, b) return { r = r, g = g, b = b, a = 255 } end
     IsValid = function(value) return value and value.valid == true end
     CurTime = function() return now end
     FindMetaTable = function() return playerMeta end
@@ -73,7 +75,7 @@ local function reset()
         for _, value in ipairs({ ... }) do values[#values + 1] = tostring(value) end
         console[#console + 1] = table.concat(values, " ")
     end
-    GWSockets = {}
+    GWSockets = { createWebSocket = function() end }
     gmInte = {
         config = {}, useDataConfig = true, version = "5.2.8", aprovedCredentials = true,
         api = {
@@ -81,6 +83,9 @@ local function reset()
             post = function(endpoint, body, success, failed) requests[#requests + 1] = { endpoint = endpoint, body = copy(body), success = success, failed = failed } end,
         },
         loadTranslations = function() end,
+        getTranslation = function(_, fallback) return fallback end,
+        hasWebsocketModule = function() return istable(GWSockets) and isfunction(GWSockets.createWebSocket) end,
+        logWebsocketRequirement = function() return not gmInte.hasWebsocketModule() end,
         log = function(message) logs[#logs + 1] = message end,
         logWarning = function(message) logs[#logs + 1] = message end,
         logError = function(message) logs[#logs + 1] = message end,
@@ -163,6 +168,46 @@ test("console configuration display and snapshot construction never mutate or pr
     assert(gmInte.config.token == credential)
     gmInte.config.token = ""
     assert(gmInte.getConfigSnapshot().tokenConfigured == false and gmInte.getConfigSnapshot().token == nil)
+end)
+
+test("missing library warnings reach only administrators once while local configuration remains usable", function()
+    reset()
+    GWSockets = nil
+    gmInte.aprovedCredentials = false
+    local admin, ordinary = player("superadmin"), player("user")
+    gmInte.publicGetConfig(ordinary)
+    gmInte.publicGetConfig(admin)
+    gmInte.publicGetConfig(admin)
+    assert(#sent == 4 and sent[1].id == "publicConfig" and sent[1].ply == ordinary)
+    assert(sent[3].id == "chatColorMessage" and sent[3].ply == admin)
+    assert(sent[3].data[1].text:find("mandatory", 1, true))
+    assert(sent[3].data[2].text:find("garrysmod/lua/bin", 1, true))
+    assert(sent[3].data[2].text:find("fully stop and restart", 1, true))
+    assert(gmInte.getConfigSnapshot().websocket == false)
+    receive("getConfig", {}, admin)
+    assert(sent[5].id == "adminConfig" and sent[5].data.websocket == false)
+    assert(gmInte.saveSetting("debug", false) and #writes == 1 and #requests == 0)
+    gmInte.tryConfig()
+    assert(#requests == 0)
+    commands.gmi(admin, "gmi", { "help" })
+    assert(table.concat(console):find("Missing or failed to load (required)", 1, true))
+    noCredential(console)
+    noCredential(sent)
+end)
+
+test("connection diagnostics distinguish an unavailable library from invalid credentials", function()
+    reset()
+    local admin, ordinary = player("superadmin"), player("user")
+    GWSockets = {}
+    gmInte.testConnection(ordinary)
+    gmInte.testConnection(admin)
+    assert(#requests == 0 and #sent == 1)
+    assert(sent[1].ply == admin and sent[1].data.error == "gwsockets_required")
+    assert(gmInte.getConfigSnapshot().websocket == false)
+    GWSockets.createWebSocket = function() end
+    gmInte.testConnection(admin)
+    assert(#requests == 1 and gmInte.getConfigSnapshot().websocket == true)
+    noCredential(sent)
 end)
 
 test("an authorized replacement remains in server persistence and is not echoed to players or remote settings", function()

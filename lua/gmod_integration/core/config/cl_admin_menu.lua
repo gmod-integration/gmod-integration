@@ -273,6 +273,7 @@ function gmInte.openConfigMenu(data)
         },
         {
             ["label"] = gmInte.getTranslation("admin.link.test_connection", "Test Connection"),
+            ["enabled"] = function(data) return data.websocket == true end,
             ["func"] = function() gmInte.SendNet("testConnection") end,
         },
         {
@@ -280,7 +281,7 @@ function gmInte.openConfigMenu(data)
             ["func"] = function() gui.OpenURL("https://gmod-integration.com/premium") end,
         },
         {
-            ["label"] = gmInte.getTranslation("admin.link.install_websocket", "Install Websocket"),
+            ["label"] = gmInte.getTranslation("admin.link.install_websocket", "Install GWSockets (required)"),
             ["condition"] = function(data) return !data.websocket end,
             ["func"] = function() gui.OpenURL("https://github.com/FredyH/GWSockets/releases") end,
         },
@@ -299,6 +300,15 @@ function gmInte.openConfigMenu(data)
     gmInte.applyPaint(frame)
     local scrollPanel = vgui.Create("DScrollPanel", frame)
     scrollPanel:Dock(FILL)
+    if data.websocket == false then
+        local requirement = vgui.Create("DLabel", scrollPanel)
+        requirement:Dock(TOP)
+        requirement:DockMargin(10, 8, 10, 16)
+        requirement:SetTextColor(Color(255, 130, 92))
+        requirement:SetWrap(true)
+        requirement:SetAutoStretchVertical(true)
+        requirement:SetText(gmInte.getTranslation("admin.gwsockets_required", "GWSockets is missing or could not be loaded. This library is mandatory: all connected Gmod Integration features are unavailable without it.") .. "\n\n" .. gmInte.getTranslation("admin.gwsockets_installation", "Install the GWSockets server binary matching the server's operating system and architecture in garrysmod/lua/bin, then fully stop and restart the server. A map change is not enough."))
+    end
     local messagePanel = vgui.Create("DPanel", scrollPanel)
     messagePanel:Dock(TOP)
     messagePanel:SetSize(300, 80)
@@ -431,6 +441,7 @@ function gmInte.openConfigMenu(data)
         if v.condition && !v.condition(data) then continue end
         local button = vgui.Create("DButton")
         button:SetText(v.label)
+        if v.enabled then button:SetEnabled(v.enabled(data)) end
         button.DoClick = function() v.func(data) end
         gmInte.applyPaint(button)
         button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight() - 10)
@@ -459,6 +470,10 @@ function gmInte.openAdminConfig()
 end
 
 function gmInte.showTestConnection(data)
+    if data && data.error == "gwsockets_required" then
+        gmInte.chatAddText(Color(228, 81, 81), gmInte.getTranslation("admin.gwsockets_required", "GWSockets is missing or could not be loaded. This library is mandatory: all connected Gmod Integration features are unavailable without it."))
+        return
+    end
     if data && data.id then
         gmInte.chatAddText(Color(89, 194, 89), gmInte.getTranslation("chat.authentication_success", "Successfully Authenticated"), Color(255, 255, 255), gmInte.getTranslation("chat.server_link", ", server linked as {1}.", data.name))
     else

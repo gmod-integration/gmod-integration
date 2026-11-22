@@ -20,7 +20,7 @@ return {
 	["admin.link.open_webpanel"] = "Open Webpanel",
 	["admin.link.test_connection"] = "Test Connection",
 	["admin.link.buy_premium"] = "Buy Premium",
-	["admin.link.install_websocket"] = "Install Websocket",
+	["admin.link.install_websocket"] = "Install GWSockets (required)",
 	["admin.websocket_required"] = "\n\nThis feature require a websocket connection to work properly.",
 	["admin.feature_soon"] = "\n\nThis feature will be available soon.",
 	["admin.enabled"] = "Enabled",
@@ -77,6 +77,10 @@ return {
 	["chat.server_link"] = ", server linked as {1}.",
 	["chat.server_fail"] = ", check your ID and Token.",
 	["chat.error.screenshot_failed"] = "Failed to take screenshot, your system may not support this feature.",
+	["chat.screenshot.saved_no_channel"] = "Screenshot saved in the web panel. No Discord screenshot channel is configured.",
+	["chat.screenshot.discord_unconfirmed"] = "Screenshot saved in the web panel, but delivery to Discord could not be confirmed.",
+	["chat.screenshot.send_failed"] = "The screenshot could not be sent or confirmed. Check the server connection and try again.",
+	["chat.relay_failed"] = "The chat relay could not confirm delivery to Discord. Check the server console and relay configuration.",
 	["chat.screenshot.sent"] = "Screenshot sent to Discord.",
 	["chat.screenshot.close_menus"] = "Screenshot queued. Close the console and game menus to take it.",
 	["chat.screenshot.shorter_title"] = "Please use a shorter screenshot title.",
@@ -111,6 +115,6 @@ return {
 	["verification.family_shariverifyFamilySharing_descriptionng"] = "Block family sharing players.",
 	["admin.config_disabled_description"] = "The config has been disabled because the default sv_config.lua has been edited.\nPlease restore the default sv_config.lua to enable the config again.",
 	["admin.config_disabled"] = "Config Disabled",
-	["admin.dll_install_problem"] = "The Gmod Integration DLL is missing!\n\nWithout this DLL, some features will not work correctly, including authentication and advanced integration.",
-	["admin.dll_install_description"] = "Install:\n1. Download 'gmsv_gmod_integration_loader_{1}.dll' from: {2}\n2. Move it to the 'garrysmod/lua/bin' folder.\n3. Restart your server."
+	["admin.gwsockets_required"] = "GWSockets is missing or could not be loaded. This library is mandatory: all connected Gmod Integration features are unavailable without it.",
+	["admin.gwsockets_installation"] = "Install the GWSockets server binary matching the server's operating system and architecture in garrysmod/lua/bin, then fully stop and restart the server. A map change is not enough."
 }

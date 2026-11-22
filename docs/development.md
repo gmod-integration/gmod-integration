@@ -9,11 +9,13 @@ A realistic development environment needs:
 - a Garry's Mod dedicated server;
 - the addon mounted below `garrysmod/addons/gmod-integration`;
 - valid test credentials for connected flows;
-- `gwsockets` when testing WebSocket behavior;
+- the mandatory `gwsockets` server module for all connected flows;
 - test clients for client UI and net flows;
 - optional addons only for the integration being exercised.
 
 Never use production credentials for malformed-input, RCON, Lua runner, ban, kick, or rank synchronization tests.
+
+Install the GWSockets binary matching the dedicated server's operating system and process architecture in `garrysmod/lua/bin/`, then fully stop and start the server. A map change or player reconnection does not load a newly installed native module. Missing-module regression tests intentionally omit it: expect explicit administrator guidance, available local configuration and rejected connected operations, with no HTTP fallback.
 
 ## Adding or changing a file
 

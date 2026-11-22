@@ -63,6 +63,12 @@ Player screenshot/report/error -> compressed chunks over Garry's Mod net
                                -> same authenticated WebSocket
 ```
 
+Screenshot acknowledgements separately confirm storage (`saved`) and Discord publication
+(`discordDelivered`). The relay forwards only these booleans and fixed delivery reasons; images,
+stored records and credentials stay server-side. A Discord failure keeps the saved capture and
+shows an explicit player notice. Failed chat deliveries produce bounded administrator diagnostics.
+Neither path automatically replays an uncertain Discord publication.
+
 The façade retains local endpoint names and resolves `:serverID` (and client-side `:steamID64`). These
 are dispatch keys, not HTTP calls. Only `addon.ready` protocol 1 confirms the connection; TCP open is
 insufficient. At most four requests are in flight and 128 requests / 24 MiB are buffered. Requests

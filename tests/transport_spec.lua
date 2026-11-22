@@ -12,7 +12,7 @@ end
 
 local function reset(options)
     options = options or {}
-    clock, timers, sockets, serialized, serial, observations = 0, {}, {}, {}, 0, {}
+    clock, timers, sockets, serialized, serial, observations = 0, {}, {}, {}, 0, { deferred = {}, errors = {}, hints = {} }
     SERVER, CLIENT = true, false
     isstring = function(value) return type(value) == 'string' end
     istable = function(value) return type(value) == 'table' end
@@ -37,7 +37,7 @@ local function reset(options)
     }
     timer = {
         Create = function(id, _, _, callback) timers[id] = callback end,
-        Simple = function() end,
+        Simple = function(_, callback) observations.deferred[#observations.deferred + 1] = callback end,
     }
     util = {
         TableToJSON = function(value)
@@ -58,7 +58,10 @@ local function reset(options)
     end }
     gmInte = {
         config = {}, version = '5.2.8', previusVersion = '5.2.8', useDataConfig = true,
-        log = function() end, logWarning = function() end, logError = function() end, logHint = function() end,
+        log = function() end, logWarning = function() end,
+        logError = function(message) observations.errors[#observations.errors + 1] = message end,
+        logHint = function(message) observations.hints[#observations.hints + 1] = message end,
+        getTranslation = function(_, fallback) return fallback end,
         loadTranslations = function() end,
         compareVersion = function() return 0 end,
         SendNet = function(id, data) observations.net = { id = id, data = data } end,
@@ -86,7 +89,9 @@ local function reset(options)
             return socket
         end,
     }
-    require = function() if options.noModule then error('module absent') end end
+    if options.noModule then GWSockets = nil end
+    if options.invalidModule then GWSockets.createWebSocket = nil end
+    require = function() if options.noModule or options.loadFailure then error('private binary loader failure') end end
     originalLoad('lua/gmod_integration/core/api/sh_api.lua')
     originalLoad('lua/gmod_integration/core/api/sv_websocket.lua')
     local playerMeta = {}
@@ -173,6 +178,29 @@ test('rejects missing binary and missing credentials without HTTP fallback', fun
     gmInte.config.token = ''
     assert(gmInte.api.get('/servers/:serverID', nil, function(code) status = code end) == false)
     assert(status == 401)
+end)
+
+test('treats absent, failed and incompatible GWSockets modules as a required dependency', function()
+    for _, options in ipairs({ { noModule = true }, { loadFailure = true }, { invalidModule = true } }) do
+        reset(options)
+        assert(gmInte.hasWebsocketModule() == false)
+        local failure
+        assert(gmInte.api.get('/servers/:serverID', nil, function(code, body) failure = { code, body } end) == false)
+        assert(failure[1] == 503 and failure[2].error == 'gwsockets_required')
+        assert(gmInte.setupWebSocket() == false and #sockets == 0)
+        assert(#observations.deferred == 1)
+        observations.deferred[1]()
+        assert(#observations.errors == 1 and observations.errors[1]:find('mandatory', 1, true))
+        assert(observations.errors[1]:find('all connected', 1, true))
+        assert(observations.hints[1]:find('garrysmod/lua/bin', 1, true))
+        assert(observations.hints[1]:find('fully stop and restart', 1, true))
+        assert(observations.hints[2]:find('installation#dll', 1, true))
+        local output = table.concat(observations.errors) .. table.concat(observations.hints)
+        assert(not output:find('private binary loader failure', 1, true) and not output:find('secret-token', 1, true))
+    end
+    reset()
+    assert(gmInte.hasWebsocketModule() == true and gmInte.logWebsocketRequirement() == false)
+    assert(#observations.deferred == 0 and #observations.errors == 0 and #observations.hints == 0)
 end)
 
 test('expires queued requests and bounds the queue count', function()
