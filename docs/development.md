@@ -72,6 +72,12 @@ Keep the token control write-only and use `tokenConfigured` for its saved state.
 configuration table directly. Connection tests must project their response and revalidate the recipient's
 permission after asynchronous work. A client-provided rank or identity is never an authorization input.
 
+The administrative panel refreshes Premium entitlement from server metadata when opening. Preserve
+the distinction between a confirmed free server (`premium = false`) and unknown entitlement; only the
+former shows the purchase action. The install-GWSockets action is shown only for a confirmed missing
+module (`websocket = false`), even when a loaded module's connection is currently offline. Verify that
+late metadata replies cannot reopen a panel for a revoked administrator or cross a credential change.
+
 ## Translations
 
 English is the fallback table. New user-facing text should use a stable namespaced key and provide an English fallback at the call site. Update `sh_en.lua` first, then keep all language tables aligned. Placeholder forms such as `{1}` and `{2}` must remain consistent between languages.
@@ -148,6 +154,7 @@ then record each result separately; a configured destination or an online socket
 | Disconnect and reconnect | Interrupt only the test connection, restore it, and wait for protocol readiness. Confirm future requests work and an already-sent uncertain mutation is not automatically replayed. |
 | Map change and restart | In an agreed interruption window, change map and restart the dedicated server separately. Verify saved settings, one connection and one copy of each hook/relay afterward. |
 | Missing GWSockets | On a separate stopped test installation, omit the binary and start it. Administrators must see dependency guidance; connected operations fail explicitly and local configuration remains usable. |
+| Administrative panel actions | With GWSockets loaded, verify the installation action is absent even if the connection is offline. Confirm the purchase action is absent for a Premium server, visible for a confirmed free server, and absent when entitlement cannot be loaded. Reopen after a Premium change and verify the current entitlement. |
 
 Record blocked or unobserved cases as pending, including those requiring a connected player or an
 agreed interruption. Keep account identifiers, report text, captures and diagnostics private.

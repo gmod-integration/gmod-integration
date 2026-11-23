@@ -114,6 +114,15 @@ Defaults originate in `sv_default_config.lua`. Runtime values are persisted unde
 shown as an active connection setting. Config saves and reconnect synchronization are serialized;
 stale replies cannot replace newer local edits.
 
+Opening the administrative panel refreshes the server's Premium status through the existing
+authenticated server-metadata request. Only its boolean entitlement is added to the administrative
+snapshot; it is neither editable nor persisted as addon configuration. The buy-Premium action appears
+only for a confirmed free server. Unknown metadata, an offline connection or a failed lookup does not
+show an upgrade prompt, while local configuration remains available. The GWSockets installation action
+depends on the server module being loaded, independently of whether its WebSocket is connected.
+Metadata callbacks recheck the recipient's permission and discard superseded replies or replies from
+an older server identity, credential or connection generation.
+
 ## External dependencies and compatibility
 
 - Garry's Mod dedicated server APIs and GLua are required.

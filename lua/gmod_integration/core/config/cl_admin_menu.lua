@@ -278,11 +278,12 @@ function gmInte.openConfigMenu(data)
         },
         {
             ["label"] = gmInte.getTranslation("admin.link.buy_premium", "Buy Premium"),
+            ["condition"] = function(data) return data.premium == false end,
             ["func"] = function() gui.OpenURL("https://gmod-integration.com/premium") end,
         },
         {
             ["label"] = gmInte.getTranslation("admin.link.install_websocket", "Install GWSockets (required)"),
-            ["condition"] = function(data) return !data.websocket end,
+            ["condition"] = function(data) return data.websocket == false end,
             ["func"] = function() gui.OpenURL("https://github.com/FredyH/GWSockets/releases") end,
         },
     }

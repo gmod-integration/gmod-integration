@@ -2,7 +2,7 @@
 -- All credentials and players below are synthetic; no Garry's Mod service is contacted.
 local passes, failures = 0, {}
 local playerMeta, players, commands, requests, sent, writes, logs, console, printedTables
-local receiver, strings, position, now, encodedValues
+local receiver, strings, position, now, encodedValues, hooks
 local credential = "fixture-server-credential-keep-private"
 
 local function copy(value)
@@ -30,7 +30,7 @@ end
 local function reset()
     SERVER, CLIENT = true, false
     players, commands, requests, sent, writes, logs, console, printedTables = {}, {}, {}, {}, {}, {}, {}, {}
-    strings, position, now, encodedValues = {}, 0, 100, {}
+    strings, position, now, encodedValues, hooks = {}, 0, 100, {}, {}
     isstring = function(value) return type(value) == "string" end
     istable = function(value) return type(value) == "table" end
     isnumber = function(value) return type(value) == "number" end
@@ -63,7 +63,13 @@ local function reset()
         Send = function(ply) sent[#sent + 1] = { id = strings.out[1], data = util.JSONToTable(strings.out[2]), ply = ply } end,
         Broadcast = function() error("Configuration must never broadcast an unprojected payload") end,
     }
-    hook = { Add = function() end, Run = function() end }
+    hook = {
+        Add = function(event, id, callback)
+            hooks[event] = hooks[event] or {}
+            hooks[event][id] = callback
+        end,
+        Run = function() end,
+    }
     timer = { Simple = function(_, callback) callback() end, Create = function() end }
     file = { Write = function(path, contents) writes[#writes + 1] = { path = path, contents = contents } end }
     _G.player = { GetAll = function() return players end }
@@ -148,16 +154,124 @@ test("public and administrator snapshots expose configuration state without cred
     gmInte.config.futureSecret = "fixture-unknown-private-record"
     gmInte.publicGetConfig(ordinary)
     receive("getConfig", {}, admin)
+    assert(#sent == 1 and #requests == 1)
+    requests[1].success(200, { id = gmInte.config.id, premium = true, token = credential, unknown = "private" })
     assert(#sent == 2 and sent[1].id == "publicConfig" and sent[1].ply == ordinary)
     assert(sent[1].data.config.token == nil and sent[1].data.config.futureSecret == nil)
     local snapshot = sent[2].data
     assert(sent[2].id == "adminConfig" and sent[2].ply == admin)
     assert(snapshot.token == nil and snapshot.futureSecret == nil and snapshot.tokenConfigured == true)
     assert(snapshot.id == gmInte.config.id and snapshot.websocket == true and snapshot.adminRank.superadmin == true)
+    assert(snapshot.premium == true and snapshot.unknown == nil and gmInte.config.premium == nil)
     noCredential(sent)
     snapshot.adminRank.superadmin = false
     assert(gmInte.config.adminRank.superadmin == true)
     assert(gmInte.config.token == credential and gmInte.config.futureSecret == "fixture-unknown-private-record")
+end)
+
+test("administrator snapshots use fresh server metadata for both Premium and free servers", function()
+    reset()
+    local admin = player("superadmin")
+    for index, premium in ipairs({ true, false }) do
+        gmInte.config.premium = not premium
+        receive("getConfig", { premium = not premium }, admin)
+        assert(#requests == index and requests[index].endpoint == "/servers/:serverID")
+        assert(#sent == index - 1)
+        requests[index].success(200, { id = gmInte.config.id, premium = premium, token = credential })
+        assert(#sent == index and sent[index].id == "adminConfig")
+        assert(sent[index].data.premium == premium and sent[index].data.websocket == true)
+        assert(gmInte.config.premium == not premium and #writes == 0)
+    end
+    noCredential(sent)
+end)
+
+test("malformed or mismatched Premium metadata remains unknown without hiding local settings", function()
+    reset()
+    local admin = player("superadmin")
+    gmInte.config.premium = true
+    for index, body in ipairs({
+        false,
+        {},
+        { id = gmInte.config.id },
+        { id = gmInte.config.id, premium = "false" },
+        { id = gmInte.config.id, premium = 1 },
+        { id = "different-server", premium = true },
+    }) do
+        receive("getConfig", {}, admin)
+        requests[index].success(200, body)
+        assert(#sent == index and sent[index].id == "adminConfig")
+        assert(sent[index].data.id == gmInte.config.id and sent[index].data.premium == nil)
+        assert(sent[index].data.tokenConfigured == true and sent[index].data.token == nil)
+    end
+    noCredential(sent)
+end)
+
+test("failed or unavailable metadata preserves local configuration and never assumes a free server", function()
+    reset()
+    local admin = player("superadmin")
+    receive("getConfig", {}, admin)
+    requests[1].failed(503, { error = credential, premium = false })
+    assert(#sent == 1 and sent[1].data.premium == nil and sent[1].data.websocket == true)
+    gmInte.aprovedCredentials = false
+    receive("getConfig", {}, admin)
+    assert(#requests == 1 and #sent == 2)
+    assert(sent[2].data.premium == nil and sent[2].data.websocket == true)
+    GWSockets = nil
+    receive("getConfig", {}, admin)
+    assert(#requests == 1 and #sent == 3)
+    assert(sent[3].data.premium == nil and sent[3].data.websocket == false)
+    noCredential(sent)
+end)
+
+test("administrator metadata callbacks recheck permission, player validity and configuration access", function()
+    reset()
+    local admin = player("superadmin")
+    receive("getConfig", {}, admin)
+    admin.group = "user"
+    requests[1].success(200, { id = gmInte.config.id, premium = true })
+    assert(#sent == 0)
+    admin.group = "superadmin"
+    receive("getConfig", {}, admin)
+    admin.valid = false
+    requests[2].failed(503, {})
+    assert(#sent == 0)
+    admin.valid = true
+    receive("getConfig", {}, admin)
+    gmInte.useDataConfig = false
+    requests[3].success(200, { id = gmInte.config.id, premium = false })
+    assert(#sent == 1 and sent[1].id == "notEditableConfig")
+    noCredential(sent)
+end)
+
+test("a superseded metadata reply cannot override the most recent administrator snapshot", function()
+    reset()
+    local admin = player("superadmin")
+    receive("getConfig", {}, admin)
+    receive("getConfig", {}, admin)
+    requests[1].success(200, { id = gmInte.config.id, premium = false })
+    assert(#sent == 0)
+    requests[2].success(200, { id = gmInte.config.id, premium = true })
+    assert(#sent == 1 and sent[1].data.premium == true)
+    requests[1].failed(503, {})
+    requests[2].success(200, { id = gmInte.config.id, premium = false })
+    assert(#sent == 1)
+end)
+
+test("stale metadata is discarded after a server, credential or connection generation change", function()
+    for _, change in ipairs({ "id", "token", "generation" }) do
+        reset()
+        local admin = player("superadmin")
+        local requestedID = gmInte.config.id
+        receive("getConfig", {}, admin)
+        if change == "generation" then
+            hooks["GmodIntegration:Websocket:Restart"]["gmInte:WebSocket:InvalidateConfig"]()
+        else
+            gmInte.config[change] = "replacement-context"
+        end
+        requests[1].success(200, { id = requestedID, premium = true, token = credential })
+        assert(#sent == 0 and #writes == 0)
+        noCredential(logs)
+    end
 end)
 
 test("console configuration display and snapshot construction never mutate or print the stored token", function()

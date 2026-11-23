@@ -171,7 +171,7 @@ function gmInte.testConnection(ply)
     gmInte.api.get("/servers/:serverID", function(_, body) reply(body) end, function() reply(nil) end)
 end
 
-function gmInte.getConfigSnapshot()
+function gmInte.getConfigSnapshot(premium)
     local settings = {}
     for setting, value in pairs(gmInte.config) do
         local valid, normalized = normalizeSetting(setting, value)
@@ -179,16 +179,34 @@ function gmInte.getConfigSnapshot()
     end
     settings.tokenConfigured = isstring(gmInte.config.token) && gmInte.config.token != ""
     settings.websocket = gmInte.hasWebsocketModule()
+    if isbool(premium) then settings.premium = premium end
     return settings
 end
 
+local adminConfigRequests = setmetatable({}, { __mode = "k" })
 function gmInte.superadminGetConfig(ply)
     if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
     if !gmInte.useDataConfig then
         gmInte.SendNet("notEditableConfig", {}, ply)
         return
     end
-    gmInte.SendNet("adminConfig", gmInte.getConfigSnapshot(), ply)
+    local request = { id = gmInte.config.id, token = gmInte.config.token, generation = configGeneration }
+    adminConfigRequests[ply] = request
+    local function reply(body)
+        if adminConfigRequests[ply] != request then return end
+        adminConfigRequests[ply] = nil
+        if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
+        if request.id != gmInte.config.id || request.token != gmInte.config.token || request.generation != configGeneration then return end
+        if !gmInte.useDataConfig then
+            gmInte.SendNet("notEditableConfig", {}, ply)
+            return
+        end
+        local premium
+        if istable(body) && body.id == request.id && isbool(body.premium) then premium = body.premium end
+        gmInte.SendNet("adminConfig", gmInte.getConfigSnapshot(premium), ply)
+    end
+    if !gmInte.hasWebsocketModule() || !gmInte.aprovedCredentials then reply(nil) return end
+    gmInte.api.get("/servers/:serverID", function(_, body) reply(body) end, function() reply(nil) end)
 end
 
 local dependencyWarnings = setmetatable({}, { __mode = "k" })
