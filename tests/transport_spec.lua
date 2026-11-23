@@ -343,6 +343,35 @@ test('rejects unknown and malformed remote commands before existing handlers', f
     assert(calls == 1)
 end)
 
+test('accepts only authenticated bounded access-refresh invalidations without supplied grants', function()
+    gmInte.setupWebSocket()
+    local socket = sockets[1]
+    local calls = {}
+    gmInte.wsRefreshPlayerAccess = function(data) calls[#calls + 1] = data end
+    message(socket, { method = 'wsRefreshPlayerAccess' })
+    assert(#calls == 0)
+    ready(socket)
+    for _, packet in ipairs({
+        { method = 'wsRefreshPlayerAccess', steamID = false },
+        { method = 'wsRefreshPlayerAccess', steamID = 76561198000000001 },
+        { method = 'wsRefreshPlayerAccess', steamID = '' },
+        { method = 'wsRefreshPlayerAccess', steamID = '7656119800000000' },
+        { method = 'wsRefreshPlayerAccess', steamID = '765611980000000010' },
+        { method = 'wsRefreshPlayerAccess', steamID = '7656119800000000x' },
+        { method = 'wsRefreshPlayerAccess', steamID = string.rep('1', 1024) },
+        { method = 'wsRefreshPlayerAccess', bypassMaintenance = true },
+        { method = 'wsRefreshPlayerAccess', steamID = '76561198000000001', access = true },
+    }) do message(socket, packet) end
+    assert(#calls == 0)
+    message(socket, { method = 'wsRefreshPlayerAccess', steamID = '76561198000000001' })
+    message(socket, { method = 'wsRefreshPlayerAccess' })
+    message(socket, { method = 'wsRefreshPlayerAccess' })
+    assert(#calls == 3 and calls[1].steamID == '76561198000000001' and calls[2].steamID == nil)
+    socket:onDisconnected()
+    message(socket, { method = 'wsRefreshPlayerAccess' })
+    assert(#calls == 3)
+end)
+
 local function rconPacket(changes)
     local packet = { method = 'wsAuthorizedRcon', command = 'status', steamID = '76561198000000001', requestID = '3a918b48-ff6f-4ed4-b2b9-f4b722840f04', expiresAt = os.time() * 1000 + 5000 }
     for key, value in pairs(changes or {}) do packet[key] = value end

@@ -39,6 +39,7 @@ local function reset()
     Color = function(r, g, b) return { r = r, g = g, b = b, a = 255 } end
     IsValid = function(value) return value and value.valid == true end
     CurTime = function() return now end
+    SysTime = function() return now end
     FindMetaTable = function() return playerMeta end
     playerMeta = {
         IsPlayer = function() return true end,
@@ -63,7 +64,7 @@ local function reset()
         Broadcast = function() error("Configuration must never broadcast an unprojected payload") end,
     }
     hook = { Add = function() end, Run = function() end }
-    timer = { Simple = function(_, callback) callback() end }
+    timer = { Simple = function(_, callback) callback() end, Create = function() end }
     file = { Write = function(path, contents) writes[#writes + 1] = { path = path, contents = contents } end }
     _G.player = { GetAll = function() return players end }
     game = { GetMap = function() return "test_map" end }

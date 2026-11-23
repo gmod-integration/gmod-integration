@@ -124,8 +124,8 @@ function gmInte.openConfigMenu(data)
         },
         -- {
         --     ["id"] = "maintenance",
-        --     ["label"] = gmInte.getTranslation("admin.maintenance", "Maintenance"),
-        --     ["description"] = gmInte.getTranslation("admin.maintenance_description", "Activate or deactivate maintenance mode."),
+        --     ["label"] = gmInte.getTranslation("admin.maintenance", "Whitelist mode"),
+        --     ["description"] = gmInte.getTranslation("admin.maintenance_description", "Enable or disable whitelist mode."),
         --     ["type"] = "checkbox",
         --     ["value"] = function(setting, value) return value end,
         --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,

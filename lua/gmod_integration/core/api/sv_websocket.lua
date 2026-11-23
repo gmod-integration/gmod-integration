@@ -150,6 +150,15 @@ end
 
 -- Only these existing privileged entry points may be called by the authenticated service.
 local commands = {
+    wsRefreshPlayerAccess = {
+        validate = function(data)
+            for key in pairs(data) do
+                if key != "method" && key != "steamID" then return false end
+            end
+            return data.steamID == nil || steamID64(data.steamID)
+        end,
+        run = function(data) gmInte.wsRefreshPlayerAccess(data) end,
+    },
     wsEditSetting = {
         validate = function(data)
             return shortString(data.setting, 96) && isfunction(gmInte.validateRemoteSetting) && gmInte.validateRemoteSetting(data.setting, data.value)

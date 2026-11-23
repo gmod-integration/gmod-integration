@@ -43,7 +43,7 @@ Renaming a file can therefore alter runtime behavior even when its contents do n
 
 - Server lifecycle and player telemetry: `server_status`, `players_logs`, `console_live_exporter`.
 - Discord/server synchronization: chat, bans, kicks, names, usergroups, and AWarn3 warnings.
-- Access controls: branch, linked-account, ban, Discord-ban, whitelist, and maintenance filters.
+- Access controls: branch, linked-account, ban, Discord-ban and whitelist filters.
 - Client tools: screenshots, bug reports, and Lua error reports.
 - Remote administration: console commands and server Lua execution.
 - Economy integrations: DarkRP, CH ATM, and GlorifiedBanking event trackers.
@@ -132,6 +132,37 @@ deadline starts with the first challenge and is not reset by refresh requests; a
 block without kicking. Enabling the option also checks existing ready players on the next sweep.
 Disabling it releases the account-verification block and invalidates pending callbacks. Disconnects
 remove queued work. A successful account check does not release a separate wrong-branch block.
+
+## Whitelist mode
+
+The persisted `maintenance` setting now appears as **Whitelist mode**. Manual whitelist access and the
+configured Discord whitelist role grant the same admission permission; the role grant is evaluated
+fresh and does not overwrite the manual setting. Configured in-game administrator groups retain
+their existing exemption.
+
+Every connection requests fresh access after `PlayerInitialSpawn` and a deferred tick, allowing spawn
+hooks to assign the real in-game usergroup first. The `player_connect` event supplies no rank; unknown
+groups and pre-spawn sessions receive no administrator exemption or early access decision. Refresh
+commands and sweeps cannot skip this wait, and a disconnected session's deferred callback is discarded.
+While whitelist mode is enabled the access check uses
+`GET /servers/:serverID/players/STEAM_ID/access`, whose successful response must include boolean
+`bypassMaintenance` and `discordAdmin` fields. With whitelist mode disabled, joins use the existing raw
+player endpoint so ban checks do not depend on Discord availability. New joins fail closed during an
+access-provider outage when whitelist mode is enabled, while local administrators retain their exemption.
+
+The authenticated command `wsRefreshPlayerAccess` accepts only `method` and an optional 17-digit
+`steamID`. Omission refreshes all connected players; the command supplies no access grant. Changes to
+manual access, Discord roles or the configured role invalidate the current answer and request a fresh
+one. Reconnects and whitelist/administrator configuration changes also invalidate pending answers.
+After reconnect, online checks wait for current configuration synchronization; failed or incomplete
+policy snapshots retry after 10 seconds. A reply from an earlier connection or before a newer remote
+edit cannot replace that policy or permit kicks using an old local mode. Confirmed local configuration
+uploads also release this wait.
+A 30-second sweep recovers missed notifications, with at most two online access requests at once.
+An explicit successful denial removes an online player only while whitelist mode is enabled and no
+administrator or whitelist exemption applies. Provider failures and malformed responses retry after
+10 seconds without expelling an already connected player. Per-connection identities and revision checks
+discard late replies after reconnect, disconnect, configuration changes or a newer role notification.
 
 ## Persistence and generated state
 

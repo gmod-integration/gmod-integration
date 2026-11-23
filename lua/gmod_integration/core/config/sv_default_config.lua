@@ -21,11 +21,11 @@ gmInte.config.verifyFamilySharing = false // If true, the addon will verify the 
 gmInte.config.clientBranch = "any" // The branch of the addon that the clients should use (none, dev, prerelease, x86-64)
 // Other
 gmInte.config.supportLink = "" // The link of your support (shown when a player do not have the requiments to join the server)
-gmInte.config.maintenance = false // If true, the addon will only allow the players with the "gmod-integration.maintenance" permission to join the server
+gmInte.config.maintenance = false // Whitelist mode: only players with manual, Discord role or administrator access may join.
 gmInte.config.language = "en" // The language of the addon (en, fr, de, es, it, tr, ru)
 gmInte.config.logTimestamp = "%H:%M:%S" // The timestamp format of the logs
 gmInte.config.adminRank = {
-    // How can edit the configuration of the addon / bypass the maintenance mode
+    // How can edit the configuration of the addon / bypass whitelist mode
     ["superadmin"] = true,
 }
 gmInte.config.upgradeSyncConfig = false // Internal use only, do not change this value

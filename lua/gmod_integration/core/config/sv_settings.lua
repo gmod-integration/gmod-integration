@@ -7,8 +7,23 @@ local localSettings = { id = true, token = true, websocketFQDN = true, apiFQDN =
 local syncing = false
 local configRevision = 0
 local configNeedsSync = false
-local savingConfig = false
+local savingConfig
+local configGeneration = 0
+local configPending = false
+local configRequest
+local configRetryAt
 local languages = { en = true, fr = true, de = true, es = true, it = true, tr = true, ru = true }
+
+local function configSynchronized()
+    if !configPending then return end
+    configPending = false
+    configRetryAt = nil
+    hook.Run("GmodIntegration:Config:Synchronized")
+end
+
+local function retryConfig()
+    if configPending then configRetryAt = SysTime() + 10 end
+end
 
 local function normalizeSetting(setting, value)
     if booleanSettings[setting] then
@@ -74,16 +89,21 @@ end
 local function pushConfig()
     if savingConfig || !gmInte.aprovedCredentials then return end
     local revision = configRevision
-    savingConfig = true
+    local request = { generation = configGeneration }
+    savingConfig = request
     gmInte.api.post("/servers/:serverID/config", syncedSettings(), function()
-        savingConfig = false
+        if savingConfig != request || request.generation != configGeneration then return end
+        savingConfig = nil
         if revision == configRevision then
             configNeedsSync = false
+            configSynchronized()
         else
             pushConfig()
         end
     end, function()
-        savingConfig = false
+        if savingConfig != request || request.generation != configGeneration then return end
+        savingConfig = nil
+        retryConfig()
         gmInte.logWarning("Configuration is saved locally; remote synchronization could not be confirmed", true)
     end)
 end
@@ -119,6 +139,7 @@ function gmInte.saveSetting(setting, value)
         configNeedsSync = true
         pushConfig()
     end
+    hook.Run("GmodIntegration:Config:Changed", setting)
     return true
 end
 
@@ -208,6 +229,8 @@ end
 
 function gmInte.wsEditSetting(data)
     if !istable(data) || !gmInte.validateRemoteSetting(data.setting, data.value) then return end
+    -- A direct remote edit is newer than any reconnect snapshot already in flight.
+    configRevision = configRevision + 1
     syncing = true
     local ok = pcall(gmInte.saveSetting, string.gsub(data.setting, "^ig_", ""), data.value)
     syncing = false
@@ -215,18 +238,39 @@ function gmInte.wsEditSetting(data)
 end
 
 local function syncConfig()
+    if configRequest || !gmInte.aprovedCredentials then return end
+    configRetryAt = nil
     if configNeedsSync then pushConfig() return end
+    local request = { generation = configGeneration, revision = configRevision }
+    configRequest = request
+    local function currentRequest()
+        if configRequest != request || request.generation != configGeneration then return false end
+        configRequest = nil
+        return true
+    end
     if gmInte.compareVersion(gmInte.previusVersion || "0.0.0", "5.2.2") == -1 && !gmInte.config.upgradeSyncConfig then
         gmInte.api.post("/servers/:serverID/config", syncedSettings(), function()
+            if !currentRequest() then return end
             gmInte.config.upgradeSyncConfig = true
             persist()
-        end, function() gmInte.logWarning("Initial configuration synchronization failed", true) end)
+            if request.revision == configRevision then configSynchronized() else pushConfig() end
+        end, function()
+            if !currentRequest() then return end
+            retryConfig()
+            gmInte.logWarning("Initial configuration synchronization failed", true)
+        end)
         return
     end
-    local revision = configRevision
     gmInte.api.get("/servers/:serverID/config", function(_, body)
-        if !istable(body) || revision != configRevision then return end
+        if !currentRequest() then return end
+        if !istable(body) || request.revision != configRevision then retryConfig() return end
         local settings = istable(body.settings) && body.settings || body
+        -- An incomplete policy snapshot cannot authorize kicks after a reconnect.
+        local maintenance = settings.ig_maintenance
+        if maintenance == nil then maintenance = settings.maintenance end
+        local adminRank = settings.ig_adminRank
+        if adminRank == nil then adminRank = settings.adminRank end
+        local policyValid = normalizeSetting("maintenance", maintenance) && normalizeSetting("adminRank", adminRank)
         syncing = true
         local ok = pcall(function()
             for key, value in pairs(settings) do
@@ -237,10 +281,27 @@ local function syncConfig()
         end)
         syncing = false
         if !ok then gmInte.logError("Configuration synchronization failed", true) end
-    end, function() gmInte.logWarning("Remote configuration could not be loaded; local settings are preserved", true) end)
+        if ok && policyValid then configSynchronized() else retryConfig() end
+    end, function()
+        if !currentRequest() then return end
+        retryConfig()
+        gmInte.logWarning("Remote configuration could not be loaded; local settings are preserved", true)
+    end)
+end
+
+local function invalidateConfig()
+    configGeneration = configGeneration + 1
+    configPending = true
+    configRequest, savingConfig, configRetryAt = nil, nil, nil
+    hook.Run("GmodIntegration:Config:Synchronizing")
 end
 
 hook.Add("GmodIntegration:Websocket:Ready", "gmInte:WebSocket:SyncConfig", function()
+    invalidateConfig()
     broadcastPublicConfig()
     syncConfig()
+end)
+hook.Add("GmodIntegration:Websocket:Restart", "gmInte:WebSocket:InvalidateConfig", invalidateConfig)
+timer.Create("gmInte:Config:RetrySync", 1, 0, function()
+    if configPending && configRetryAt && SysTime() >= configRetryAt then syncConfig() end
 end)
