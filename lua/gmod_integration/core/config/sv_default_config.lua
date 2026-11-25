@@ -13,6 +13,7 @@ gmInte.config.filterOnBan = true // If true, the addon will filter the players a
 gmInte.config.redownloadMaterials = false // If true, the addon will redownload the materials of the addon (useful if you have a problem with the materials)
 // Debug & Development
 gmInte.config.debug = false // If true, the addon will show debug informations in the console
+gmInte.config.consoleLiveExporter = false // Runtime-only: leased while an authorized dashboard console is open
 // Security
 gmInte.config.forcePlayerLink = false // If true, the addon will force the players to link their discord account to their steam account before playing
 gmInte.config.verifyOnJoin = false // If true, the addon will verify the players when they join the server or on player ready

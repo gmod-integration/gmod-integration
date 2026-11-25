@@ -17,6 +17,13 @@ local openingAt = nil
 local stopped = false
 local draining = false
 
+local function resetConsoleStream()
+    gmInte.config.consoleLiveExporter = false
+    gmInte.enableConsoleLiveExporter = false
+    if isfunction(gmInte.stopConsoleStream) then gmInte.stopConsoleStream() end
+end
+resetConsoleStream()
+
 local moduleOK = pcall(require, "gwsockets")
 moduleOK = moduleOK && istable(GWSockets) && isfunction(GWSockets.createWebSocket)
 
@@ -83,6 +90,7 @@ local function transmit(request)
         pending[request.id] = nil
         release(request)
         gmInte.aprovedCredentials = false
+        resetConsoleStream()
         pcall(function() gmInte.websocket:close() end)
         call(request.failed, 503, { error = "write_failed", delivery = "uncertain" })
     end
@@ -150,6 +158,10 @@ end
 
 -- Only these existing privileged entry points may be called by the authenticated service.
 local commands = {
+    wsConsoleStream = {
+        validate = function(data) return isfunction(gmInte.validateConsoleStream) && gmInte.validateConsoleStream(data) end,
+        run = function(data) return gmInte.wsConsoleStream(data) end,
+    },
     wsRefreshPlayerAccess = {
         validate = function(data)
             for key in pairs(data) do
@@ -183,6 +195,10 @@ local commands = {
         validate = function(data) return isfunction(gmInte.validateRconCommand) && gmInte.validateRconCommand(data) end,
         run = function(data) return gmInte.wsAuthorizedRcon(data) end,
     },
+    wsPanelRcon = {
+        validate = function(data) return isfunction(gmInte.validatePanelRconCommand) && gmInte.validatePanelRconCommand(data) end,
+        run = function(data) return gmInte.wsPanelRcon(data) end,
+    },
     wsRunLua = {
         validate = function(data) return shortString(data.data, 128 * 1024) && shortString(data.steamID, 128) end,
         run = function(data) gmInte.wsRunLua(data) end,
@@ -201,8 +217,8 @@ local function onRemoteCommand(data)
     end
     local ok, executed, code = pcall(command.run, data)
     if !ok then gmInte.logError("WebSocket command failed", true) end
-    if data.method == "wsAuthorizedRcon" then
-        local result = { action = "addon.command-result", id = data.requestID, method = "wsAuthorizedRcon", ok = ok && executed == true, code = ok && code || "execution_failed" }
+    if data.method == "wsAuthorizedRcon" || data.method == "wsPanelRcon" then
+        local result = { action = "addon.command-result", id = data.requestID, method = data.method, ok = ok && executed == true, code = ok && code || "execution_failed" }
         pcall(function() gmInte.websocket:write(util.TableToJSON(result)) end)
     end
 end
@@ -213,6 +229,7 @@ local function scheduleRetry()
 end
 
 function gmInte.setupWebSocket()
+    resetConsoleStream()
     if stopped || !gmInte.hasWebsocketModule() then return false end
     generation = generation + 1
     local current = generation
@@ -269,6 +286,7 @@ function gmInte.setupWebSocket()
 
     function socket:onDisconnected()
         if current != generation then return end
+        resetConsoleStream()
         gmInte.aprovedCredentials = false
         openingAt = nil
         failPending("connection_lost")
@@ -277,6 +295,7 @@ function gmInte.setupWebSocket()
 
     function socket:onError()
         if current != generation then return end
+        resetConsoleStream()
         gmInte.logError("WebSocket connection failed", true)
         gmInte.aprovedCredentials = false
         openingAt = nil
@@ -286,7 +305,7 @@ function gmInte.setupWebSocket()
 
     function socket:send(method, data, callback)
         -- Compatibility for the existing console exporter; API mutations use correlated requests.
-        if method == "console_live_exporter" && istable(data) && shortString(data.data, 32 * 1024, true) && connected() then
+        if method == "console_live_exporter" && gmInte.config.consoleLiveExporter == true && gmInte.enableConsoleLiveExporter == true && istable(data) && shortString(data.data, 32 * 1024, true) && connected() then
             local sent = pcall(function() self:write(util.TableToJSON({ action = method, data = data })) end)
             if isfunction(callback) then pcall(callback, sent, sent && {} || "write_failed") end
             return sent
@@ -301,6 +320,7 @@ function gmInte.setupWebSocket()
 end
 
 hook.Add("GmodIntegration:Websocket:Restart", "gmInte:WebSocket:Restart", function()
+    resetConsoleStream()
     failPending("credentials_changed")
     clearQueue("credentials_changed")
     retryDelay = 1
@@ -313,6 +333,7 @@ hook.Add("InitPostEntity", "gmInte:ServerReady:WebSocket", function()
 end)
 
 hook.Add("ShutDown", "gmInte:WebSocket:Shutdown", function()
+    resetConsoleStream()
     stopped = true
     clearQueue("server_stopping")
     -- Let lifecycle hooks write their final packet before closing the transport.
@@ -329,6 +350,7 @@ timer.Create("gmInte:WebSocket:CheckConnection", 1, 0, function()
     end
     drainQueue()
     if openingAt && now - openingAt >= 15 then
+        resetConsoleStream()
         openingAt = nil
         generation = generation + 1
         if gmInte.websocket then pcall(function() gmInte.websocket:close() end) end

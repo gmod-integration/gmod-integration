@@ -1,4 +1,5 @@
 return {
+	["rewards.received"] = "Reward received: {1}",
 	["chat.error.rate_limit"] = "This interaction is being rate limited, please try again later.",
 	["verification.title"] = "Verification Required",
 	["verification.open_page"] = "Open Verification Page",

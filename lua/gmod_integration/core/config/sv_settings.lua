@@ -109,7 +109,10 @@ local function pushConfig()
 end
 
 local function persist()
-    file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
+    local saved = {}
+    for key, value in pairs(gmInte.config) do saved[key] = value end
+    saved.consoleLiveExporter = false
+    file.Write("gm_integration/config.json", util.TableToJSON(saved, true))
 end
 
 local function broadcastPublicConfig()

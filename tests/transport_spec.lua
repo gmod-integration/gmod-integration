@@ -52,13 +52,17 @@ local function reset(options)
     file = { Write = function(_, value) observations.persisted = util.JSONToTable(value) end }
     player = { GetAll = function() return {} end, GetBySteamID64 = function() return observations.player end }
     game = { ConsoleCommand = function(command)
+        observations.consoleCalls = (observations.consoleCalls or 0) + 1
         if options.consoleFailure then error('console failure') end
         observations.commands = (observations.commands or 0) + 1
         observations.command = command
     end }
     gmInte = {
         config = {}, version = '5.2.8', previusVersion = '5.2.8', useDataConfig = true,
-        log = function() end, logWarning = function() end,
+        log = function(message)
+            observations.logs = observations.logs or {}
+            observations.logs[#observations.logs + 1] = message
+        end, logWarning = function() end,
         logError = function(message) observations.errors[#observations.errors + 1] = message end,
         logHint = function(message) observations.hints[#observations.hints + 1] = message end,
         getTranslation = function(_, fallback) return fallback end,
@@ -380,6 +384,92 @@ end
 local function onlinePlayer(group)
     observations.player = setmetatable({ group = group, GetUserGroup = function(self) return self.group end }, { __index = observations.playerMeta })
 end
+
+local function panelRconPacket(changes)
+    local packet = { method = 'wsPanelRcon', command = 'status', actorDiscordID = '123456789012345678', requestID = '3a918b48-ff6f-4ed4-b2b9-f4b722840f04', expiresAt = os.time() * 1000 + 5000 }
+    for key, value in pairs(changes or {}) do packet[key] = value end
+    return packet
+end
+
+test('panel RCON executes on an empty server only after authenticated protocol readiness', function()
+    player.GetBySteamID64 = function() error('Panel RCON must not look up a game player') end
+    gmInte.setupWebSocket()
+    local socket = sockets[1]
+    local packet = panelRconPacket({ command = 'echo private-panel-command-value' })
+    message(socket, packet)
+    assert(observations.commands == nil and #socket.writes == 0)
+    ready(socket)
+    message(socket, packet)
+    local ack = util.JSONToTable(socket.writes[#socket.writes])
+    assert(ack.action == 'addon.command-result' and ack.method == 'wsPanelRcon' and ack.id == packet.requestID and ack.ok == true and ack.code == 'executed')
+    assert(observations.commands == 1 and observations.command == packet.command .. '\n')
+    local logs = table.concat(observations.logs or {}, '\n')
+    assert(logs:find(packet.actorDiscordID, 1, true) and not logs:find(packet.command, 1, true))
+    message(socket, packet)
+    assert(observations.commands == 1)
+    socket:onDisconnected()
+    message(socket, panelRconPacket({ requestID = '4a918b48-ff6f-4ed4-b2b9-f4b722840f04' }))
+    assert(observations.commands == 1)
+end)
+
+test('panel RCON does not depend on game administrator groups and Discord still rejects an offline player', function()
+    gmInte.config.adminRank = {}
+    local denied, code = gmInte.wsAuthorizedRcon(rconPacket())
+    assert(denied == false and code == 'permission_denied' and observations.commands == nil)
+    local ok, accepted = gmInte.wsPanelRcon(panelRconPacket({ requestID = '4a918b48-ff6f-4ed4-b2b9-f4b722840f04' }))
+    assert(ok == true and accepted == 'executed' and observations.commands == 1)
+end)
+
+test('panel RCON rejects malformed fields, identities, command bytes and deadlines', function()
+    for _, changes in ipairs({
+        { method = 'wsAuthorizedRcon' }, { actorDiscordID = '' }, { actorDiscordID = 123 },
+        { actorDiscordID = '123456789012345678901' }, { actorDiscordID = 'admin' },
+        { actorDiscordID = '123\n456' }, { requestID = 'bad' }, { command = '' }, { command = ' \t ' },
+        { command = string.rep('x', 8193) }, { command = string.rep('é', 4097) },
+        { command = 'status\nquit' }, { command = 'status\rquit' }, { command = 'status\0quit' },
+        { expiresAt = '1700000005000' }, { expiresAt = 0 / 0 }, { expiresAt = os.time() * 1000 + 5000.5 },
+        { steamID = '76561198000000001' }, { extra = true },
+    }) do
+        assert(gmInte.wsPanelRcon(panelRconPacket(changes)) == false)
+    end
+    assert(gmInte.wsPanelRcon(false) == false and gmInte.wsPanelRcon({}) == false)
+    for _, deadline in ipairs({ os.time() * 1000, os.time() * 1000 + 500, os.time() * 1000 + 10001, math.huge }) do
+        local ok, code = gmInte.wsPanelRcon(panelRconPacket({ expiresAt = deadline }))
+        assert(ok == false and code == 'expired')
+    end
+    assert(observations.commands == nil)
+    assert(gmInte.validatePanelRconCommand(panelRconPacket({ actorDiscordID = '1', command = string.rep('é', 4096) })))
+    assert(gmInte.validatePanelRconCommand(panelRconPacket({ actorDiscordID = '12345678901234567890', command = 'status; echo accepted' })))
+end)
+
+test('panel RCON reserves UUIDs across actors, bodies, deadlines and both command methods', function()
+    local packet = panelRconPacket()
+    assert(gmInte.wsPanelRcon(packet) == true)
+    for _, changes in ipairs({ { actorDiscordID = '999' }, { command = 'quit' }, { expiresAt = packet.expiresAt + 1 } }) do
+        local ok, code = gmInte.wsPanelRcon(panelRconPacket(changes))
+        assert(ok == false and code == 'execution_failed')
+    end
+    onlinePlayer('superadmin')
+    assert(gmInte.wsAuthorizedRcon(rconPacket()) == false)
+    assert(observations.commands == 1)
+    reset()
+    onlinePlayer('superadmin')
+    assert(gmInte.wsAuthorizedRcon(rconPacket()) == true)
+    assert(gmInte.wsPanelRcon(panelRconPacket()) == false)
+    assert(observations.commands == 1)
+end)
+
+test('panel RCON shares the 128-request bound and remembers a failed console submission', function()
+    for index = 1, 128 do
+        assert(gmInte.wsPanelRcon(panelRconPacket({ requestID = string.format('%08x-ff6f-4ed4-b2b9-f4b722840f04', index) })) == true)
+    end
+    assert(gmInte.wsPanelRcon(panelRconPacket()) == false and observations.commands == 128)
+    reset({ consoleFailure = true })
+    local ok, code = gmInte.wsPanelRcon(panelRconPacket())
+    assert(ok == false and code == 'execution_failed')
+    assert(gmInte.wsPanelRcon(panelRconPacket()) == false)
+    assert(observations.consoleCalls == 1)
+end)
 
 test('RCON checks current configured ranks and acknowledges execution only once', function()
     gmInte.config.adminRank = { owner = true }

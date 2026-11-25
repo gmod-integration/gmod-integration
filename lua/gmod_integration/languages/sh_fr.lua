@@ -1,4 +1,5 @@
 return {
+	["rewards.received"] = "Récompense reçue : {1}",
   ["verification.title"] = "Vérification requise",
   ["verification.open_page"] = "Ouvrir la page de vérification",
   ["verification.description"] = "Salut,\nIl semble que vous n'ayez pas encore lié votre compte Steam à Discord. Cela est nécessaire pour jouer sur ce serveur. Veuillez cliquer sur le bouton ci-dessous pour lier votre compte.\n\nAprès avoir fait cela, cliquez sur le bouton de rafraîchissement.",

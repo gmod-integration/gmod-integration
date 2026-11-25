@@ -47,6 +47,8 @@ Renaming a file can therefore alter runtime behavior even when its contents do n
 - Client tools: screenshots, bug reports, and Lua error reports.
 - Remote administration: console commands and server Lua execution.
 - Economy integrations: DarkRP, CH ATM, and GlorifiedBanking event trackers.
+- Rewards: authenticated delivery polling, fixed DarkRP/Pointshop/Pointshop 2 credits, server Lua
+  scripts and a local durable action journal. Discord roles and reward eligibility remain platform-side.
 
 ## Main data flows
 
@@ -87,13 +89,49 @@ WebSocket JSON -> explicit method allowlist + field validation -> existing handl
 RCON, Lua execution, settings and moderation remain privileged operations. The dispatcher does not
 look up arbitrary names on `gmInte`. Unknown or malformed commands are rejected before execution.
 
-Console requests use `wsAuthorizedRcon` with a UUID, linked SteamID64, bounded single-line command
-and deadline. The addon resolves the online player and checks `gmIntIsAdmin()` immediately before
-console submission, using the configured administrator groups instead of historical platform stats.
-It reserves recent request IDs before executing and returns `addon.command-result`; duplicates do
-not execute twice. Success confirms console acceptance, not command output. The legacy `wsRcon`
-method is rejected, and older addons do not recognize the new method. Keep host clocks aligned and
-deploy the matching addon/backend before using this flow; missing acknowledgements remain uncertain.
+The dashboard Console page leases Lua console output with the allowlisted `wsConsoleStream`
+command: `{ method = "wsConsoleStream", enabled = true, expiresAt = <Unix milliseconds> }`.
+An enabled command requires a ready authenticated socket and a future deadline no more than 35 seconds
+away (including clock tolerance); the actual monotonic lease is capped at 30 seconds. Gateway renewals
+keep an open authorized viewer active. Closing the final viewer sends `enabled = false, expiresAt = 0`.
+`gmInte.config.consoleLiveExporter` and its `gmInte.enableConsoleLiveExporter` mirror are runtime flags;
+they reset on boot, Lua auto-refresh, socket replacement/loss/error, credential changes, shutdown and
+lease expiry. Local configuration saves always write the flag as `false`; it is excluded from ordinary
+settings synchronization and cannot be enabled through `wsEditSetting`.
+
+`console_live_exporter` preserves and wraps the server's Lua `print`, `Msg`, `MsgN` and `MsgC` functions.
+It forwards plain text through the authenticated socket while a lease is active, strips MsgC color
+arguments and does not traverse table contents. This covers Lua calls through those global functions,
+not all native engine output, output written directly by binaries, or previously cached function
+references. Native/local console output is preserved. Forwarded messages are limited to 32 KiB, the
+queue to 64 messages/64 KiB, and transmission to 10 messages/64 KiB per second. Output beyond those
+limits is truncated or dropped, never replayed after a close/disconnect. A forwarding guard prevents
+transport diagnostics from recursively entering the stream; a failed send disables it silently.
+
+Dashboard console requests use the separate `wsPanelRcon` method with exactly a UUID `requestID`,
+`actorDiscordID` (one to twenty decimal digits), a nonblank single-line `command` of at most 8,192
+bytes, and an `expiresAt` deadline in Unix milliseconds. The authenticated platform verifies the
+actor's current panel administration rights before dispatch. The addon does not require a linked
+Steam account, a connected player or an in-game administrator rank for this method, so an empty
+game server remains manageable from the dashboard. This command is accepted only through the
+ready authenticated WebSocket dispatcher; it is not a client-to-server net command.
+
+Discord console requests retain `wsAuthorizedRcon` with a linked SteamID64. For that method, the
+addon still resolves the online player and checks `gmIntIsAdmin()` immediately before submission,
+using its configured administrator groups instead of historical platform stats. The panel method
+does not relax the Discord command's existing player authorization.
+
+Both methods reserve UUIDs before any effect, share a bounded 128-entry recent-request cache, and
+bind each cached result to its method, actor, command and deadline. Reusing an ID with another
+method or actor fails; identical duplicates do not execute twice while their deadline remains valid.
+Both reject NUL, CR and LF; semicolon syntax retains normal console behavior. The backend normally
+sets a five-second deadline. The addon rejects deadlines with at most one second remaining or more
+than ten seconds ahead, accounting conservatively for `os.time()` second precision. Replies carry
+`addon.command-result` and the exact originating method. Success confirms console acceptance, not
+command output or the command's eventual effects. The legacy `wsRcon` method is rejected, and older
+addons do not recognize `wsPanelRcon`. Keep host clocks aligned and deploy the matching addon/backend
+before using this flow; missing acknowledgements remain uncertain. Actor diagnostics contain the
+validated account ID, never the submitted command text.
 
 ### Client/server net channel
 
@@ -174,6 +212,59 @@ administrator or whitelist exemption applies. Provider failures and malformed re
 discard late replies after reconnect, disconnect, configuration changes or a newer role notification.
 
 ## Persistence and generated state
+
+### Reward delivery
+
+The server-only rewards module polls `POST /servers/:serverID/rewards/poll` every thirty seconds and
+after player joins or protocol readiness. It reports the three detected integrations and at most 64
+online human Steam identities per request. Batches rotate on larger servers. Responses are limited to
+ten deliveries with five actions each. Every delivery carries a grant UUID, acknowledgement token,
+Steam identity, rule title, Unix-seconds expiry and immutable action UUIDs and contents. The whole
+response is validated before any action runs. Fixed economy actions carry an amount; a `lua` action
+carries the complete server script configured by an authorized dashboard administrator. Console
+commands, remote function names and client execution fields are not accepted. Credentials, host,
+socket and connection generation must still match when the reply arrives.
+
+The fixed economy actions are `darkrp_money`, `pointshop_points` and `pointshop2_points`, each for an
+integer between 1 and 1,000,000. Missing dependencies, uninitialized wallets or a player who left since
+polling produce a `pending` acknowledgement without consuming the action. New joins get a ten-second
+wallet initialization grace period. Integration availability is rechecked immediately before execution.
+The fixed adapters use [DarkRP's player money API](https://github.com/FPtje/DarkRP/blob/master/gamemode/modules/money/sv_money.lua),
+[Pointshop's player extension](https://github.com/adamdburton/pointshop/blob/master/lua/pointshop/sv_player_extension.lua)
+and [Pointshop 2's documented standard points API](https://pointshop2.readthedocs.io/en/latest/api/index.html).
+
+The `lua` action executes in the dedicated server realm with normal server Lua privileges. The
+dashboard script is compiled with [CompileString](https://wiki.facepunch.com/gmod/Global.CompileString)
+and `handleError = false`; compilation does not execute the chunk. The wrapper binds local values
+`ply` (the online recipient), `steamID64`, and `reward = { id, actionID, name, steamID64 }` through
+function arguments. No string placeholder substitution is performed, and script source is never
+sent to player clients or included in module error logs. The payload must contain nonblank source,
+no NUL bytes and at most 65,536 UTF-8 bytes; the backend additionally limits it to 16,384 characters.
+A missing compiler or source-digest function stays `pending` with `lua_unavailable`. Syntax errors
+are reported as `failed` / `lua_compile_failed` before the durable action reservation.
+
+The GMod SQLite table `gm_integration_reward_actions` records an action as `started` before calling its
+integration or running its compiled Lua chunk, then records the outcome. Its primary key includes
+server, grant and action identity; the saved fingerprint binds the player, action type, amount or
+[SHA-256 source digest](https://wiki.facepunch.com/gmod/util.SHA256), and expiry. A repeated delivery only
+acknowledges the saved result. A leftover `started` action, an integration exception, or a failure to
+save the final outcome becomes `uncertain` and is never executed again automatically. A script
+exception or explicit `return false` records `lua_execution_failed`; partial effects cannot be ruled out.
+The server
+acknowledges results through `POST /servers/:serverID/rewards/ack`; losing that acknowledgement is
+recovered by the next poll consulting the journal. Changing the platform token does not erase it.
+
+Expired payloads cannot execute. Journal rows are retained through expiry plus one day, then pruned;
+the journal stops accepting new credits at 100,000 rows. Storage failures fail closed. Back up GMod's
+SQLite database with the server; deleting/restoring an older journal can remove duplicate protection.
+`delivered` confirms that the integration accepted its call, not that an external economy database
+has flushed it durably. The integrations control their own asynchronous persistence and must be
+tested with the server's real providers. For Lua, success confirms that the synchronous chunk returned
+without an error or `false`; it cannot confirm work scheduled for later by the script. Do not retry
+an uncertain action before checking its effects.
+
+Only a fully delivered game-action bundle generates a translated, private chat notification. The
+acknowledgement token and server credentials never enter a player net payload or chat message.
 
 - `data/gm_integration/config.json`: credentials and settings.
 - `data/gm_integration/player_before_map_change.json`: adjusted-time restoration data.
