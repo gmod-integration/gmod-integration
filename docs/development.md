@@ -166,9 +166,26 @@ agreed interruption. Keep account identifiers, report text, captures and diagnos
 
 The release workflow owns `gmInte.version` and packaging. Markdown under `docs/` and `AGENTS.md` is excluded from Workshop packaging by `addon.json`, while remaining available in the source repository.
 
-Pull requests and branch pushes run the mocked Lua regressions. The release workflow runs the same
-checks before its version job, so a failed test cannot bump the version, create a tag or publish an
+Pull requests and branch pushes run the mocked Lua and release-workflow regressions. The release
+workflow runs the same checks before its version job, so a failed test cannot bump the version, create a tag or publish an
 archive or Workshop update. The monorepo also tests its pinned addon commit before image publication.
 These automated gates do not replace the dedicated-server acceptance session above.
 
-The version job is intentionally idempotent. On a rerun it reuses a release tag/commit associated with the triggering commit, accepts a target version already written in a clean worktree, repairs a missing branch push or missing tag, and does not increment the version again. Release commits should retain the `chore: bump version to X.Y.Z` subject because recovery of releases created by the legacy workflow uses it when available. Do not move or recreate an existing release tag on another commit.
+Run `python3 scripts/test_release.py` to check version resolution and recovery against temporary local
+Git repositories. These tests execute the workflow's shell steps without publishing releases.
+
+The version job is intentionally idempotent. On a rerun it reuses its release commit, repairs a missing
+branch push or tag, and does not increment the version again. Push-triggered runs also recover legacy
+release commits by their `chore: bump version to X.Y.Z` subject. Keep this subject and the
+`Release-Source` and `Release-Run` commit trailers intact. Do not move or recreate an existing release
+tag on another commit.
+
+Each new manual dispatch honors its requested `version_type`, including `major` when the current
+commit already has a patch release. Rerunning that dispatch reuses only the release marked with its
+own GitHub run ID. A fresh dispatch fails if its source branch has advanced; dispatch again from the
+latest commit after the preceding release finishes.
+
+For the WebSocket-only v6 rollout, merge the transport branch first and wait for its automatic patch
+release to finish. Then run **Auto Release** on **main** with **version_type: major** to create
+`6.0.0` from the latest 5.x release. After publication succeeds, update the monorepo's addon submodule
+to the published `v6.0.0` commit. The release workflow writes `gmInte.version`; do not bump it manually.

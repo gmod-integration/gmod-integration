@@ -25,4 +25,6 @@ jobs:
               run: sudo apt-get update && sudo apt-get install -y lua5.4
 
             - name: Run addon regressions
-              run: python3 scripts/test_lua.py
+              run: |
+                  python3 scripts/test_lua.py
+                  python3 scripts/test_release.py
