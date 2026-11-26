@@ -325,6 +325,27 @@ test("connection diagnostics distinguish an unavailable library from invalid cre
     noCredential(sent)
 end)
 
+test("direct connection diagnostics enforce an independent per-administrator cooldown", function()
+    reset()
+    local admin, otherAdmin, ordinary = player("superadmin"), player("superadmin"), player("user")
+    gmInte.testConnection(ordinary)
+    gmInte.testConnection(admin)
+    gmInte.testConnection(admin)
+    assert(#requests == 1)
+    gmInte.testConnection(otherAdmin)
+    assert(#requests == 2)
+    now = now + 1.99
+    gmInte.testConnection(admin)
+    assert(#requests == 2)
+    now = now + 0.01
+    gmInte.testConnection(admin)
+    assert(#requests == 3 and requests[3].endpoint == "/servers/:serverID")
+    admin.group = "user"
+    now = now + 2
+    gmInte.testConnection(admin)
+    assert(#requests == 3 and #sent == 0)
+end)
+
 test("an authorized replacement remains in server persistence and is not echoed to players or remote settings", function()
     reset()
     local admin, ordinary = player("superadmin"), player("user")

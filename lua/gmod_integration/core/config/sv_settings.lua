@@ -156,12 +156,16 @@ function gmInte.tryConfig()
     end)
 end
 
+local connectionTests = setmetatable({}, { __mode = "k" })
 function gmInte.testConnection(ply)
     if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
     if !gmInte.hasWebsocketModule() then
         gmInte.SendNet("testApiConnection", { error = "gwsockets_required" }, ply)
         return
     end
+    local now = CurTime()
+    if (connectionTests[ply] || 0) > now then return end
+    connectionTests[ply] = now + 2
     local function reply(body)
         if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
         local result = { error = "connection_failed" }
