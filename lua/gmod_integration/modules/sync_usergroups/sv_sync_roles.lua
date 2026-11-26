@@ -56,7 +56,7 @@ end
 function gmInte.playerChangeGroup(steamID64, oldGroup, newGroup)
     if cachedPlayers[steamID64] == newGroup then return end
     cachedPlayers[steamID64] = newGroup
-    gmInte.http.post("/servers/:serverID/players/" .. steamID64 .. "/group", {
+    gmInte.api.post("/servers/:serverID/players/" .. steamID64 .. "/group", {
         ["oldGroup"] = oldGroup || "user",
         ["newGroup"] = newGroup
     })

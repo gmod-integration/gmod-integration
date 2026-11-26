@@ -4,7 +4,7 @@ This file defines the working agreement for humans and coding agents changing th
 
 ## Project summary
 
-Gmod Integration is a Garry's Mod addon that connects a dedicated server and its players to the Gmod Integration HTTP API, WebSocket service, and Discord-facing features. It is written in Garry's Mod Lua (GLua), not stock Lua.
+Gmod Integration is a Garry's Mod addon that connects a dedicated server and its players to the Gmod Integration WebSocket service and Discord-facing features. It is written in Garry's Mod Lua (GLua), not stock Lua. Player tools relay through the dedicated server; players do not receive API credentials.
 
 Start with:
 
@@ -14,7 +14,7 @@ Start with:
 ## Repository map
 
 - `lua/autorun/gmod_integration.lua`: bootstrap, version, config loading, and recursive realm-aware loader.
-- `lua/gmod_integration/core/`: HTTP, WebSocket, config, networking, security helpers, UI, and shared utilities.
+- `lua/gmod_integration/core/`: WebSocket requests, player relay, config, networking, UI, and shared utilities.
 - `lua/gmod_integration/modules/`: product features and third-party addon integrations.
 - `lua/gmod_integration/languages/`: translation tables; English is the fallback.
 - `materials/gmod_integration/`: shipped UI assets.
@@ -26,9 +26,9 @@ Start with:
 1. Preserve GLua syntax. Existing code uses `!`, `!=`, `&&`, `||`, `//`, `continue`, and Garry's Mod globals. Do not run a stock-Lua formatter that rewrites these constructs.
 2. Respect realms. Name new files `sv_`, `cl_`, or `sh_`; the bootstrap uses these prefixes to decide whether to include or send a file. Never reference client-only globals from server execution or vice versa.
 3. Treat `gmInte.config.token`, derived player tokens, HTTP authorization headers, screenshots, and bug reports as sensitive. Never print or expose them to ordinary clients.
-4. Validate every client-to-server net payload on the server. Check type, size/range, permissions, player validity, and rate limits before side effects or HTTP requests.
+4. Validate every client-to-server net payload on the server. Check type, size/range, permissions, player validity, and rate limits before side effects or platform requests.
 5. Treat every WebSocket handler as remotely callable privileged input. Add explicit schema checks. RCON, Lua execution, rank changes, bans, kicks, and configuration writes are trust-critical operations.
-6. Keep API endpoint placeholders intact: `:serverID` is resolved for all realms and `:steamID64` is resolved client-side by the HTTP helper.
+6. Keep API endpoint placeholders intact: `:serverID` is resolved for all realms and `:steamID64` is resolved client-side by the API façade. Player relay endpoints and identities are rebuilt server-side.
 7. Do not silently change persisted config keys or data paths. Add migrations when renaming either one.
 8. Do not edit `gmInte.version` for normal changes. The release workflow owns version bumps.
 9. Do not modify unrelated user changes. In particular, inspect `git status` before editing and preserve a dirty worktree.
@@ -37,7 +37,7 @@ Start with:
 
 - Use the existing global namespace, `gmInte`, only for public cross-file behavior. Prefer `local` for implementation details.
 - Use descriptive, globally unique hook and timer IDs beginning with `gmInte:`.
-- Keep HTTP access behind `gmInte.http`; use `postLog` only for batchable telemetry.
+- Keep connected operations behind `gmInte.api` and the acknowledged WebSocket transport; use `postLog` only for batchable telemetry. Never add an HTTP fallback or issue platform credentials to players.
 - Keep server-to-client and client-to-server message IDs in the respective allowlist tables in `core/net/`.
 - Guard optional integrations (`sam`, `ULib`, `serverguard`, `DarkRP`, banking addons, AWarn3, and similar globals) before calling them.
 - Keep English translation keys authoritative. Add the English fallback first and update every language file when translations are available. Never rename a key without updating all call sites.
@@ -62,7 +62,7 @@ After editing:
 5. For network changes, test malformed, missing, oversized, unauthorized, and repeated input.
 6. Run the relevant staging-server checks from [docs/development.md](docs/development.md).
 
-There is currently no automated test suite or configured GLua linter. Do not claim runtime validation unless the addon was actually exercised on a Garry's Mod dedicated server.
+Run `python3 scripts/test_lua.py` for mocked transport and relay regressions. These tests translate GLua operators in memory and run with Lua 5.3/5.4 or its shared library; they do not emulate Garry's Mod. There is no configured GLua linter. Do not claim dedicated-server runtime validation unless the addon was actually exercised on a Garry's Mod server.
 
 ## Definition of done
 

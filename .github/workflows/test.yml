@@ -1,0 +1,30 @@
+name: Test
+
+on:
+    pull_request:
+    push:
+        branches-ignore: [main, master]
+
+permissions:
+    contents: read
+
+jobs:
+    test:
+        name: Test GLua transport and player tools
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.12'
+
+            - name: Install the Lua test runtime
+              run: sudo apt-get update && sudo apt-get install -y lua5.4
+
+            - name: Run addon regressions
+              run: |
+                  python3 scripts/test_lua.py
+                  python3 scripts/test_release.py

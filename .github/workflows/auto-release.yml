@@ -26,9 +26,32 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
+    test:
+        name: Test GLua transport and player tools
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.12'
+
+            - name: Install the Lua test runtime
+              run: sudo apt-get update && sudo apt-get install -y lua5.4
+
+            - name: Run addon regressions
+              run: |
+                  python3 scripts/test_lua.py
+                  python3 scripts/test_release.py
+
     version:
         name: Resolve Version & Tag
         runs-on: ubuntu-latest
+        needs: test
         outputs:
             new_version: ${{ steps.resolve.outputs.new_version }}
             new_tag: ${{ steps.resolve.outputs.new_tag }}
@@ -74,10 +97,24 @@ jobs:
                       TAG_EXISTS="true"
                   fi
 
+                  # Each manual request is a new release, even when its source
+                  # is the last automatic bump. Only recover this run's attempt;
+                  # GITHUB_RUN_ID stays the same when failed jobs are rerun.
+                  if [[ -z "$RELEASE_COMMIT" ]] && [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+                      while IFS= read -r CANDIDATE; do
+                          COMMIT_MESSAGE=$(git show -s --format=%B "$CANDIDATE")
+                          if grep -Fxq "Release-Run: $GITHUB_RUN_ID" <<< "$COMMIT_MESSAGE" && \
+                             grep -Fxq "Release-Source: $SOURCE_SHA" <<< "$COMMIT_MESSAGE"; then
+                              RELEASE_COMMIT="$CANDIDATE"
+                              break
+                          fi
+                      done < <(git log --all --format=%H --fixed-strings --grep="Release-Run: $GITHUB_RUN_ID")
+                  fi
+
                   # The old workflow pushed the tag before the release commit.
                   # Recover a tagged child of the triggering commit even when
                   # the subsequent branch push failed.
-                  if [[ -z "$RELEASE_COMMIT" ]]; then
+                  if [[ -z "$RELEASE_COMMIT" ]] && [[ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]]; then
                       while IFS= read -r CANDIDATE_TAG; do
                           CANDIDATE_COMMIT=$(git rev-list -n 1 "$CANDIDATE_TAG")
                           CANDIDATE_PARENT=$(git rev-parse "$CANDIDATE_COMMIT^" 2>/dev/null || true)
@@ -96,7 +133,7 @@ jobs:
 
                   # A previous attempt may have pushed its version commit before
                   # failing to create the tag or before a downstream publish job.
-                  if [[ -z "$RELEASE_COMMIT" ]]; then
+                  if [[ -z "$RELEASE_COMMIT" ]] && [[ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]]; then
                       SOURCE_SUBJECT=$(git show -s --format=%s "$SOURCE_SHA")
                       if [[ "$SOURCE_SUBJECT" == "chore: bump version to "* ]]; then
                           RELEASE_COMMIT="$SOURCE_SHA"
@@ -112,23 +149,31 @@ jobs:
                               fi
                           fi
                       fi
+                  fi
 
-                      if [[ -n "$RELEASE_COMMIT" ]]; then
-                          NEW_VERSION=$(version_from_commit "$RELEASE_COMMIT")
-                          NEW_TAG="v$NEW_VERSION"
+                  if [[ -n "$RELEASE_COMMIT" ]] && [[ -z "$NEW_VERSION" ]]; then
+                      NEW_VERSION=$(version_from_commit "$RELEASE_COMMIT")
+                      NEW_TAG="v$NEW_VERSION"
 
-                          if git rev-parse -q --verify "refs/tags/$NEW_TAG" >/dev/null; then
-                              TAG_COMMIT=$(git rev-list -n 1 "$NEW_TAG")
-                              if [[ "$TAG_COMMIT" != "$RELEASE_COMMIT" ]]; then
-                                  echo "Tag $NEW_TAG points to $TAG_COMMIT instead of $RELEASE_COMMIT" >&2
-                                  exit 1
-                              fi
-                              TAG_EXISTS="true"
+                      if git rev-parse -q --verify "refs/tags/$NEW_TAG" >/dev/null; then
+                          TAG_COMMIT=$(git rev-list -n 1 "$NEW_TAG")
+                          if [[ "$TAG_COMMIT" != "$RELEASE_COMMIT" ]]; then
+                              echo "Tag $NEW_TAG points to $TAG_COMMIT instead of $RELEASE_COMMIT" >&2
+                              exit 1
                           fi
+                          TAG_EXISTS="true"
                       fi
                   fi
 
                   if [[ -z "$RELEASE_COMMIT" ]]; then
+                      if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+                          BRANCH_REF="refs/remotes/origin/${{ github.ref_name }}"
+                          if [[ "$(git rev-parse "$BRANCH_REF")" != "$SOURCE_SHA" ]]; then
+                              echo "Branch advanced since this manual request; dispatch a new release from its latest commit." >&2
+                              exit 1
+                          fi
+                      fi
+
                       LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | sed -n '1p')
                       LATEST_TAG=${LATEST_TAG:-v0.0.0}
 
@@ -220,10 +265,16 @@ jobs:
                               echo "Version file is $CURRENT_VERSION, expected $NEW_VERSION" >&2
                               exit 1
                           fi
-                          RELEASE_COMMIT=$(git rev-parse HEAD)
-                          echo "Version $NEW_VERSION is already present; reusing commit $RELEASE_COMMIT"
-                      else
-                          git commit -m "chore: bump version to $NEW_VERSION" -m "Release-Source: ${{ github.sha }}"
+                          if [[ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]]; then
+                              RELEASE_COMMIT=$(git rev-parse HEAD)
+                              echo "Version $NEW_VERSION is already present; reusing commit $RELEASE_COMMIT"
+                          fi
+                      fi
+                      if [[ -z "$RELEASE_COMMIT" ]]; then
+                          # An explicit request still needs its run marker when
+                          # the target version was written before being tagged.
+                          git commit --allow-empty -m "chore: bump version to $NEW_VERSION" \
+                              -m "Release-Source: ${{ github.sha }}" -m "Release-Run: $GITHUB_RUN_ID"
                           RELEASE_COMMIT=$(git rev-parse HEAD)
                       fi
                   fi

@@ -5,7 +5,7 @@ function gmInte.wsSyncKick(data)
 end
 
 function gmInte.playerKick(data)
-    gmInte.http.post("/servers/:serverID/players/" .. util.SteamIDTo64(data.networkid) .. "/kick", data)
+    gmInte.api.post("/servers/:serverID/players/" .. util.SteamIDTo64(data.networkid) .. "/kick", data)
 end
 
 gameevent.Listen("player_disconnect")

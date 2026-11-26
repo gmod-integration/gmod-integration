@@ -38,7 +38,7 @@ local conFuncs = {
         elseif args[2] == "show" then
             print()
             print("=== Current Config ===")
-            PrintTable(gmInte.config)
+            PrintTable(gmInte.getConfigSnapshot())
             print("======================")
             print()
         elseif args[2] == "try" then
@@ -72,17 +72,18 @@ local conFuncs = {
         print("Connection Status:")
         local idValid = gmInte.config.id && gmInte.config.id != ""
         local tokenValid = gmInte.config.token && gmInte.config.token != ""
-        local httpStatus = gmInte.aprovedCredentials && "✓ Connected" || "✗ Disconnected"
-        local wsStatus = "✗ Not Available"
+        local moduleAvailable = gmInte.hasWebsocketModule()
+        local wsStatus = "✗ Disconnected"
 
-        if GWSockets && gmInte.websocket then
-            wsStatus = gmInte.websocket:isConnected() && "✓ Connected" || "✗ Disconnected"
+        if moduleAvailable && gmInte.websocket then
+            wsStatus = gmInte.aprovedCredentials && gmInte.websocket:isConnected() && "✓ Connected" || "✗ Disconnected"
         end
 
         print("  Server ID:          " .. (idValid && "✓ Set" || "✗ Not Set"))
         print("  Server Token:       " .. (tokenValid && "✓ Set" || "✗ Not Set"))
-        print("  HTTP API:           " .. httpStatus)
+        print("  GWSockets:          " .. (moduleAvailable && "✓ Loaded (required)" || "✗ Missing or failed to load (required)"))
         print("  WebSocket:          " .. wsStatus)
+        gmInte.logWebsocketRequirement()
 
         if !idValid || !tokenValid then
             print()

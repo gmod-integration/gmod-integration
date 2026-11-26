@@ -2,12 +2,26 @@ function gmInte.wsPlayerSay(data)
     gmInte.SendNet("wsRelayDiscordChat", data, nil)
 end
 
+local nextRelayWarningAt = 0
+local function reportRelayFailure(status)
+    if CurTime() < nextRelayWarningAt then return end
+    nextRelayWarningAt = CurTime() + 60
+    local message = gmInte.getTranslation("chat.relay_failed", "The chat relay could not confirm delivery to Discord. Check the server console and relay configuration.")
+    local detail = isnumber(status) && status >= 100 && status <= 599 && status % 1 == 0 && (" (" .. tostring(status) .. ")") || ""
+    gmInte.logWarning(message .. detail)
+    for _, admin in ipairs(player.GetAll()) do
+        if IsValid(admin) && admin:IsPlayer() && admin:gmIntIsAdmin() then
+            gmInte.SendNet("chatColorMessage", { { text = message, color = Color(228, 81, 81) } }, admin)
+        end
+    end
+end
+
 function gmInte.playerSay(ply, text, teamOnly)
-    gmInte.http.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/say", {
+    return gmInte.api.post("/servers/:serverID/players/" .. ply:SteamID64() .. "/say", {
         ["player"] = gmInte.getPlayerFormat(ply),
         ["text"] = text,
         ["teamOnly"] = teamOnly,
-    })
+    }, nil, reportRelayFailure)
 end
 
 local function isSAMAsayCommand(text)

@@ -21,6 +21,11 @@ Before installing Gmod Integration, ensure you have:
 
 - A Garry's Mod dedicated server
 - Discord server with Administrator permissions
+- The [GWSockets server module](https://github.com/FredyH/GWSockets/releases), installed in the dedicated server's `garrysmod/lua/bin/` directory
+
+**GWSockets is mandatory for every connected addon feature.** Choose the binary matching the server's operating system and process architecture, then fully stop and start the server through its hosting panel or service manager. Changing the map does not load a newly installed native module. Installing the Workshop addon alone is not sufficient; players do not need the binary on their computers.
+
+If GWSockets is missing or cannot load, the addon cannot exchange data with the platform. Local configuration and diagnostics remain available so administrators can fix the installation. See the [installation guide](https://docs.gmod-integration.com/getting-started/installation#dll).
 
 ## Getting Started
 

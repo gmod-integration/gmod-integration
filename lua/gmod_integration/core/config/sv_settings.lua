@@ -1,51 +1,168 @@
-function gmInte.saveSetting(setting, value)
-    if gmInte.config[setting] == nil then
-        gmInte.log("Unknown Setting " .. setting)
-        return
-    end
+local booleanSettings = {
+    syncBan = true, syncTimeout = true, syncKick = true, filterOnBan = true,
+    redownloadMaterials = true, debug = true, forcePlayerLink = true, verifyOnJoin = true,
+    verifyFamilySharing = true, maintenance = true,
+}
+local localSettings = { id = true, token = true, websocketFQDN = true, apiFQDN = true }
+local syncing = false
+local configRevision = 0
+local configNeedsSync = false
+local savingConfig
+local configGeneration = 0
+local configPending = false
+local configRequest
+local configRetryAt
+local languages = { en = true, fr = true, de = true, es = true, it = true, tr = true, ru = true }
 
-    if setting == "id" || setting == "token" then gmInte.aprovedCredentials = false end
-    // Boolean
-    if value == "true" then value = true end
-    if value == "false" then value = false end
-    // Number
-    if tonumber(value) != nil then value = tonumber(value) end
-    gmInte.config[setting] = value
-    file.Write("gm_integration/config.json", util.TableToJSON(gmInte.config, true))
-    gmInte.log("Setting Saved")
-    if setting == "websocketFQDN" || setting == "id" || setting == "token" then hook.Run("GmodIntegration:Websocket:Restart") end
-    if setting == "language" then gmInte.loadTranslations() end
-    // send to all players the new public config
-    for _, ply in ipairs(player.GetAll()) do
-        if ply:IsValid() && ply:IsPlayer(ply) then
-            gmInte.log("Sending new Public Config to " .. ply:Nick(), true)
-            gmInte.publicGetConfig(ply)
+local function configSynchronized()
+    if !configPending then return end
+    configPending = false
+    configRetryAt = nil
+    hook.Run("GmodIntegration:Config:Synchronized")
+end
+
+local function retryConfig()
+    if configPending then configRetryAt = SysTime() + 10 end
+end
+
+local function normalizeSetting(setting, value)
+    if booleanSettings[setting] then
+        if value == "true" then value = true end
+        if value == "false" then value = false end
+        return isbool(value), value
+    elseif setting == "verifyOnReadyKickTime" then
+        local number = tonumber(value)
+        return number != nil && number == number && number >= 0 && number <= 2147483647 && number % 1 == 0, number
+    elseif setting == "adminRank" then
+        if isstring(value) then
+            local ok, decoded = pcall(util.JSONToTable, value)
+            if !ok then return false end
+            value = decoded
         end
+        if !istable(value) then return false end
+        local count = 0
+        local ranks = {}
+        for rank, enabled in pairs(value) do
+            count = count + 1
+            if count > 64 || !isstring(rank) || #rank < 1 || #rank > 64 || !isbool(enabled) then return false end
+            if enabled then ranks[rank] = true end
+        end
+        if next(ranks) == nil then return false end
+        local encoded = util.TableToJSON(ranks)
+        return isstring(encoded) && #encoded <= 255, ranks
+    elseif setting == "clientBranch" then
+        return value == "any" || value == "none" || value == "dev" || value == "prerelease" || value == "x86-64", value
+    elseif setting == "language" then
+        return isstring(value) && languages[value] == true, value
+    elseif setting == "supportLink" then
+        return isstring(value) && #value <= 255 && !string.find(value, "\0", 1, true) &&
+            (value == "" || string.match(value, "^https?://[^%s]+$") != nil), value
+    elseif setting == "logTimestamp" then
+        return isstring(value) && #value <= 255 && !string.find(value, "\0", 1, true), value
+    elseif setting == "id" then
+        -- Server IDs and credentials must never pass through tonumber: snowflakes exceed Lua's exact integer range.
+        return isstring(value) && #value <= 96 && (value == "" || string.match(value, "^[%w%-]+$") != nil), value
+    elseif setting == "token" then
+        return isstring(value) && #value <= 1024 && !string.find(value, "[%c]"), value
+    elseif setting == "websocketFQDN" || setting == "apiFQDN" then
+        return isstring(value) && #value > 0 && #value <= 255 && string.match(value, "^[%w%.%-%:%[%]]+$") != nil, value
     end
-    // send new config to gmod-integration server
-    local ok, err = pcall(function()
-            gmInte.websocket:send("config_save", {
-                data = gmInte.config
-            }, nil, true)
+    return false
+end
+
+function gmInte.validateRemoteSetting(setting, value)
+    if !isstring(setting) then return false end
+    setting = string.gsub(setting, "^ig_", "")
+    if localSettings[setting] then return false end
+    return normalizeSetting(setting, value)
+end
+
+local function syncedSettings()
+    local settings = {}
+    for setting, value in pairs(gmInte.config) do
+        local valid, normalized = normalizeSetting(setting, value)
+        if !localSettings[setting] && valid then settings[setting] = normalized end
+    end
+    return settings
+end
+
+local function pushConfig()
+    if savingConfig || !gmInte.aprovedCredentials then return end
+    local revision = configRevision
+    local request = { generation = configGeneration }
+    savingConfig = request
+    gmInte.api.post("/servers/:serverID/config", syncedSettings(), function()
+        if savingConfig != request || request.generation != configGeneration then return end
+        savingConfig = nil
+        if revision == configRevision then
+            configNeedsSync = false
+            configSynchronized()
+        else
+            pushConfig()
+        end
+    end, function()
+        if savingConfig != request || request.generation != configGeneration then return end
+        savingConfig = nil
+        retryConfig()
+        gmInte.logWarning("Configuration is saved locally; remote synchronization could not be confirmed", true)
     end)
-    if !ok then
-        gmInte.logError(err, true)
+end
+
+local function persist()
+    local saved = {}
+    for key, value in pairs(gmInte.config) do saved[key] = value end
+    saved.consoleLiveExporter = false
+    file.Write("gm_integration/config.json", util.TableToJSON(saved, true))
+end
+
+local function broadcastPublicConfig()
+    for _, ply in ipairs(player.GetAll()) do
+        if IsValid(ply) && ply:IsPlayer() then gmInte.publicGetConfig(ply) end
     end
 end
 
+function gmInte.saveSetting(setting, value)
+    if !isstring(setting) || gmInte.config[setting] == nil then return false end
+    local valid, normalized = normalizeSetting(setting, value)
+    if !valid then
+        gmInte.logWarning("Rejected an invalid configuration value", true)
+        return false
+    end
+    if gmInte.config[setting] == normalized then return true end
+    gmInte.config[setting] = normalized
+    persist()
+    if setting == "language" then gmInte.loadTranslations() end
+    if localSettings[setting] && setting != "apiFQDN" then
+        gmInte.aprovedCredentials = false
+        hook.Run("GmodIntegration:Websocket:Restart")
+    end
+    broadcastPublicConfig()
+    if !syncing && !localSettings[setting] then
+        configRevision = configRevision + 1
+        configNeedsSync = true
+        pushConfig()
+    end
+    hook.Run("GmodIntegration:Config:Changed", setting)
+    return true
+end
+
 function gmInte.tryConfig()
-    gmInte.http.get("/servers/:serverID", function(code, body)
-        print(" ")
-        gmInte.log("Congratulations your server is now connected to Gmod Integration")
-        gmInte.log("Server Name: " .. body.name)
-        gmInte.log("Server ID: " .. body.id)
-        print(" ")
+    if gmInte.logWebsocketRequirement && gmInte.logWebsocketRequirement() then return end
+    gmInte.api.get("/servers/:serverID", function(_, body)
+        gmInte.log("Your server is connected to Gmod Integration using WebSocket")
+        if istable(body) && isstring(body.name) then gmInte.log("Server Name: " .. body.name) end
+    end, function(_, body)
+        gmInte.logWarning("Connection could not be confirmed. Check your credentials and the WebSocket connection.")
     end)
 end
 
 local connectionTests = setmetatable({}, { __mode = "k" })
 function gmInte.testConnection(ply)
     if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
+    if !gmInte.hasWebsocketModule() then
+        gmInte.SendNet("testApiConnection", { error = "gwsockets_required" }, ply)
+        return
+    end
     local now = CurTime()
     if (connectionTests[ply] || 0) > now then return end
     connectionTests[ply] = now + 2
@@ -58,89 +175,158 @@ function gmInte.testConnection(ply)
         end
         gmInte.SendNet("testApiConnection", result, ply)
     end
-    gmInte.http.get("/servers/:serverID", function(_, body) reply(body) end, function() reply(nil) end)
+    gmInte.api.get("/servers/:serverID", function(_, body) reply(body) end, function() reply(nil) end)
 end
 
+function gmInte.getConfigSnapshot(premium)
+    local settings = {}
+    for setting, value in pairs(gmInte.config) do
+        local valid, normalized = normalizeSetting(setting, value)
+        if setting != "token" && valid then settings[setting] = normalized end
+    end
+    settings.tokenConfigured = isstring(gmInte.config.token) && gmInte.config.token != ""
+    settings.websocket = gmInte.hasWebsocketModule()
+    if isbool(premium) then settings.premium = premium end
+    return settings
+end
+
+local adminConfigRequests = setmetatable({}, { __mode = "k" })
 function gmInte.superadminGetConfig(ply)
-    if !ply:IsValid() || !ply:IsPlayer(ply) || !ply:gmIntIsAdmin() then return end
+    if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
     if !gmInte.useDataConfig then
         gmInte.SendNet("notEditableConfig", {}, ply)
         return
     end
-
-    gmInte.config.websocket = GWSockets && true || false
-    gmInte.SendNet("adminConfig", gmInte.config, ply)
+    local request = { id = gmInte.config.id, token = gmInte.config.token, generation = configGeneration }
+    adminConfigRequests[ply] = request
+    local function reply(body)
+        if adminConfigRequests[ply] != request then return end
+        adminConfigRequests[ply] = nil
+        if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() then return end
+        if request.id != gmInte.config.id || request.token != gmInte.config.token || request.generation != configGeneration then return end
+        if !gmInte.useDataConfig then
+            gmInte.SendNet("notEditableConfig", {}, ply)
+            return
+        end
+        local premium
+        if istable(body) && body.id == request.id && isbool(body.premium) then premium = body.premium end
+        gmInte.SendNet("adminConfig", gmInte.getConfigSnapshot(premium), ply)
+    end
+    if !gmInte.hasWebsocketModule() || !gmInte.aprovedCredentials then reply(nil) return end
+    gmInte.api.get("/servers/:serverID", function(_, body) reply(body) end, function() reply(nil) end)
 end
 
-function gmInte.publicGetConfig(ply)
-    if !ply:IsValid() || !ply:IsPlayer(ply) then return end
-    gmInte.SendNet("publicConfig", {
-        ["config"] = {
-            ["id"] = gmInte.config.id,
-            ["debug"] = gmInte.config.debug,
-            ["apiFQDN"] = gmInte.config.apiFQDN,
-            ["websocketFQDN"] = gmInte.config.websocketFQDN,
-            ["adminRank"] = gmInte.config.adminRank,
-            ["language"] = gmInte.config.language,
-            ["clientBranch"] = gmInte.config.clientBranch,
-            ["logTimestamp"] = gmInte.config.logTimestamp
-        },
-        ["other"] = {
-            ["aprovedCredentials"] = gmInte.aprovedCredentials,
-            ["version"] = gmInte.version,
-        }
+local dependencyWarnings = setmetatable({}, { __mode = "k" })
+local function notifyMissingWebsocket(ply)
+    if gmInte.hasWebsocketModule() || !ply:gmIntIsAdmin() || dependencyWarnings[ply] then return end
+    dependencyWarnings[ply] = true
+    gmInte.SendNet("chatColorMessage", {
+        { text = gmInte.getTranslation("admin.gwsockets_required", "GWSockets is missing or could not be loaded. This library is mandatory: all connected Gmod Integration features are unavailable without it."), color = Color(228, 81, 81) },
+        { text = "\n" .. gmInte.getTranslation("admin.gwsockets_installation", "Install the GWSockets server binary matching the server's operating system and architecture in garrysmod/lua/bin, then fully stop and restart the server. A map change is not enough."), color = Color(255, 255, 255) },
+        { text = "\nhttps://docs.gmod-integration.com/getting-started/installation#dll", color = Color(255, 255, 255) },
     }, ply)
 end
 
-function gmInte.superadminSetConfig(ply, data)
-    if !ply:IsValid() || !ply:IsPlayer(ply) || !ply:gmIntIsAdmin() then return end
-    for k, v in pairs(data) do
-        gmInte.saveSetting(k, v)
-    end
+function gmInte.publicGetConfig(ply)
+    if !IsValid(ply) || !ply:IsPlayer() then return end
+    gmInte.SendNet("publicConfig", {
+        config = {
+            id = gmInte.config.id, debug = gmInte.config.debug,
+            apiFQDN = gmInte.config.apiFQDN, websocketFQDN = gmInte.config.websocketFQDN,
+            adminRank = gmInte.config.adminRank, language = gmInte.config.language,
+            clientBranch = gmInte.config.clientBranch, logTimestamp = gmInte.config.logTimestamp,
+        },
+        other = { aprovedCredentials = gmInte.aprovedCredentials, version = gmInte.version },
+    }, ply)
+    notifyMissingWebsocket(ply)
+end
 
-    if data.token || data.id then gmInte.testConnection(ply) end
+function gmInte.superadminSetConfig(ply, data)
+    if !IsValid(ply) || !ply:IsPlayer() || !ply:gmIntIsAdmin() || !istable(data) then return end
+    local count = 0
+    for setting, value in pairs(data) do
+        count = count + 1
+        if count > 32 || !isstring(setting) || !normalizeSetting(setting, value) then return end
+    end
+    for setting, value in pairs(data) do gmInte.saveSetting(setting, value) end
+    if data.token != nil || data.id != nil then gmInte.testConnection(ply) end
 end
 
 function gmInte.wsEditSetting(data)
-    local setting, value = data.setting, data.value
-    -- remove prefix ig_
-    setting = setting:gsub("^ig_", "")
-    if gmInte.config[setting] == nil then
-        gmInte.log("Unknown Setting " .. setting)
-        return
-    end
-    if setting == "adminRank" then
-        value = util.JSONToTable(value)
-    end
-    gmInte.saveSetting(setting, value)
-    gmInte.log("Setting " .. setting .. " updated via WebSocket", true)
+    if !istable(data) || !gmInte.validateRemoteSetting(data.setting, data.value) then return end
+    -- A direct remote edit is newer than any reconnect snapshot already in flight.
+    configRevision = configRevision + 1
+    syncing = true
+    local ok = pcall(gmInte.saveSetting, string.gsub(data.setting, "^ig_", ""), data.value)
+    syncing = false
+    if !ok then gmInte.logError("Remote configuration update failed", true) end
 end
 
-hook.Add("Initialize", "gmInte:Server:Initialize:SyncConfig", function() timer.Simple(1, function()
-        if (gmInte.compareVersion(gmInte.previusVersion, "5.2.2") == -1) then
-            gmInte.http.post("/servers/:serverID/config", gmInte.config, function(code, body)
-                gmInte.saveSetting("upgradeSyncConfig", true)
-                gmInte.log("Server Config Synced with Gmod Integration")
-            end, function(code, body)
-                gmInte.log("Failed to Sync Server Config with Gmod Integration", true)
-            end)
-        else
-            gmInte.http.get("/servers/:serverID/config", function(code, body)
-                for k, v in pairs(body) do
-                    local setting = k:gsub("^ig_", "")
-                    if k == "adminRank" then
-                        v = util.JSONToTable(v)
-                    end
-                    if gmInte.config[setting] != nil then
-                        if gmInte.config[setting] != v then
-                            gmInte.saveSetting(setting, v)
-                        end
-                    end
+local function syncConfig()
+    if configRequest || !gmInte.aprovedCredentials then return end
+    configRetryAt = nil
+    if configNeedsSync then pushConfig() return end
+    local request = { generation = configGeneration, revision = configRevision }
+    configRequest = request
+    local function currentRequest()
+        if configRequest != request || request.generation != configGeneration then return false end
+        configRequest = nil
+        return true
+    end
+    if gmInte.compareVersion(gmInte.previusVersion || "0.0.0", "5.2.2") == -1 && !gmInte.config.upgradeSyncConfig then
+        gmInte.api.post("/servers/:serverID/config", syncedSettings(), function()
+            if !currentRequest() then return end
+            gmInte.config.upgradeSyncConfig = true
+            persist()
+            if request.revision == configRevision then configSynchronized() else pushConfig() end
+        end, function()
+            if !currentRequest() then return end
+            retryConfig()
+            gmInte.logWarning("Initial configuration synchronization failed", true)
+        end)
+        return
+    end
+    gmInte.api.get("/servers/:serverID/config", function(_, body)
+        if !currentRequest() then return end
+        if !istable(body) || request.revision != configRevision then retryConfig() return end
+        local settings = istable(body.settings) && body.settings || body
+        -- An incomplete policy snapshot cannot authorize kicks after a reconnect.
+        local maintenance = settings.ig_maintenance
+        if maintenance == nil then maintenance = settings.maintenance end
+        local adminRank = settings.ig_adminRank
+        if adminRank == nil then adminRank = settings.adminRank end
+        local policyValid = normalizeSetting("maintenance", maintenance) && normalizeSetting("adminRank", adminRank)
+        syncing = true
+        local ok = pcall(function()
+            for key, value in pairs(settings) do
+                if isstring(key) && gmInte.validateRemoteSetting(key, value) then
+                    gmInte.saveSetting(string.gsub(key, "^ig_", ""), value)
                 end
-                gmInte.log("Server Config Synced with Gmod Integration")
-            end, function(code, body)
-                gmInte.log("Failed to Sync Server Config with Gmod Integration", true)
-            end)
-        end
+            end
+        end)
+        syncing = false
+        if !ok then gmInte.logError("Configuration synchronization failed", true) end
+        if ok && policyValid then configSynchronized() else retryConfig() end
+    end, function()
+        if !currentRequest() then return end
+        retryConfig()
+        gmInte.logWarning("Remote configuration could not be loaded; local settings are preserved", true)
     end)
+end
+
+local function invalidateConfig()
+    configGeneration = configGeneration + 1
+    configPending = true
+    configRequest, savingConfig, configRetryAt = nil, nil, nil
+    hook.Run("GmodIntegration:Config:Synchronizing")
+end
+
+hook.Add("GmodIntegration:Websocket:Ready", "gmInte:WebSocket:SyncConfig", function()
+    invalidateConfig()
+    broadcastPublicConfig()
+    syncConfig()
+end)
+hook.Add("GmodIntegration:Websocket:Restart", "gmInte:WebSocket:InvalidateConfig", invalidateConfig)
+timer.Create("gmInte:Config:RetrySync", 1, 0, function()
+    if configPending && configRetryAt && SysTime() >= configRetryAt then syncConfig() end
 end)

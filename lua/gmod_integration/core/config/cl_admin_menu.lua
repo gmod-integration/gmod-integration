@@ -124,8 +124,8 @@ function gmInte.openConfigMenu(data)
         },
         -- {
         --     ["id"] = "maintenance",
-        --     ["label"] = gmInte.getTranslation("admin.maintenance", "Maintenance"),
-        --     ["description"] = gmInte.getTranslation("admin.maintenance_description", "Activate or deactivate maintenance mode."),
+        --     ["label"] = gmInte.getTranslation("admin.maintenance", "Whitelist mode"),
+        --     ["description"] = gmInte.getTranslation("admin.maintenance_description", "Enable or disable whitelist mode."),
         --     ["type"] = "checkbox",
         --     ["value"] = function(setting, value) return value end,
         --     ["onEdit"] = function(setting, value) saveConfig(setting, value) end,
@@ -250,21 +250,6 @@ function gmInte.openConfigMenu(data)
             ["category"] = gmInte.getTranslation("admin.advanced", "Advanced")
         },
         {
-            ["id"] = "apiFQDN",
-            ["label"] = gmInte.getTranslation("admin.api_fqdn", "API FQDN"),
-            ["description"] = gmInte.getTranslation("admin.api_fqdn_description", "API FQDN that will be used for the API connection."),
-            ["type"] = "textEntry",
-            ["resetIfEmpty"] = true,
-            ["defaultValue"] = "api.gmod-integration.com",
-            ["value"] = function(setting, value) return value end,
-            ["onEdit"] = function(setting, value)
-                if !value || value == "" then return end
-                saveConfig(setting, value)
-            end,
-            ["onEditDelay"] = 0.5,
-            ["category"] = gmInte.getTranslation("admin.advanced", "Advanced")
-        },
-        {
             ["id"] = "logTimestamp",
             ["label"] = gmInte.getTranslation("admin.internal_log_format", "Internal Log Format"),
             ["description"] = gmInte.getTranslation("admin.internal_log_format_description", "The timestamp format of the logs."),
@@ -288,15 +273,17 @@ function gmInte.openConfigMenu(data)
         },
         {
             ["label"] = gmInte.getTranslation("admin.link.test_connection", "Test Connection"),
+            ["enabled"] = function(data) return data.websocket == true end,
             ["func"] = function() gmInte.SendNet("testConnection") end,
         },
         {
             ["label"] = gmInte.getTranslation("admin.link.buy_premium", "Buy Premium"),
+            ["condition"] = function(data) return data.premium == false end,
             ["func"] = function() gui.OpenURL("https://gmod-integration.com/premium") end,
         },
         {
-            ["label"] = gmInte.getTranslation("admin.link.install_websocket", "Install Websocket"),
-            ["condition"] = function(data) return !data.websocket end,
+            ["label"] = gmInte.getTranslation("admin.link.install_websocket", "Install GWSockets (required)"),
+            ["condition"] = function(data) return data.websocket == false end,
             ["func"] = function() gui.OpenURL("https://github.com/FredyH/GWSockets/releases") end,
         },
     }
@@ -314,6 +301,15 @@ function gmInte.openConfigMenu(data)
     gmInte.applyPaint(frame)
     local scrollPanel = vgui.Create("DScrollPanel", frame)
     scrollPanel:Dock(FILL)
+    if data.websocket == false then
+        local requirement = vgui.Create("DLabel", scrollPanel)
+        requirement:Dock(TOP)
+        requirement:DockMargin(10, 8, 10, 16)
+        requirement:SetTextColor(Color(255, 130, 92))
+        requirement:SetWrap(true)
+        requirement:SetAutoStretchVertical(true)
+        requirement:SetText(gmInte.getTranslation("admin.gwsockets_required", "GWSockets is missing or could not be loaded. This library is mandatory: all connected Gmod Integration features are unavailable without it.") .. "\n\n" .. gmInte.getTranslation("admin.gwsockets_installation", "Install the GWSockets server binary matching the server's operating system and architecture in garrysmod/lua/bin, then fully stop and restart the server. A map change is not enough."))
+    end
     local messagePanel = vgui.Create("DPanel", scrollPanel)
     messagePanel:Dock(TOP)
     messagePanel:SetSize(300, 80)
@@ -359,24 +355,25 @@ function gmInte.openConfigMenu(data)
                 input = vgui.Create("DTextEntry", panel)
                 local value = actualConfig.value(actualConfig.id, data[actualConfig.id] || "")
                 if actualConfig.secret then
-                    input:SetText(gmInte.getTranslation("admin.click_to_show", "*** Click to show ***"))
+                    gmInte.configureTokenEntry(input, data.tokenConfigured, function(replacement)
+                        actualConfig.onEdit(actualConfig.id, replacement)
+                    end, actualConfig.onEditDelay)
                 else
                     input:SetText(value)
-                end
+                    local isLastID = 0
+                    input.OnChange = function(self)
+                        value = self:GetValue()
+                        if actualConfig.resetIfEmpty && self:GetValue() == "" && actualConfig.defaultValue then
+                            self:SetText(actualConfig.defaultValue)
+                            return
+                        end
 
-                input.OnGetFocus = function(self) if actualConfig.secret then self:SetText(value) end end
-                input.OnLoseFocus = function(self) if actualConfig.secret then self:SetText(gmInte.getTranslation("admin.click_to_show", "*** Click to show ***")) end end
-                local isLastID = 0
-                input.OnChange = function(self)
-                    value = self:GetValue()
-                    if actualConfig.resetIfEmpty && self:GetValue() == "" && actualConfig.defaultValue then
-                        self:SetText(actualConfig.defaultValue)
-                        return
+                        isLastID = isLastID + 1
+                        local isLocalLastID = isLastID
+                        timer.Simple(actualConfig.onEditDelay || 0.5, function()
+                            if IsValid(self) && isLocalLastID == isLastID then actualConfig.onEdit(actualConfig.id, self:GetValue()) end
+                        end)
                     end
-
-                    isLastID = isLastID + 1
-                    local isLocalLastID = isLastID
-                    timer.Simple(actualConfig.onEditDelay || 0.5, function() if isLocalLastID == isLastID then actualConfig.onEdit(actualConfig.id, self:GetValue()) end end)
                 end
             elseif actualConfig.type == "checkbox" then
                 input = vgui.Create("DComboBox", panel)
@@ -445,6 +442,7 @@ function gmInte.openConfigMenu(data)
         if v.condition && !v.condition(data) then continue end
         local button = vgui.Create("DButton")
         button:SetText(v.label)
+        if v.enabled then button:SetEnabled(v.enabled(data)) end
         button.DoClick = function() v.func(data) end
         gmInte.applyPaint(button)
         button:SetSize(buttonGrid:GetColWide() - 10, buttonGrid:GetRowHeight() - 10)
@@ -473,6 +471,10 @@ function gmInte.openAdminConfig()
 end
 
 function gmInte.showTestConnection(data)
+    if data && data.error == "gwsockets_required" then
+        gmInte.chatAddText(Color(228, 81, 81), gmInte.getTranslation("admin.gwsockets_required", "GWSockets is missing or could not be loaded. This library is mandatory: all connected Gmod Integration features are unavailable without it."))
+        return
+    end
     if data && data.id then
         gmInte.chatAddText(Color(89, 194, 89), gmInte.getTranslation("chat.authentication_success", "Successfully Authenticated"), Color(255, 255, 255), gmInte.getTranslation("chat.server_link", ", server linked as {1}.", data.name))
     else
